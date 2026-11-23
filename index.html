@@ -36,10 +36,10 @@ nav.tabs svg{width:26px;height:26px}
 .btn:disabled{opacity:.5}
 .iconbtn{width:48px;height:48px;border-radius:12px;border:1px solid #3A4B66;background:transparent;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 label.l{font-size:14px;font-weight:600;color:#374151;display:block;margin-bottom:6px}
-.f{width:100%;min-height:52px;border:1.5px solid #C9CED6;border-radius:12px;padding:10px 14px;background:#fff}
+.f{color:var(--txt);width:100%;min-height:52px;border:1.5px solid #C9CED6;border-radius:12px;padding:10px 14px;background:#fff}
 textarea.f{min-height:90px}
 .f:focus{outline:3px solid #BFD3F2;border-color:var(--blue)}
-.search{width:100%;min-height:54px;border:0;border-radius:14px;padding:0 16px 0 46px;font-size:18px;background:#fff url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2722%27 height=%2722%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%234B5563%27 stroke-width=%272.2%27%3E%3Ccircle cx=%2711%27 cy=%2711%27 r=%277%27/%3E%3Cpath d=%27M20 20l-4-4%27/%3E%3C/svg%3E") no-repeat 14px center}
+.search{color:var(--txt);caret-color:var(--navy);width:100%;min-height:54px;border:0;border-radius:14px;padding:0 16px 0 46px;font-size:18px;background:#fff url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2722%27 height=%2722%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%234B5563%27 stroke-width=%272.2%27%3E%3Ccircle cx=%2711%27 cy=%2711%27 r=%277%27/%3E%3Cpath d=%27M20 20l-4-4%27/%3E%3C/svg%3E") no-repeat 14px center}
 .lens{padding-left:44px!important;background:#fff url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2720%27 height=%2720%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%234B5563%27 stroke-width=%272.2%27%3E%3Ccircle cx=%2711%27 cy=%2711%27 r=%277%27/%3E%3Cpath d=%27M20 20l-4-4%27/%3E%3C/svg%3E") no-repeat 13px center!important}
 .chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 4px}
 .chips button{flex-shrink:0;min-height:44px;border-radius:22px;border:1.5px solid #C9CED6;background:#fff;padding:0 14px;font-weight:600;font-size:15px}
@@ -55,6 +55,7 @@ textarea.f{min-height:90px}
 .pren .nome{font-weight:700;font-size:18px}
 .pren .sub{font-size:14px;color:var(--mute)}
 .badge{font-size:15px;margin-left:4px}
+.nota{margin-top:6px;background:#FFF3C4;border-left:4px solid #E0A800;border-radius:8px;padding:6px 10px;font-weight:700;font-size:15px;color:#4A3500}
 .fab{position:fixed;right:18px;bottom:92px;z-index:7;min-height:60px;border-radius:30px;padding:0 24px;box-shadow:0 8px 18px rgba(20,35,58,.3);display:flex;align-items:center;gap:8px}
 .sheet-bg{position:fixed;inset:0;background:rgba(11,21,34,.5);z-index:20;display:flex;align-items:flex-end;justify-content:center}
 .sheet{background:var(--bg);width:100%;max-width:820px;max-height:94vh;overflow:auto;border-radius:20px 20px 0 0;padding-bottom:24px}
@@ -222,7 +223,7 @@ function drawAgenda(){
   h+=`<div class="chips">${FILTRI.map(([k,t,fn])=>`<button data-f="${k}" class="${k===S.filtro?"on":""}">${t} (${S.pren.filter(fn).length})</button>`).join("")}</div>`;
   h+=`<div class="row between"><span class="muted">${lista.reduce((s,p)=>s+(+p.persone||0),0)} persone</span><div class="chips" style="padding:0"><button data-o="ora" class="${S.ordine==="ora"?"on":""}">Per orario</button><button data-o="nome" class="${S.ordine==="nome"?"on":""}">A–Z</button></div></div>`;
   h+=lista.length?lista.map(p=>{const c=S.cli.get(p.clienteId); const ch=STATI[p.stato]||["c-conf",p.stato];
-    return `<button class="pren" data-p="${p.id}"><div class="ora">${esc(p.ora||"--")}<small>${p.tavolo?esc(p.tavolo):"&nbsp;"}</small></div><div style="flex:1;min-width:0"><div class="nome">${esc(p.nome||"Senza nome")}${p.clienteId&&S.cli.has(p.clienteId)?badge(c):""}</div><div class="sub">${esc(p.persone)} persone${p.sala?" · "+esc(p.sala):""}${p.note?" · "+esc(p.note):""}</div></div>${S.filtro==="annullate"?`<span class="chip ${ch[0]}">${ch[1]}</span>`:""}</button>`;}).join("")
+    return `<button class="pren" data-p="${p.id}"><div class="ora">${esc(p.ora||"--")}<small>${p.tavolo?esc(p.tavolo):"&nbsp;"}</small></div><div style="flex:1;min-width:0"><div class="nome">${esc(p.nome||"Senza nome")}${p.clienteId&&S.cli.has(p.clienteId)?badge(c):""}</div><div class="sub">${esc(p.persone)} persone${p.sala?" · "+esc(p.sala):""}</div>${p.note?`<div class="nota">📝 ${esc(p.note)}</div>`:""}</div>${S.filtro==="annullate"?`<span class="chip ${ch[0]}">${ch[1]}</span>`:""}</button>`;}).join("")
     :`<div class="card muted">${S.filtro==="attese"?"Nessuna prenotazione da arrivare. Premi <b>Prenota</b> per aggiungerne una.":"Nessuna prenotazione qui."}</div>`;
   h+=`<div class="muted" style="text-align:center;margin-top:6px">🆕 nuovo · 🌱 1 visita · 🌿 2–4 · 🌳 5+ · 🌳🌳 10+ · 💤 non viene da 3 mesi · ⭐ VIP</div>`;
   $("#main").innerHTML=h;
@@ -255,7 +256,7 @@ async function dettaglioPren(p){
   const msg=k=>{ wa(p.telefono,fill(S.cfg.msg[k],vars)); evento(p.clienteId,"whatsapp",`Messaggio WhatsApp: ${MSG_NOMI[k]}`); };
   sheet(p.nome||"Prenotazione",`
     <div class="card"><div class="big">${esc(bello(p.data))} · ${esc(p.ora)}</div><div class="muted" style="margin-top:4px">${esc(p.persone)} persone${p.sala?" · "+esc(p.sala):""}${p.tavolo?" · tavolo "+esc(p.tavolo):""} · <span class="chip ${(STATI[p.stato]||[""])[0]}">${(STATI[p.stato]||["",p.stato])[1]}</span></div>
-      ${p.telefono?`<div style="margin-top:8px"><a href="tel:+${telNorm(p.telefono)}" style="font-size:18px;font-weight:700">${esc(p.telefono)}</a></div>`:""}${p.note?`<div style="margin-top:6px">📝 ${esc(p.note)}</div>`:""}
+      ${p.telefono?`<div style="margin-top:8px"><a href="tel:+${telNorm(p.telefono)}" style="font-size:18px;font-weight:700">${esc(p.telefono)}</a></div>`:""}${p.note?`<div class="nota" style="font-size:17px">📝 ${esc(p.note)}</div>`:""}
       <div style="margin-top:8px">${badge(c)} <span class="muted">${c?`${c.presenze||0} visite · ${c.puntiFidelity||0} punti${c.ultimaPresenza?" · ultima "+corto(c.ultimaPresenza):""}`:"Cliente nuovo"}</span></div></div>
     ${["confermata","attesa"].includes(p.stato)?`<button class="btn block" id="bArr" style="min-height:64px;font-size:20px">✓ È arrivato</button>`:""}
     <div class="grid2"><button class="btn wa" id="bConf">WhatsApp conferma</button><button class="btn wa" id="bBenv">WhatsApp benvenuto</button></div>

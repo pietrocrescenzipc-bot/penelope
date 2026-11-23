@@ -16,7 +16,7 @@ button{cursor:pointer}
 .cond{font-family:'Barlow Condensed',sans-serif}
 #login{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--navy);padding:20px}
 #login form{background:#fff;border-radius:16px;padding:22px;width:100%;max-width:400px;display:flex;flex-direction:column;gap:12px}
-.f{width:100%;min-height:52px;border:1.5px solid #C9CED6;border-radius:12px;padding:10px 14px;background:#fff}
+.f{color:var(--navy);width:100%;min-height:52px;border:1.5px solid #C9CED6;border-radius:12px;padding:10px 14px;background:#fff}
 .btn{min-height:50px;border:0;border-radius:12px;padding:0 16px;font-weight:700;background:var(--navy);color:#fff}
 .btn.gold{background:var(--gold);color:var(--navy)}
 .btn.light{background:#fff;color:var(--navy);border:2px solid var(--navy)}
@@ -127,14 +127,14 @@ function draw(){
   document.querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>{S.sala=b.dataset.s;draw();});
   // lista prenotazioni
   const libere=S.pren.filter(p=>!tavDi(p).length), sedute=S.pren.filter(p=>tavDi(p).length);
-  const card=p=>`<div class="bk ${p.stato==="arrivato"?"arr":""} ${p.stato==="attesa"?"att":""}" data-bk="${p.id}"><div><span class="n">${esc(p.nome||"—")}</span><small>${esc(p.persone)} pers.${tavDi(p).length?" · "+esc(tavDi(p).join(" + ")):""}${p.note?" · "+esc(p.note):""}</small></div><span class="ora">${esc(p.ora||"")}</span></div>`;
+  const card=p=>`<div class="bk ${p.stato==="arrivato"?"arr":""} ${p.stato==="attesa"?"att":""}" data-bk="${p.id}"><div><span class="n">${esc(p.nome||"—")}</span><small>${esc(p.persone)} pers.${tavDi(p).length?" · "+esc(tavDi(p).join(" + ")):""}</small>${p.note?`<small style="display:block;margin-top:4px;background:#FFF3C4;border-left:4px solid #E0A800;border-radius:6px;padding:3px 8px;font-weight:700;color:#4A3500">📝 ${esc(p.note)}</small>`:""}</div><span class="ora">${esc(p.ora||"")}</span></div>`;
   $("#side").innerHTML=`<h3>Da sistemare (${libere.length})</h3>${libere.map(card).join("")||'<div class="muted">Tutte le prenotazioni hanno un tavolo.</div>'}<h3>Già al tavolo (${sedute.length})</h3>${sedute.map(card).join("")}<div class="muted" style="margin-top:8px">Trascina qui un nome per togliergli il tavolo.</div>`;
   document.querySelectorAll("[data-bk]").forEach(el=>dragBooking(el, S.pren.find(p=>p.id===el.dataset.bk)));
   // piantina
   const plan=$("#plan"); plan.classList.toggle("edit",S.edit);
   const qui=S.tav.filter(t=>t.sala===S.sala);
   plan.innerHTML=qui.map(t=>{const ps=S.pren.filter(p=>tavDi(p).includes(t.nome)); const st=ps.some(p=>p.stato==="arrivato")?"arr":ps.length?"busy":"";
-    return `<div class="tav ${t.forma==="tondo"?"round":""} ${st}" data-t="${t.id}" style="left:${t.x}%;top:${t.y}%;width:${t.w||8}%;height:${t.h||11}%"><div class="tn">${esc(t.nome)}</div>${ps.length?ps.map(p=>`<div class="who" data-bk="${p.id}">${esc((p.nome||"").split(" ")[0])} · ${esc(p.persone)}</div>`).join(""):`<div class="tp">${esc(t.posti||"")} posti</div>`}</div>`;}).join("")
+    return `<div class="tav ${t.forma==="tondo"?"round":""} ${st}" data-t="${t.id}" style="left:${t.x}%;top:${t.y}%;width:${t.w||8}%;height:${t.h||11}%"><div class="tn">${esc(t.nome)}</div>${ps.length?ps.map(p=>`<div class="who" data-bk="${p.id}">${p.note?"📝 ":""}${esc((p.nome||"").split(" ")[0])} · ${esc(p.persone)}</div>`).join(""):`<div class="tp">${esc(t.posti||"")} posti</div>`}</div>`;}).join("")
     || `<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;color:var(--mute)">Nessun tavolo in questa sala.${S.me?.ruolo==="admin"&&!S.tav.length?'<button class="btn gold" id="seed">Crea i tavoli del Galleon</button>':""}</div>`;
   if($("#seed")) $("#seed").onclick=seed;
   plan.querySelectorAll(".tav").forEach(el=>{ const t=S.tav.find(x=>x.id===el.dataset.t); if(S.edit) dragTable(el,t); else el.onclick=e=>{ if(!e.target.closest("[data-bk]")) menuTavolo(t); }; });
@@ -170,7 +170,7 @@ async function setTav(p,arr,sala){ try{ await updateDoc(doc(db,"prenotazioni",p.
 function sheet(t,h){ $("#sheetRoot").innerHTML=`<div class="sheet-bg" id="sb"><div class="sheet" role="dialog"><h2>${esc(t)}</h2>${h}<button class="btn light" id="sx">Chiudi</button></div></div>`; $("#sx").onclick=close; $("#sb").onclick=e=>{if(e.target.id==="sb")close();}; }
 const close=()=>$("#sheetRoot").innerHTML="";
 function scegli(t,ops){ sheet(t,ops.map((o,i)=>`<button class="btn ${i?"light":""}" data-o="${i}">${esc(o[0])}</button>`).join("")); document.querySelectorAll("[data-o]").forEach(b=>b.onclick=()=>{close();ops[+b.dataset.o][1]();}); }
-function menuPren(p){ sheet(`${p.nome||"Prenotazione"} · ${p.ora||""}`,`<div class="muted">${esc(p.persone)} persone${tavDi(p).length?" · "+esc(tavDi(p).join(" + ")):" · senza tavolo"}${p.note?"<br>📝 "+esc(p.note):""}${p.telefono?`<br><a href="tel:${esc(p.telefono)}">${esc(p.telefono)}</a>`:""}</div>
+function menuPren(p){ sheet(`${p.nome||"Prenotazione"} · ${p.ora||""}`,`<div class="muted">${esc(p.persone)} persone${tavDi(p).length?" · "+esc(tavDi(p).join(" + ")):" · senza tavolo"}${p.note?`<div style="margin-top:8px;background:#FFF3C4;border-left:4px solid #E0A800;border-radius:8px;padding:8px 10px;font-weight:700;color:#4A3500">📝 ${esc(p.note)}</div>`:""}${p.telefono?`<br><a href="tel:${esc(p.telefono)}">${esc(p.telefono)}</a>`:""}</div>
   ${p.stato!=="arrivato"?`<button class="btn" id="mA" style="min-height:60px">✓ È arrivato</button>`:`<div class="muted">✓ Già arrivato</div>`}
   ${tavDi(p).length?`<button class="btn light" id="mL">Togli dal tavolo</button>`:""}`);
   if($("#mA")) $("#mA").onclick=async()=>{ try{ await updateDoc(doc(db,"prenotazioni",p.id),{stato:"arrivato",aggiornatoIl:serverTimestamp()}); if(p.clienteId){ await setDoc(doc(db,"clienti",p.clienteId),{presenze:increment(1),ultimaPresenza:iso(new Date())},{merge:true}); await addDoc(collection(db,"clienti",p.clienteId,"eventi"),{tipo:"arrivo",testo:`Arrivato · ${p.persone} persone · ${tavDi(p).join(" + ")||"senza tavolo"}`,quando:serverTimestamp(),da:S.me.nome||""}); } toast("Arrivato ✓"); }catch(e){toast("Errore: "+e.code);} close(); };
