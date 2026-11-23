@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#14233A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Penelope</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#14233A;--navy2:#0B1522;--gold:#D9C08A;--bg:#F3F4F6;--card:#fff;--txt:#14233A;--mute:#4B5563;--line:#E5E7EB;--blue:#1F5FBF;--orange:#9A4A00;--orangebg:#FFF1DF;--red:#B42318;--green:#166534;--greenbg:#E7F3EC}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--txt);font-family:Barlow,system-ui,sans-serif;font-size:17px;-webkit-tap-highlight-color:transparent}
+button,input,select,textarea{font-family:inherit;font-size:17px;color:inherit}
+button{cursor:pointer}
+.hidden{display:none!important}
+.cond{font-family:'Barlow Condensed',sans-serif}
+/* layout */
+#app{max-width:820px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;padding-bottom:96px}
+header{background:var(--navy);color:#fff;padding:16px 16px 14px;position:sticky;top:0;z-index:5}
+.brand{color:var(--gold);font-weight:700;letter-spacing:1px;font-size:13px}
+.h1{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:700;margin:2px 0 0}
+main{padding:14px 14px 0;display:flex;flex-direction:column;gap:12px}
+nav.tabs{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding-bottom:env(safe-area-inset-bottom);z-index:6}
+nav.tabs button{background:none;border:0;padding:10px 0 12px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:13px;color:#6B7280;min-height:64px}
+nav.tabs button.on{color:var(--navy);font-weight:700}
+nav.tabs svg{width:26px;height:26px}
+/* elements */
+.card{background:var(--card);border-radius:16px;padding:14px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.row{display:flex;gap:10px;align-items:center}
+.between{justify-content:space-between}
+.btn{min-height:52px;border:0;border-radius:14px;padding:0 18px;font-weight:700;background:var(--navy);color:#fff;font-size:17px}
+.btn.gold{background:var(--gold);color:var(--navy)}
+.btn.light{background:#fff;color:var(--navy);border:2px solid var(--navy)}
+.btn.wa{background:#1E8E4E;color:#fff}
+.btn.block{width:100%}
+.btn:disabled{opacity:.5}
+.iconbtn{width:48px;height:48px;border-radius:12px;border:1px solid #3A4B66;background:transparent;color:#fff;display:flex;align-items:center;justify-content:center}
+label.l{font-size:14px;font-weight:600;color:#374151;display:block;margin-bottom:6px}
+input.f,select.f,textarea.f{width:100%;min-height:52px;border:1.5px solid #C9CED6;border-radius:12px;padding:10px 14px;background:#fff}
+textarea.f{min-height:80px}
+input.f:focus,select.f:focus,textarea.f:focus{outline:3px solid #BFD3F2;border-color:var(--blue)}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--navy2);border-radius:12px;padding:4px;gap:4px}
+.seg button{min-height:46px;border:0;border-radius:9px;background:transparent;color:#AEB8C8;font-weight:600;font-size:16px}
+.seg button.on{background:var(--gold);color:var(--navy);font-weight:700}
+.chip{font-size:13px;font-weight:700;padding:5px 10px;border-radius:20px;white-space:nowrap}
+.c-conf{background:#E3E8F0;color:var(--navy)}
+.c-arr{background:var(--blue);color:#fff}
+.c-att{background:#FFE8C7;color:#7A3A00}
+.c-ann{background:#F3D6D3;color:var(--red)}
+.c-ns{background:#EEE;color:#555}
+.warn{background:var(--orangebg);border:1px solid #F0C98A;color:#7A3A00;border-radius:14px;padding:12px 14px;font-weight:600}
+.ok{background:var(--greenbg);color:var(--green);border-radius:14px;padding:12px 14px;font-weight:600}
+.bar{height:10px;background:#2A3A54;border-radius:5px;overflow:hidden}.bar>div{height:10px;background:var(--gold)}
+.pren{display:flex;gap:12px;align-items:center;border:0;width:100%;text-align:left;background:#fff;border-radius:16px;padding:14px}
+.pren .ora{width:58px;text-align:center;font-weight:700;font-size:20px}
+.pren .ora small{display:block;font-size:13px;color:var(--mute);font-weight:500}
+.pren .nome{font-weight:700;font-size:18px}
+.pren .sub{font-size:14px;color:var(--mute)}
+.fab{position:fixed;right:18px;bottom:92px;z-index:7;min-height:60px;border-radius:30px;padding:0 24px;box-shadow:0 8px 18px rgba(20,35,58,.3);display:flex;align-items:center;gap:8px}
+.sheet-bg{position:fixed;inset:0;background:rgba(11,21,34,.5);z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--bg);width:100%;max-width:820px;max-height:94vh;overflow:auto;border-radius:20px 20px 0 0;padding:0 0 24px}
+.sheet header{border-radius:20px 20px 0 0;display:flex;align-items:center;gap:10px}
+.sheet .in{padding:14px;display:flex;flex-direction:column;gap:14px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.slots{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.slot{min-height:56px;border:1.5px solid #C9CED6;border-radius:12px;background:#fff;font-weight:700;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.slot small{font-size:12px;font-weight:500;color:var(--mute)}
+.slot.on{background:var(--navy);color:#fff;border-color:var(--navy)}.slot.on small{color:var(--gold)}
+.slot.full small{color:var(--orange);font-weight:700}
+.stepper{display:flex;align-items:center;justify-content:space-between;border:1.5px solid #C9CED6;border-radius:12px;background:#fff;min-height:52px}
+.stepper button{width:56px;height:52px;border:0;background:none;font-size:26px;font-weight:700}
+.big{font-size:20px;font-weight:700}
+.muted{color:var(--mute);font-size:14px}
+.list>*+*{border-top:1px solid var(--line)}
+.li{display:flex;justify-content:space-between;align-items:center;padding:12px 2px;gap:10px;background:none;border-left:0;border-right:0;border-bottom:0;width:100%;text-align:left}
+.tl{border-left:3px solid var(--gold);padding-left:12px;display:flex;flex-direction:column;gap:10px}
+.toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%);background:var(--navy);color:#fff;padding:14px 18px;border-radius:14px;z-index:40;font-weight:600;max-width:90%}
+.pts{font-family:'Barlow Condensed',sans-serif;font-size:56px;font-weight:700;line-height:1}
+.tag{display:inline-block;background:#EEF1F6;border-radius:10px;padding:3px 8px;font-size:13px;margin:2px}
+#login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:var(--navy)}
+#login .card{width:100%;max-width:400px;display:flex;flex-direction:column;gap:14px;padding:22px}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login" class="hidden">
+  <form class="card" id="loginForm">
+    <div class="brand" style="color:var(--navy)">THE GALLEON</div>
+    <div class="h1">Penelope</div>
+    <div><label class="l" for="lem">Email</label><input class="f" id="lem" type="email" autocomplete="username" required></div>
+    <div><label class="l" for="lpw">Password</label><input class="f" id="lpw" type="password" autocomplete="current-password" required></div>
+    <button class="btn gold block" type="submit">Entra</button>
+    <div id="lerr" class="muted"></div>
+  </form>
+</div>
+
+<!-- APP -->
+<div id="app" class="hidden">
+  <header id="hdr"></header>
+  <main id="main"></main>
+</div>
+<button id="fab" class="btn gold fab hidden" aria-label="Nuova prenotazione">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Prenota
+</button>
+<nav class="tabs hidden" id="tabs">
+  <button data-t="agenda" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Agenda</button>
+  <button data-t="clienti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg>Clienti</button>
+  <button data-t="fidelity"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3l2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9z"/></svg>Fidelity</button>
+  <button data-t="elenchi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Elenchi</button>
+</nav>
+<div id="sheetRoot"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, addDoc, collection, query, where, orderBy, limit, getDocs, onSnapshot, serverTimestamp, increment, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const app = initializeApp({apiKey:"AIzaSyBzpnM1H7Nk99bGqiKoFvJfZfUEhxYt1yI",authDomain:"galleon-club.firebaseapp.com",projectId:"galleon-club",storageBucket:"galleon-club.firebasestorage.app",messagingSenderId:"256580919264",appId:"1:256580919264:web:1639030e273fae781fd585"});
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+/* ---------- utilità ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pad = n => String(n).padStart(2,"0");
+const iso = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const GIORNI = ["Domenica","Lunedì","Martedì","Mercoledì","Giovedì","Venerdì","Sabato"];
+const MESI = ["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","agosto","settembre","ottobre","novembre","dicembre"];
+const bello = s => { const d=new Date(s+"T12:00:00"); return `${GIORNI[d.getDay()]} ${d.getDate()} ${MESI[d.getMonth()]}`; };
+const corto = s => { if(!s) return "—"; const d=new Date(s+"T12:00:00"); return `${d.getDate()} ${MESI[d.getMonth()].slice(0,3)} ${d.getFullYear()}`; };
+const telNorm = t => { let x=String(t||"").replace(/\D/g,""); if(x.startsWith("00")) x=x.slice(2); if(x.length===10 && x.startsWith("3")) x="39"+x; return x.length>=8?x:""; };
+const cid = t => "t"+telNorm(t);
+const toast = m => { const t=document.createElement("div"); t.className="toast"; t.textContent=m; document.body.appendChild(t); setTimeout(()=>t.remove(),2800); };
+const wa = (tel,msg) => { const x=telNorm(tel); if(!x){toast("Numero di telefono mancante");return;} window.open(`https://wa.me/${x}?text=${encodeURIComponent(msg)}`,"_blank"); };
+const giorniFa = s => s ? Math.round((Date.now()-new Date(s+"T12:00:00"))/864e5) : null;
+
+/* ---------- stato ---------- */
+const S = { tab:"agenda", data:iso(new Date()), turno:"cena", me:null, cfg:null, unsub:null, pren:[] };
+const CFG_DEF = { coperti:{cena:0}, sale:["Sala principale","Saletta ABCD","Sala divani","Veranda"], orari:{cena:["18:00","18:30","19:00","19:30","20:00","20:30","21:00","21:30","22:00"]}, punti_per_euro:1, premi:[{punti:100,nome:"Buono asporto 10 €"},{punti:200,nome:"Buono asporto 20 €"},{punti:300,nome:"Buono asporto 30 €"},{punti:400,nome:"Buono asporto 40 €"},{punti:500,nome:"Buono asporto 60 €"}], msg:{conferma:"Ciao {nome}! La tua prenotazione al The Galleon è confermata: {giorno} alle {ora}, {persone} persone. Ti aspettiamo! Per modifiche rispondi a questo messaggio.", benvenuto:"Ciao {nome}, benvenuto al The Galleon! 🍕 Buona serata!", saldo:"Ciao {nome}! Il tuo saldo punti Galleon è {punti} punti. Grazie e a presto!"} };
+const fill = (t,o) => t.replace(/\{(\w+)\}/g,(_,k)=>o[k]??"");
+
+/* ---------- login ---------- */
+$("#loginForm").onsubmit = async e => { e.preventDefault(); $("#lerr").textContent="Accesso in corso…";
+  try{ await signInWithEmailAndPassword(auth,$("#lem").value.trim(),$("#lpw").value); $("#lpw").value=""; }
+  catch(err){ $("#lerr").textContent = "Email o password non corretti."; } };
+
+onAuthStateChanged(auth, async u => {
+  if(!u){ $("#login").classList.remove("hidden"); ["#app","#tabs","#fab"].forEach(s=>$(s).classList.add("hidden")); return; }
+  try{
+    const sd = await getDoc(doc(db,"staff",u.uid));
+    if(!sd.exists()){ $("#lerr").textContent="Questo account non è abilitato. Chiedi all'amministratore."; await signOut(auth); return; }
+    S.me = {uid:u.uid, ...sd.data()};
+    const cd = await getDoc(doc(db,"impostazioni","locale")).catch(()=>null);
+    S.cfg = Object.assign({}, CFG_DEF, cd&&cd.exists()?cd.data():{});
+    const tv = await getDocs(collection(db,"tavoli")).catch(()=>null); S.tavoli = tv? tv.docs.map(d=>d.data().nome).sort((x,y)=>x.localeCompare(y,undefined,{numeric:true})) : []; const posti = tv? tv.docs.reduce((t,d)=>t+(+d.data().posti||0),0):0; if(!S.cfg.coperti.cena) S.cfg.coperti.cena = posti||80;
+  }catch(e){ $("#lerr").textContent="Errore di collegamento. Riprova."; return; }
+  $("#login").classList.add("hidden"); ["#app","#tabs"].forEach(s=>$(s).classList.remove("hidden"));
+  go("agenda");
+});
+
+document.querySelectorAll("#tabs button").forEach(b=>b.onclick=()=>go(b.dataset.t));
+$("#fab").onclick = () => formPrenotazione();
+function go(t){ S.tab=t; document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on",b.dataset.t===t));
+  $("#fab").classList.toggle("hidden", t!=="agenda");
+  if(S.unsub && t!=="agenda"){ S.unsub(); S.unsub=null; }
+  ({agenda:viewAgenda,clienti:viewClienti,fidelity:viewFidelity,elenchi:viewElenchi})[t](); window.scrollTo(0,0); }
+
+/* ---------- AGENDA ---------- */
+function viewAgenda(){
+  const cap = S.cfg.coperti[S.turno]||80;
+  $("#hdr").innerHTML = `
+    <div class="row between"><div><div class="brand">PENELOPE · THE GALLEON</div><div class="h1">${esc(bello(S.data))}</div></div>
+      <div class="row" style="gap:6px">
+        <button class="iconbtn" id="dPrev" aria-label="Giorno prima"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+        <button class="iconbtn" id="dNext" aria-label="Giorno dopo"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+      </div></div>
+    <div class="row" style="margin-top:10px;gap:8px">
+      <div style="flex:1;color:#C7D0DD">Cena · dalle 18:00</div>
+      ${S.data!==iso(new Date())?`<button class="btn gold" id="dOggi" style="min-height:54px">Oggi</button>`:""}
+    </div>
+    <div style="margin-top:12px"><div class="row between" style="font-size:15px"><span>Coperti prenotati</span><b id="capTxt">… / ${cap}</b></div><div class="bar" style="margin-top:6px"><div id="capBar" style="width:0"></div></div></div>`;
+  const shift = n => { const d=new Date(S.data+"T12:00:00"); d.setDate(d.getDate()+n); S.data=iso(d); viewAgenda(); };
+  $("#dPrev").onclick=()=>shift(-1); $("#dNext").onclick=()=>shift(1);
+  if($("#dOggi")) $("#dOggi").onclick=()=>{S.data=iso(new Date());viewAgenda();};
+  document.querySelectorAll("[data-tu]").forEach(b=>b.onclick=()=>{S.turno=b.dataset.tu;viewAgenda();});
+  $("#main").innerHTML = `<div class="muted">Caricamento…</div>`;
+  if(S.unsub) S.unsub();
+  const q = query(collection(db,"prenotazioni"), where("data","==",S.data), where("turno","==",S.turno));
+  S.unsub = onSnapshot(q, snap => { S.pren = snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.ora||"").localeCompare(b.ora||"")); drawAgenda(cap); },
+    err => { $("#main").innerHTML = `<div class="warn">Non riesco a leggere le prenotazioni (${esc(err.code)}).</div>`; });
+}
+function drawAgenda(cap){
+  const attive = S.pren.filter(p=>["confermata","arrivato"].includes(p.stato));
+  const attesa = S.pren.filter(p=>p.stato==="attesa");
+  const altre = S.pren.filter(p=>["annullata","noshow"].includes(p.stato));
+  const pax = attive.reduce((s,p)=>s+(+p.persone||0),0);
+  $("#capTxt").textContent = `${pax} / ${cap}`; $("#capBar").style.width = Math.min(100,100*pax/cap)+"%";
+  const arr = attive.filter(p=>p.stato==="arrivato").length;
+  const card = p => {
+    const ch = {confermata:["c-conf","Confermata"],arrivato:["c-arr","Arrivato"],attesa:["c-att","In attesa"],annullata:["c-ann","Annullata"],noshow:["c-ns","Non venuto"]}[p.stato]||["c-conf",p.stato];
+    return `<button class="pren" data-p="${p.id}" ${p.stato==="attesa"?'style="border:2px dashed #C9A45C"':""}>
+      <div class="ora">${esc(p.ora||"--")}<small>${p.tavolo?"T "+esc(p.tavolo):"&nbsp;"}</small></div>
+      <div style="flex:1;min-width:0"><div class="nome">${esc(p.nome||"Senza nome")}</div>
+      <div class="sub">${esc(p.persone)} persone${p.sala?" · "+esc(p.sala):""}${p.note?" · "+esc(p.note):""}</div></div>
+      <span class="chip ${ch[0]}">${ch[1]}</span></button>`; };
+  let h = "";
+  if(pax>cap) h += `<div class="warn">⚠️ Overbooking: ${pax-cap} coperti oltre la capienza. Sposta qualcuno in un'altra sala o metti in lista d'attesa.</div>`;
+  h += `<div class="row between"><span class="cond big">Prenotazioni (${attive.length})</span><span class="muted">Arrivati ${arr}</span></div>`;
+  h += attive.length? attive.map(card).join("") : `<div class="card muted">Nessuna prenotazione per questo turno. Premi <b>Prenota</b> per aggiungerne una.</div>`;
+  if(attesa.length) h += `<div class="cond big" style="margin-top:8px">Lista d'attesa (${attesa.length})</div>` + attesa.map(card).join("");
+  if(altre.length) h += `<div class="cond big" style="margin-top:8px;color:#6B7280">Annullate / non venuti (${altre.length})</div>` + altre.map(card).join("");
+  $("#main").innerHTML = h;
+  document.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>dettaglioPren(S.pren.find(p=>p.id===b.dataset.p)));
+}
+
+/* ---------- dettaglio prenotazione ---------- */
+function sheet(titolo, html){
+  $("#sheetRoot").innerHTML = `<div class="sheet-bg" id="sbg"><div class="sheet" role="dialog" aria-label="${esc(titolo)}">
+    <header><button class="iconbtn" id="sClose" aria-label="Chiudi"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button><span class="h1" style="margin:0">${esc(titolo)}</span></header>
+    <div class="in">${html}</div></div></div>`;
+  $("#sClose").onclick = closeSheet; $("#sbg").onclick = e => { if(e.target.id==="sbg") closeSheet(); };
+}
+const closeSheet = () => $("#sheetRoot").innerHTML = "";
+
+function dettaglioPren(p){
+  const nome1 = (p.nome||"").split(" ")[0];
+  sheet(p.nome||"Prenotazione", `
+    <div class="card"><div class="big">${esc(bello(p.data))} · ${esc(p.ora)}</div>
+      <div class="muted" style="margin-top:4px">${esc(p.persone)} persone · ${esc(p.turno)}${p.sala?" · "+esc(p.sala):""}${p.tavolo?" · tavolo "+esc(p.tavolo):""}</div>
+      ${p.telefono?`<div style="margin-top:6px"><a href="tel:+${telNorm(p.telefono)}" style="font-size:18px;font-weight:700">${esc(p.telefono)}</a></div>`:""}
+      ${p.note?`<div style="margin-top:6px">📝 ${esc(p.note)}</div>`:""}</div>
+    ${p.stato!=="arrivato"?`<button class="btn block" id="bArr" style="min-height:64px;font-size:20px">✓ È arrivato</button>`:`<div class="ok">✓ Arrivato</div>`}
+    <div class="grid2">
+      <button class="btn wa" id="bConf">WhatsApp conferma</button>
+      <button class="btn wa" id="bBenv">WhatsApp benvenuto</button>
+    </div>
+    <div class="grid2">
+      <button class="btn light" id="bMod">Modifica</button>
+      <button class="btn light" id="bCli">Scheda cliente</button>
+    </div>
+    <div class="grid2">
+      ${p.stato==="attesa"?`<button class="btn light" id="bConfm">Conferma posto</button>`:`<button class="btn light" id="bAtt">Metti in attesa</button>`}
+      <button class="btn light" id="bNs">Non è venuto</button>
+    </div>
+    <button class="btn light block" id="bAnn" style="border-color:var(--red);color:var(--red)">Annulla prenotazione</button>`);
+  const vars = {nome:nome1, giorno:bello(p.data), ora:p.ora, persone:p.persone};
+  $("#bConf").onclick=()=>{ wa(p.telefono, fill(S.cfg.msg.conferma,vars)); evento(p.clienteId,"whatsapp","Conferma prenotazione inviata"); };
+  $("#bBenv").onclick=()=>{ wa(p.telefono, fill(S.cfg.msg.benvenuto,vars)); evento(p.clienteId,"whatsapp","Messaggio di benvenuto inviato"); };
+  $("#bMod").onclick=()=>formPrenotazione(p);
+  $("#bCli").onclick=()=>{ closeSheet(); if(p.clienteId) schedaCliente(p.clienteId); else toast("Cliente non collegato"); };
+  if($("#bArr")) $("#bArr").onclick=async()=>{ await stato(p,"arrivato");
+    if(p.clienteId) await setDoc(doc(db,"clienti",p.clienteId),{presenze:increment(1),ultimaPresenza:iso(new Date())},{merge:true});
+    evento(p.clienteId,"arrivo",`Arrivato · ${p.persone} persone`);
+    if(confirm("Vuoi mandare il messaggio di benvenuto su WhatsApp?")) wa(p.telefono, fill(S.cfg.msg.benvenuto,vars)); closeSheet(); };
+  if($("#bAtt")) $("#bAtt").onclick=async()=>{await stato(p,"attesa");closeSheet();};
+  if($("#bConfm")) $("#bConfm").onclick=async()=>{await stato(p,"confermata");closeSheet();};
+  $("#bNs").onclick=async()=>{ if(confirm("Segnare che non è venuto?")){ await stato(p,"noshow"); evento(p.clienteId,"noshow","Non si è presentato"); closeSheet(); } };
+  $("#bAnn").onclick=async()=>{ if(confirm("Annullare questa prenotazione?")){ await stato(p,"annullata"); evento(p.clienteId,"annullata","Prenotazione annullata"); closeSheet(); } };
+}
+async function stato(p,s){ try{ await updateDoc(doc(db,"prenotazioni",p.id),{stato:s,aggiornatoIl:serverTimestamp(),aggiornatoDa:S.me.nome||""}); toast("Fatto ✓"); }catch(e){ toast("Errore: "+e.code); } }
+async function evento(clienteId,tipo,testo,extra={}){ if(!clienteId) return;
+  try{ await addDoc(collection(db,"clienti",clienteId,"eventi"),{tipo,testo,quando:serverTimestamp(),da:S.me.nome||"",...extra}); }catch(e){} }
+
+/* ---------- nuova / modifica prenotazione ---------- */
+async function formPrenotazione(p=null, cli=null){
+  const e = p || {data:S.data,turno:S.turno,ora:"",persone:2,sala:S.cfg.sale[0]||"",tavolo:"",note:"",telefono:cli?.telefono||"",nome:cli?[cli.nome,cli.cognome].filter(Boolean).join(" "):"",stato:"confermata"};
+  sheet(p?"Modifica prenotazione":"Nuova prenotazione", `
+    <div><label class="l" for="fTel">Telefono</label><input class="f" id="fTel" type="tel" inputmode="tel" value="${esc(e.telefono)}" placeholder="333 123 4567"><div id="fCliInfo" class="muted" style="margin-top:6px"></div></div>
+    <div><label class="l" for="fNome">Nome e cognome</label><input class="f" id="fNome" value="${esc(e.nome)}" autocomplete="off"></div>
+    <div class="grid2">
+      <div><label class="l" for="fData">Giorno</label><input class="f" id="fData" type="date" value="${esc(e.data)}"></div>
+      <div><span class="l">Persone</span><div class="stepper"><button type="button" id="pMeno" aria-label="Meno">−</button><span class="big" id="pN">${esc(e.persone)}</span><button type="button" id="pPiu" aria-label="Più">+</button></div></div>
+    </div>
+    
+    <div><span class="l">Orario</span><div class="slots" id="fSlots"></div><input class="f" id="fOraAltro" placeholder="Altro orario (es. 20:15)" style="margin-top:8px" value=""></div>
+    <div class="grid2">
+      <div><label class="l" for="fSala">Sala</label><select class="f" id="fSala">${S.cfg.sale.map(s=>`<option ${s===e.sala?"selected":""}>${esc(s)}</option>`).join("")}</select></div>
+      <div><label class="l" for="fTav">Tavolo (facoltativo)</label><input class="f" id="fTav" value="${esc(e.tavolo)}" list="dlTav" placeholder="si assegna anche dal tablet"><datalist id="dlTav">${(S.tavoli||[]).map(t=>`<option value="${esc(t)}">`).join("")}</datalist></div>
+    </div>
+    <div><label class="l" for="fNote">Note (compleanno, bambini, allergie…)</label><textarea class="f" id="fNote">${esc(e.note)}</textarea></div>
+    <label class="row" style="gap:12px;font-weight:600"><input type="checkbox" id="fAtt" ${e.stato==="attesa"?"checked":""} style="width:26px;height:26px"> Metti in lista d'attesa</label>
+    ${!p?`<div class="card" style="display:flex;flex-direction:column;gap:10px"><label class="row" style="gap:12px;font-weight:700"><input type="checkbox" id="fWa" checked style="width:26px;height:26px"> Manda conferma su WhatsApp</label><div id="fPrev" style="background:var(--greenbg);border-radius:4px 14px 14px 14px;padding:10px 12px;font-size:15px"></div></div>`:""}
+    <button class="btn gold block" id="fSave" style="min-height:60px;font-size:19px">${p?"Salva modifiche":"Salva prenotazione"}</button>`);
+  let turno=e.turno, ora=e.ora, persone=+e.persone||2, cliente=null;
+  const occ = async () => { const s=await getDocs(query(collection(db,"prenotazioni"),where("data","==",$("#fData").value),where("turno","==",turno)));
+    const m={}; s.docs.forEach(d=>{const x=d.data(); if(["confermata","arrivato"].includes(x.stato)&&d.id!==p?.id) m[x.ora]=(m[x.ora]||0)+(+x.persone||0);}); return m; };
+  const drawSlots = async () => { const m = await occ().catch(()=>({})); const tot=Object.values(m).reduce((a,b)=>a+b,0); const cap=S.cfg.coperti[turno]||80;
+    $("#fSlots").innerHTML = (S.cfg.orari[turno]||[]).map(o=>`<button type="button" class="slot ${o===ora?"on":""} ${tot>=cap?"full":""}" data-o="${o}">${o}<small>${m[o]?m[o]+" pers.":"libero"}</small></button>`).join("");
+    document.querySelectorAll("[data-o]").forEach(b=>b.onclick=()=>{ora=b.dataset.o;$("#fOraAltro").value="";drawSlots();prev();});
+    if(tot>=cap) $("#fSlots").insertAdjacentHTML("afterend",`<div class="warn" style="margin-top:8px" id="fFull">Turno pieno (${tot}/${cap}): valuta la lista d'attesa.</div>`); else $("#fFull")?.remove(); };
+  const prev = () => { if($("#fPrev")) $("#fPrev").textContent = fill(S.cfg.msg.conferma,{nome:($("#fNome").value||"").split(" ")[0],giorno:bello($("#fData").value),ora:$("#fOraAltro").value||ora||"--:--",persone}); };
+  const cerca = async () => { const t=telNorm($("#fTel").value); $("#fCliInfo").textContent=""; cliente=null; if(t.length<10) return;
+    const d = await getDoc(doc(db,"clienti","t"+t)).catch(()=>null);
+    if(d&&d.exists()){ cliente={id:d.id,...d.data()}; const gg=giorniFa(cliente.ultimaPresenza);
+      $("#fCliInfo").innerHTML = `<span style="color:var(--blue);font-weight:700">✓ Cliente già presente</span> · ${cliente.presenze||0} visite · ${cliente.puntiFidelity||0} punti${gg!==null?` · ultima visita ${gg} giorni fa`:""}`;
+      if(!$("#fNome").value) $("#fNome").value=[cliente.nome,cliente.cognome].filter(Boolean).join(" "); prev(); }
+    else $("#fCliInfo").textContent="Cliente nuovo: verrà aggiunto all'elenco clienti."; };
+  $("#fTel").addEventListener("input",cerca); $("#fNome").addEventListener("input",prev); $("#fData").addEventListener("change",()=>{drawSlots();prev();});
+  $("#fOraAltro").addEventListener("input",()=>{ora="";drawSlots();prev();});
+  $("#pMeno").onclick=()=>{persone=Math.max(1,persone-1);$("#pN").textContent=persone;prev();};
+  $("#pPiu").onclick=()=>{persone++;$("#pN").textContent=persone;prev();};
+  document.querySelectorAll("[data-ft]").forEach(b=>b.onclick=()=>{turno=b.dataset.ft;document.querySelectorAll("[data-ft]").forEach(x=>x.classList.toggle("on",x===b));ora="";drawSlots();});
+  drawSlots(); prev(); if(e.telefono) cerca();
+  $("#fSave").onclick = async () => {
+    const nome=$("#fNome").value.trim(), tel=$("#fTel").value.trim(), oraF=$("#fOraAltro").value.trim()||ora;
+    if(!nome){toast("Scrivi il nome");return;} if(!oraF){toast("Scegli l'orario");return;}
+    const t=telNorm(tel); const clienteId = t? "t"+t : (p?.clienteId||null);
+    const dati={nome,telefono:t?"+"+t:tel,clienteId,data:$("#fData").value,turno,ora:oraF,persone,sala:$("#fSala").value,tavolo:$("#fTav").value.trim(),note:$("#fNote").value.trim(),
+      stato:$("#fAtt").checked?"attesa":(p&&p.stato!=="attesa"?p.stato:"confermata"),aggiornatoIl:serverTimestamp(),aggiornatoDa:S.me.nome||""};
+    $("#fSave").disabled=true;
+    try{
+      if(p){ await updateDoc(doc(db,"prenotazioni",p.id),dati); evento(clienteId,"prenotazione",`Prenotazione modificata: ${bello(dati.data)} ${dati.ora}`); }
+      else{
+        await addDoc(collection(db,"prenotazioni"),{...dati,creatoIl:serverTimestamp(),creatoDa:S.me.nome||"",canale:"staff"});
+        if(clienteId && !cliente){ const [n,...c]=nome.split(" "); await setDoc(doc(db,"clienti",clienteId),{nome:n,cognome:c.join(" "),telefono:"+"+t,presenze:0,puntiFidelity:0,dataRegistrazione:iso(new Date()),provenienza:"prenotazione",origine:"galleon-club",consensi:{privacy:true,marketing:false,profilazione:false,fonte:"prenotazione staff",dataConsenso:iso(new Date())}},{merge:true}); }
+        evento(clienteId,"prenotazione",`Prenotazione per ${bello(dati.data)} alle ${dati.ora}, ${persone} persone`);
+        if($("#fWa")?.checked) { wa(t, $("#fPrev").textContent); evento(clienteId,"whatsapp","Conferma prenotazione inviata"); }
+      }
+      if(dati.data!==S.data||turno!==S.turno){S.data=dati.data;S.turno=turno;}
+      closeSheet(); toast("Prenotazione salvata ✓"); if(S.tab==="agenda") viewAgenda(); else go("agenda");
+    }catch(err){ toast("Errore: "+err.code); $("#fSave").disabled=false; }
+  };
+}
+
+/* ---------- CLIENTI ---------- */
+function viewClienti(pre=""){
+  $("#hdr").innerHTML = `<div class="brand">PENELOPE · THE GALLEON</div><div class="h1">Clienti</div>
+    <div class="row" style="margin-top:10px"><label for="cQ" class="hidden">Cerca</label><input class="f" id="cQ" placeholder="Telefono oppure cognome" value="${esc(pre)}" style="border:0" autocomplete="off"></div>`;
+  $("#main").innerHTML = `<div class="muted">Scrivi il numero di telefono (anche senza +39) oppure il cognome.</div>`;
+  let tmr; $("#cQ").addEventListener("input",()=>{clearTimeout(tmr);tmr=setTimeout(()=>cercaClienti($("#cQ").value),350);});
+  if(pre) cercaClienti(pre); $("#cQ").focus();
+}
+async function cercaClienti(v){
+  v=v.trim(); if(v.length<2){ $("#main").innerHTML=""; return; }
+  $("#main").innerHTML=`<div class="muted">Cerco…</div>`;
+  let res=[];
+  try{
+    if(/^[\d\s+]+$/.test(v)){ const t=telNorm(v); if(t){ const d=await getDoc(doc(db,"clienti","t"+t)); if(d.exists()) res=[{id:d.id,...d.data()}]; } }
+    else{ const forms=[...new Set([v, v[0].toUpperCase()+v.slice(1).toLowerCase(), v.toUpperCase(), v.toLowerCase()])];
+      for(const f of forms){ const s=await getDocs(query(collection(db,"clienti"),where("cognome",">=",f),where("cognome","<=",f+""),limit(25))); s.docs.forEach(d=>{ if(!res.find(r=>r.id===d.id)) res.push({id:d.id,...d.data()}); }); }
+      if(res.length<5) for(const f of forms){ const s=await getDocs(query(collection(db,"clienti"),where("nome",">=",f),where("nome","<=",f+""),limit(15))); s.docs.forEach(d=>{ if(!res.find(r=>r.id===d.id)) res.push({id:d.id,...d.data()}); }); }
+    }
+  }catch(e){ $("#main").innerHTML=`<div class="warn">Errore nella ricerca (${esc(e.code)}).</div>`; return; }
+  $("#main").innerHTML = res.length? `<div class="card list">${res.map(c=>`<button class="li" data-c="${c.id}"><div><div style="font-weight:700">${esc([c.nome,c.cognome].filter(Boolean).join(" ")||"Senza nome")}</div><div class="muted">${esc(c.telefono||c.email||"")}</div></div><div style="text-align:right"><div style="font-weight:700">${c.puntiFidelity||0} pt</div><div class="muted">${c.presenze||0} visite</div></div></button>`).join("")}</div>`
+    : `<div class="card">Nessun cliente trovato.</div>`;
+  document.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>schedaCliente(b.dataset.c));
+}
+async function schedaCliente(id){
+  const d = await getDoc(doc(db,"clienti",id)).catch(()=>null); if(!d||!d.exists()){toast("Cliente non trovato");return;}
+  const c={id,...d.data()}; const nome=[c.nome,c.cognome].filter(Boolean).join(" ")||"Cliente"; const gg=giorniFa(c.ultimaPresenza);
+  sheet(nome, `
+    <div class="card" style="background:var(--navy);color:#fff">
+      <div class="row between"><div><div class="muted" style="color:#AEB8C8">${esc(c.telefono||"")}${c.email?" · "+esc(c.email):""}</div></div>${(c.tags||[]).includes("VIP")?'<span class="chip" style="background:var(--gold);color:var(--navy)">VIP</span>':""}</div>
+      <div class="row" style="align-items:baseline;gap:8px;margin-top:8px"><span class="pts">${c.puntiFidelity||0}</span><span style="color:var(--gold);font-weight:700">punti</span></div>
+      <div style="margin-top:6px;color:#D5DBE5">${c.presenze||0} visite · ultima ${c.ultimaPresenza?corto(c.ultimaPresenza)+(gg!==null?` (${gg} gg fa)`:""):"—"}${c.dataNascita?" · nato/a il "+corto(c.dataNascita):""}</div>
+    </div>
+    <div class="grid2"><button class="btn gold" id="sPunti">Carica punti</button><button class="btn" id="sPren">Nuova prenotazione</button></div>
+    <div class="grid2"><a class="btn wa" style="display:flex;align-items:center;justify-content:center;text-decoration:none" href="https://wa.me/${telNorm(c.telefono)}" target="_blank" rel="noopener">WhatsApp</a><a class="btn light" style="display:flex;align-items:center;justify-content:center;text-decoration:none" href="tel:+${telNorm(c.telefono)}">Chiama</a></div>
+    <div class="card"><div class="cond big">Consensi</div><div class="muted" style="margin-top:4px">Marketing: <b>${c.consensi?.marketing?"sì":"no"}</b> · Profilazione: <b>${c.consensi?.profilazione?"sì":"no"}</b> · Fonte: ${esc(c.consensi?.fonte||"—")}</div></div>
+    ${(c.tags||[]).length?`<div class="card"><div class="cond big">Tag</div><div style="margin-top:6px">${c.tags.slice(0,40).map(t=>`<span class="tag">${esc(t)}</span>`).join("")}</div></div>`:""}
+    ${c.note?`<div class="card">📝 ${esc(c.note)}</div>`:""}
+    <div class="card"><div class="cond big">Storico</div><div class="tl" id="sTl" style="margin-top:10px"><div class="muted">Caricamento…</div></div></div>`);
+  $("#sPunti").onclick=()=>caricaPunti(c);
+  $("#sPren").onclick=()=>formPrenotazione(null,c);
+  try{
+    const [ev,pr] = await Promise.all([ getDocs(query(collection(db,"clienti",id,"eventi"),orderBy("quando","desc"),limit(40))), getDocs(query(collection(db,"prenotazioni"),where("clienteId","==",id),limit(40))) ]);
+    const items=[...ev.docs.map(x=>{const v=x.data();return{t:v.quando?.toDate?.()||new Date(),txt:v.testo,da:v.da};})];
+    const html = items.length? items.map(i=>`<div><div style="font-weight:600">${esc(i.txt)}</div><div class="muted">${i.t.toLocaleDateString("it-IT")} ${i.t.toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"})}${i.da?" · "+esc(i.da):""}</div></div>`).join("")
+      : `<div class="muted">Nessuna azione registrata nella nuova piattaforma. Dati da Pienissimo: ${c.presenze||0} visite, registrato il ${corto(c.dataRegistrazione)}, provenienza ${esc(c.provenienza||"—")}.</div>`;
+    $("#sTl").innerHTML = html + (pr.size?`<div class="muted" style="margin-top:6px">${pr.size} prenotazioni registrate qui.</div>`:"");
+  }catch(e){ $("#sTl").innerHTML=`<div class="muted">Storico non disponibile (${esc(e.code)}).</div>`; }
+}
+
+/* ---------- FIDELITY ---------- */
+function viewFidelity(){
+  $("#hdr").innerHTML = `<div class="brand">PENELOPE · THE GALLEON</div><div class="h1">Fidelity</div>
+    <div class="row" style="margin-top:10px"><input class="f" id="fQ" type="tel" inputmode="tel" placeholder="Telefono del cliente" style="border:0" aria-label="Telefono del cliente"></div>`;
+  $("#main").innerHTML = `<div class="card"><div class="big">Come caricare i punti</div><ol style="margin:8px 0 0;padding-left:20px;line-height:1.6"><li>Scrivi il telefono del cliente qui sopra</li><li>Inserisci l'importo dello scontrino</li><li>Premi <b>Carica punti</b>: il cliente riceve il saldo su WhatsApp</li></ol></div>`;
+  let tmr; $("#fQ").addEventListener("input",()=>{clearTimeout(tmr);tmr=setTimeout(async()=>{ const t=telNorm($("#fQ").value); if(t.length<10) return;
+    const d=await getDoc(doc(db,"clienti","t"+t)).catch(()=>null);
+    if(d&&d.exists()) caricaPunti({id:d.id,...d.data()}); else $("#main").innerHTML=`<div class="card">Nessun cliente con questo numero.<br><br><button class="btn block" id="fNew">Aggiungi nuovo cliente e prenota</button></div>`, $("#fNew")&&($("#fNew").onclick=()=>formPrenotazione(null,{telefono:"+"+t}));
+  },400);}); $("#fQ").focus();
+}
+function caricaPunti(c){
+  const nome=[c.nome,c.cognome].filter(Boolean).join(" ")||"Cliente"; const ppe=S.cfg.punti_per_euro||1;
+  const premi=(S.cfg.premi||[]).slice().sort((a,b)=>a.punti-b.punti);
+  sheet("Fidelity · "+nome, `
+    <div class="card" style="background:var(--navy);color:#fff"><div class="row" style="align-items:baseline;gap:8px"><span class="pts" id="kPts">${c.puntiFidelity||0}</span><span style="color:var(--gold);font-weight:700">punti</span></div><div id="kNext" style="color:#D5DBE5;margin-top:6px"></div></div>
+    <div class="card" style="display:flex;flex-direction:column;gap:12px">
+      <label class="l" for="kImp" style="margin:0;font-size:16px">Importo dello scontrino (€)</label>
+      <div class="row"><input class="f" id="kImp" type="number" inputmode="decimal" min="0" step="0.5" placeholder="0" style="font-size:26px;font-weight:700"><div style="text-align:right;min-width:80px"><div class="big" style="color:var(--blue)" id="kPiu">+0</div><div class="muted">punti</div></div></div>
+      <label class="row" style="gap:12px;font-weight:600"><input type="checkbox" id="kWa" checked style="width:26px;height:26px"> Manda il saldo su WhatsApp</label>
+      <button class="btn gold block" id="kGo" style="min-height:60px;font-size:19px" disabled>Carica punti</button>
+    </div>
+    <div class="card"><div class="cond big">Premi</div><div class="list" id="kPremi" style="margin-top:6px"></div></div>`);
+  let saldo=c.puntiFidelity||0;
+  const drawP=()=>{ $("#kPts").textContent=saldo; const nx=premi.find(p=>p.punti>saldo); $("#kNext").textContent= nx?`Mancano ${nx.punti-saldo} punti per: ${nx.nome}`:"Ha raggiunto tutti i premi!";
+    $("#kPremi").innerHTML=premi.map((p,i)=>`<div class="li"><span><b>${p.punti} pt</b> · ${esc(p.nome)}</span>${saldo>=p.punti?`<button class="btn" style="min-height:44px" data-r="${i}">Riscatta</button>`:`<span class="muted">−${p.punti-saldo}</span>`}</div>`).join("");
+    document.querySelectorAll("[data-r]").forEach(b=>b.onclick=()=>muovi(-premi[+b.dataset.r].punti,`Premio riscattato: ${premi[+b.dataset.r].nome}`)); };
+  drawP();
+  $("#kImp").addEventListener("input",()=>{ const n=Math.floor((parseFloat($("#kImp").value)||0)*ppe); $("#kPiu").textContent="+"+n; $("#kGo").disabled=n<=0; $("#kGo").textContent=n>0?`Carica ${n} punti`:"Carica punti"; });
+  const muovi = async (delta,testo) => {
+    if(delta<0 && !confirm(testo+"?")) return;
+    try{
+      const nuovo = await runTransaction(db, async tx => { const r=doc(db,"clienti",c.id); const s=await tx.get(r); const v=(s.data()?.puntiFidelity||0)+delta; if(v<0) throw new Error("Punti insufficienti"); tx.update(r,{puntiFidelity:v,iscrittoFidelity:true}); return v; });
+      saldo=nuovo; drawP(); evento(c.id,"fidelity",`${testo} · saldo ${nuovo}`,{punti:delta}); toast("Fatto ✓ Nuovo saldo: "+nuovo);
+      if(delta>0){ $("#kImp").value=""; $("#kImp").dispatchEvent(new Event("input")); if($("#kWa").checked) wa(c.telefono, fill(S.cfg.msg.saldo,{nome:c.nome||"",punti:nuovo})); }
+    }catch(e){ toast("Errore: "+(e.code||e.message)); }
+  };
+  $("#kGo").onclick=()=>{ const imp=parseFloat($("#kImp").value)||0; const n=Math.floor(imp*ppe); if(n>0) muovi(n,`Caricati ${n} punti (scontrino ${imp.toFixed(2)} €)`); };
+  setTimeout(()=>$("#kImp").focus(),200);
+}
+
+/* ---------- ELENCHI ---------- */
+function viewElenchi(){
+  $("#hdr").innerHTML = `<div class="brand">PENELOPE · THE GALLEON</div><div class="h1">Elenchi clienti</div>`;
+  const E=[["inattivi60","Non vengono da più di 60 giorni"],["inattivi90","Non vengono da più di 90 giorni"],["assidui","I clienti più assidui"],["punti","Più punti fidelity"],["compleanni","Compleanni di questo mese"]];
+  $("#main").innerHTML = `<div class="card list">${E.map(([k,t])=>`<button class="li" data-e="${k}"><span style="font-weight:700">${t}</span><span aria-hidden="true">›</span></button>`).join("")}</div>${S.me.ruolo==="admin"?`<button class="btn light block" id="eOut">Esci dall'account</button>`:`<button class="btn light block" id="eOut">Esci</button>`}`;
+  document.querySelectorAll("[data-e]").forEach(b=>b.onclick=()=>elenco(b.dataset.e,b.textContent.replace("›","").trim()));
+  $("#eOut").onclick=()=>{ if(confirm("Vuoi uscire?")) signOut(auth); };
+}
+async function elenco(k,titolo){
+  $("#main").innerHTML=`<div class="muted">Caricamento…</div>`;
+  const d=n=>{const x=new Date();x.setDate(x.getDate()-n);return iso(x);};
+  try{
+    let q;
+    if(k==="inattivi60") q=query(collection(db,"clienti"),where("ultimaPresenza","<=",d(60)),where("ultimaPresenza",">=",d(365)),orderBy("ultimaPresenza","desc"),limit(100));
+    if(k==="inattivi90") q=query(collection(db,"clienti"),where("ultimaPresenza","<=",d(90)),where("ultimaPresenza",">=",d(365)),orderBy("ultimaPresenza","desc"),limit(100));
+    if(k==="assidui") q=query(collection(db,"clienti"),orderBy("presenze","desc"),limit(100));
+    if(k==="punti") q=query(collection(db,"clienti"),orderBy("puntiFidelity","desc"),limit(100));
+    let rows;
+    if(k==="compleanni"){ const m=pad(new Date().getMonth()+1); const s=await getDocs(query(collection(db,"clienti"),where("meseNascita","==",m),limit(200))); rows=s.docs; }
+    else rows=(await getDocs(q)).docs;
+    const list=rows.map(x=>({id:x.id,...x.data()}));
+    $("#main").innerHTML=`<button class="btn light" id="eBack">‹ Elenchi</button><div class="cond big">${esc(titolo)} (${list.length}${list.length>=100?"+":""})</div>`+
+      (list.length?`<div class="card list">${list.map(c=>`<button class="li" data-c="${c.id}"><div><div style="font-weight:700">${esc([c.nome,c.cognome].filter(Boolean).join(" ")||"—")}</div><div class="muted">${esc(c.telefono||"")}</div></div><div style="text-align:right"><div style="font-weight:700">${k==="punti"?(c.puntiFidelity||0)+" pt":(c.presenze||0)+" visite"}</div><div class="muted">${c.ultimaPresenza?corto(c.ultimaPresenza):""}</div></div></button>`).join("")}</div>`
+        :`<div class="card muted">Nessun cliente in questo elenco${k==="compleanni"?" (le date di nascita verranno organizzate per mese a breve)":""}.</div>`);
+    $("#eBack").onclick=viewElenchi; document.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>schedaCliente(b.dataset.c));
+  }catch(e){ $("#main").innerHTML=`<div class="warn">Questo elenco non è ancora pronto (${esc(e.code)}). Se compare "failed-precondition", va creato un indice nel database: lo sistema Claude.</div><button class="btn light" id="eBack">‹ Elenchi</button>`; $("#eBack").onclick=viewElenchi; }
+}
+</script>
+</body>
+</html>
