@@ -129,7 +129,7 @@ const QP=new URLSearchParams(location.search), EMBED=QP.get("embed")==="1";
 if(EMBED) document.documentElement.classList.add("embed"); if(EMBED) document.documentElement.style.background=document.body.style.background="transparent";
 /* ---------- stato e impostazioni ---------- */
 const S={tab:"agenda",data:iso(new Date()),turno:"cena",me:null,cfg:null,unsub:null,pren:[],filtro:"attese",ordine:"ora",cli:new Map(),idx:null,tav:[]};
-const CFG_DEF={nomeLocale:"The Galleon Pub & Pizzeria",coperti:{cena:0},sale:["Sala principale","Saletta ABCD","Sala divani","Veranda"],orari:{cena:["18:00","18:30","19:00","19:30","20:00","20:30","21:00","21:30","22:00"]},punti_per_euro:1,
+const CFG_DEF={nomeLocale:"The Galleon Pub & Pizzeria",coperti:{cena:0},sale:["Sala principale"],orari:{cena:["18:00","18:30","19:00","19:30","20:00","20:30","21:00","21:30","22:00"]},punti_per_euro:1,
  premi:[{punti:100,nome:"Buono asporto 10 €"},{punti:200,nome:"Buono asporto 20 €"},{punti:300,nome:"Buono asporto 30 €"},{punti:400,nome:"Buono asporto 40 €"},{punti:500,nome:"Buono asporto 60 €"}],
  msg:{conferma:"Ciao {nome}! 👋 La tua prenotazione al {locale} è confermata: {giorno} alle {ora}, {persone} persone. Ti aspettiamo! Per modifiche rispondi a questo messaggio.",
       benvenuto:"Ciao {nome}, benvenuto al {locale}! 🍕 Buona serata!",
@@ -259,10 +259,10 @@ function drawAgenda(){
 function vediSala(){
   const tavDi=p=>p.tavoli&&p.tavoli.length?p.tavoli:(p.tavolo?String(p.tavolo).split(" + "):[]);
   const att=S.pren.filter(p=>["confermata","arrivato"].includes(p.stato));
-  const sale=[...new Set([...S.cfg.sale,...S.tav.map(t=>t.sala)])];
+  const sale=S.cfg.sale;
   const ord=(a,b)=>String(a.nome).localeCompare(String(b.nome),undefined,{numeric:true});
   let h=S.tav.length?"":`<div class="warn">La piantina non è ancora stata creata. Aprila dal tablet (sala.html) e premi "Crea i tavoli del Galleon".</div>`;
-  for(const s of sale){ const tv=S.tav.filter(t=>t.sala===s).sort(ord); if(!tv.length) continue;
+  for(const s of sale){ const tv=S.tav.filter(t=>(sale.includes(t.sala)?t.sala:sale[0])===s).sort(ord); if(!tv.length) continue;
     const occ=tv.filter(t=>att.some(p=>tavDi(p).includes(t.nome)));
     h+=`<div class="card"><div class="row between"><span class="cond big">${esc(s)}</span><span class="muted">${occ.length} occupati · ${tv.length-occ.length} liberi</span></div>`+
       tv.map(t=>{const ps=att.filter(p=>tavDi(p).includes(t.nome)); return `<div class="tavrow"><b>${esc(t.nome)}</b><div style="flex:1;text-align:right">${ps.length?ps.map(p=>`${esc(p.ora)} · ${esc(p.nome)} (${esc(p.persone)})${p.stato==="arrivato"?" ✓":""}`).join("<br>"):`<span class="muted">libero · ${esc(t.posti||"")} posti</span>`}</div></div>`;}).join("")+`</div>`; }

@@ -25,6 +25,7 @@ header{background:linear-gradient(180deg,#16263F,#0F1B2D);color:#fff;padding:10p
 .brand{color:var(--gold);font-weight:700;letter-spacing:2px;font-size:12px}
 .h1{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:700;line-height:1}
 .iconbtn{width:46px;height:46px;border-radius:12px;border:1px solid #33486A;background:rgba(255,255,255,.04);color:#fff;font-size:24px;font-weight:700}
+.capw{order:8;flex-basis:100%;display:flex;align-items:center;gap:12px;color:#C7D0DD;font-size:14px}.capw .cb{flex:1;height:12px;background:#2A3A54;border-radius:6px;overflow:hidden}.capw .cb>div{height:12px;background:var(--gold);border-radius:6px;transition:width .3s}.capw .cb>div.over{background:#E0533D}.capw b{color:#fff;font-size:18px;font-family:'Barlow Condensed',sans-serif}
 .stat{display:flex;gap:16px;color:#C7D0DD;font-size:14px}
 .stat b{color:#fff;font-size:20px;display:block;font-family:'Barlow Condensed',sans-serif}
 .tabs{display:flex;gap:6px;overflow-x:auto;padding:2px}
@@ -98,6 +99,7 @@ aside h3{margin:8px 2px 0;font-family:'Barlow Condensed',sans-serif;font-size:19
     <button class="iconbtn" id="next" aria-label="Giorno dopo">›</button>
     <button class="btn gold" id="oggi" style="min-height:44px">Oggi</button>
     <div class="stat" id="stat"></div>
+    <div class="capw" id="capw"><span>Coperti</span><div class="cb"><div id="capBar"></div></div><b id="capTxt"></b></div>
     <div class="tabs" id="tabs" style="order:9;flex-basis:100%"></div>
     <button class="btn gold" id="nuova" style="min-height:44px">+ Prenota</button>
     <button class="btn light" id="edit" style="min-height:44px">✎ Modifica sala</button>
@@ -113,7 +115,7 @@ aside h3{margin:8px 2px 0;font-family:'Barlow Condensed',sans-serif;font-size:19
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, doc, getDoc, updateDoc, deleteDoc, addDoc, collection, query, where, onSnapshot, serverTimestamp, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, doc, getDoc, updateDoc, setDoc, deleteDoc, addDoc, collection, query, where, onSnapshot, serverTimestamp, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const app=initializeApp({apiKey:"AIzaSyBzpnM1H7Nk99bGqiKoFvJfZfUEhxYt1yI",authDomain:"galleon-club.firebaseapp.com",projectId:"galleon-club",storageBucket:"galleon-club.firebasestorage.app",messagingSenderId:"256580919264",appId:"1:256580919264:web:1639030e273fae781fd585"});
 const auth=getAuth(app), db=getFirestore(app);
 const $=s=>document.querySelector(s), esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -122,13 +124,14 @@ const GG=["Domenica","Lunedì","Martedì","Mercoledì","Giovedì","Venerdì","Sa
 const bello=s=>{const d=new Date(s+"T12:00:00");return `${GG[d.getDay()]} ${d.getDate()} ${MM[d.getMonth()]}`;};
 const toast=m=>{const t=document.createElement("div");t.className="toast";t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2600);};
 const iniziali=n=>String(n||"?").split(" ").filter(Boolean).slice(0,2).map(x=>x[0].toUpperCase()).join("");
-const SALE=["Sala principale","Saletta ABCD","Sala divani","Veranda"];
+let SALE=["Sala principale"];
 const REG={"Sala principale":[0,0,62,64],"Saletta ABCD":[63,0,37,34],"Sala divani":[63,35,37,29],"Veranda":[0,65,100,35]};
-const ordTutti=()=>S.tav.slice().sort((a,b)=>(SALE.indexOf(a.sala)-SALE.indexOf(b.sala))||String(a.nome).localeCompare(String(b.nome),undefined,{numeric:true}));
+const salaDi=t=>SALE.includes(t.sala)?t.sala:SALE[0];
+const ordTutti=()=>S.tav.slice().sort((a,b)=>(SALE.indexOf(salaDi(a))-SALE.indexOf(salaDi(b)))||String(a.nome).localeCompare(String(b.nome),undefined,{numeric:true}));
 const geo=(t,g)=>{ if(!g) return {x:t.x,y:t.y,w:t.w||8,h:t.h||11};
   const i=ordTutti().findIndex(x=>x.id===t.id), C=9, r=Math.floor(i/C), c=i%C;
   return {x:t.gx??+(2+c*(96/C)+1).toFixed(1), y:t.gy??+(3+r*(94/Math.max(5,Math.ceil(S.tav.length/C)))).toFixed(1), w:7.5, h:11}; };
-const S={data:iso(new Date()),sala:"tutto",edit:false,tav:[],pren:[],me:null,u2:null};
+const S={cfg:{},data:iso(new Date()),sala:"Sala principale",edit:false,tav:[],pren:[],me:null,u2:null};
 
 $("#lf").onsubmit=async e=>{e.preventDefault();try{await signInWithEmailAndPassword(auth,$("#lem").value.trim(),$("#lpw").value);$("#lpw").value="";}catch(x){$("#lerr").textContent="Email o password non corretti.";}};
 onAuthStateChanged(auth,async u=>{
@@ -137,6 +140,7 @@ onAuthStateChanged(auth,async u=>{
   if(!sd||!sd.exists()){$("#lerr").textContent="Account non abilitato.";signOut(auth);return;}
   S.me={uid:u.uid,...sd.data()}; $("#login").classList.add("hidden"); $("#app").classList.remove("hidden");
   $("#edit").classList.toggle("hidden",S.me.ruolo!=="admin");
+  onSnapshot(doc(db,"impostazioni","locale"),d=>{ S.cfg=d.exists()?d.data():{}; SALE=(S.cfg.sale&&S.cfg.sale.length)?S.cfg.sale:["Sala principale"]; if(S.sala!=="tutto"&&!SALE.includes(S.sala)) S.sala=SALE[0]; draw(); },()=>{});
   onSnapshot(collection(db,"tavoli"),s=>{S.tav=s.docs.map(d=>({id:d.id,...d.data()}));draw();},e=>toast("Errore tavoli: "+e.code));
   ascolta();
 });
@@ -159,8 +163,10 @@ function tavoloHTML(t,g){ const G=geo(t,g); const ps=S.pren.filter(p=>tavDi(p).i
 function draw(){
   $("#titolo").textContent=bello(S.data);
   const att=S.pren.filter(p=>p.stato!=="attesa"), pax=att.reduce((a,p)=>a+(+p.persone||0),0), posti=S.tav.reduce((a,t)=>a+(+t.posti||0),0);
+  const cap=+(S.cfg.coperti?.cena)||posti||80; $("#capTxt").textContent=`${pax} / ${cap}`; $("#capBar").style.width=Math.min(100,100*pax/cap)+"%"; $("#capBar").classList.toggle("over",pax>cap);
   $("#stat").innerHTML=`<div><b>${att.length}</b>prenotazioni</div><div><b>${pax}${posti?"/"+posti:""}</b>coperti</div><div><b>${att.filter(p=>p.stato==="arrivato").length}</b>arrivati</div>`;
-  const tabs=[["tutto","Tutto il locale"],...SALE.map(s=>[s,s])];
+  if(SALE.length<2&&S.sala==="tutto") S.sala=SALE[0];
+  const tabs=SALE.length>1?[["tutto","Tutto il locale"],...SALE.map(s=>[s,s])]:[];
   $("#tabs").innerHTML=tabs.map(([k,t])=>`<button class="${k===S.sala?"on":""}" data-s="${esc(k)}">${esc(t)}</button>`).join("");
   document.querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>{ S.sala=b.dataset.s;draw();});
   // lista
@@ -169,18 +175,18 @@ function draw(){
   $("#side").innerHTML=`<h3>Da sistemare · ${libere.length}</h3>${libere.map(card).join("")||'<div class="muted">Tutti hanno un tavolo 👍</div>'}<h3>Al tavolo · ${sedute.length}</h3>${sedute.map(card).join("")}<div class="muted" style="margin-top:6px">Trascina qui un nome per togliergli il tavolo.</div>`;
   document.querySelectorAll("#side [data-bk]").forEach(el=>dragBooking(el,S.pren.find(p=>p.id===el.dataset.bk)));
   // piantine
-  const TUTTO=S.sala==="tutto";
+  const TUTTO=S.sala==="tutto"; const UNA=SALE.length<2;
   $("#plans").className="plans "+(TUTTO?"tutto":"solo")+(S.edit?" edit":"");
   if(TUTTO){ const occ=S.tav.filter(t=>S.pren.some(p=>tavDi(p).includes(t.nome))).length;
     $("#plans").innerHTML=`<div class="zona"><h4>Tutto il locale<span>${occ} occupati · ${S.tav.length-occ} liberi</span></h4><div class="plan big">${S.tav.map(t=>tavoloHTML(t,true)).join("")}</div></div>`
       +(S.tav.length?"":`<div class="muted" style="margin-top:10px">Nessun tavolo: apri una sala per crearli.</div>`);
-  } else $("#plans").innerHTML=[S.sala].map(z=>{ const tv=S.tav.filter(t=>t.sala===z).sort(ordNome); const occ=tv.filter(t=>S.pren.some(p=>tavDi(p).includes(t.nome))).length;
-    return `<div class="zona"><h4>${esc(z)}<span>${tv.length?`${occ} occupati · ${tv.length-occ} liberi`:"nessun tavolo"}</span></h4><div class="plan">${tv.map(t=>tavoloHTML(t,false)).join("")||`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;color:var(--mute)">Nessun tavolo qui.${S.me?.ruolo==="admin"?`<button class="btn gold" data-seed="${esc(z)}">Crea i tavoli</button>`:""}</div>`}</div></div>`; }).join("");
+  } else $("#plans").innerHTML=[S.sala].map(z=>{ const tv=S.tav.filter(t=>salaDi(t)===z).sort(ordNome); const occ=tv.filter(t=>S.pren.some(p=>tavDi(p).includes(t.nome))).length;
+    return `<div class="zona"><h4>${esc(z)}<span>${tv.length?`${occ} occupati · ${tv.length-occ} liberi`:"nessun tavolo"}</span></h4><div class="plan${UNA?" big":""}">${tv.map(t=>tavoloHTML(t,UNA)).join("")||`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;color:var(--mute)">Nessun tavolo qui.${S.me?.ruolo==="admin"?`<button class="btn gold" data-seed="${esc(z)}">Crea i tavoli</button>`:""}</div>`}</div></div>`; }).join("");
   document.querySelectorAll("[data-seed]").forEach(b=>b.onclick=()=>seed(b.dataset.seed));
-  document.querySelectorAll(".tav").forEach(el=>{ const t=S.tav.find(x=>x.id===el.dataset.t); if(S.edit) dragTable(el,t,TUTTO); else el.onclick=e=>{ if(!e.target.closest("[data-bk]")) menuTavolo(t); }; });
+  document.querySelectorAll(".tav").forEach(el=>{ const t=S.tav.find(x=>x.id===el.dataset.t); if(S.edit) dragTable(el,t,TUTTO||UNA); else el.onclick=e=>{ if(!e.target.closest("[data-bk]")) menuTavolo(t); }; });
   document.querySelectorAll(".tav [data-bk]").forEach(el=>{ if(!S.edit) dragBooking(el,S.pren.find(p=>p.id===el.dataset.bk)); });
   $("#editbar").classList.toggle("hidden",!S.edit);
-  if(S.edit){ $("#editbar").innerHTML=`<button class="btn gold" id="addT">+ Aggiungi tavolo</button><span class="muted">Trascina i tavoli per spostarli. Toccali per cambiare nome, posti, sala, forma e dimensione.</span>`; $("#addT").onclick=()=>editTavolo(null); }
+  if(S.edit){ $("#editbar").innerHTML=`<button class="btn gold" id="addT">+ Aggiungi tavolo</button><button class="btn light" id="addS">+ Nuova sala</button>${S.sala!=="tutto"?`<button class="btn light" id="renS">Rinomina sala</button>${SALE.length>1?`<button class="btn light" id="delS">Elimina sala</button>`:""}`:""}<span class="muted">Trascina i tavoli per spostarli. Toccali per cambiare nome, posti, sala, forma e dimensione.</span>`; $("#addT").onclick=()=>editTavolo(null); $("#addS").onclick=nuovaSala; if($("#renS")) $("#renS").onclick=rinominaSala; if($("#delS")) $("#delS").onclick=eliminaSala; }
 }
 
 /* ---- trascinamento prenotazioni ---- */
@@ -228,7 +234,7 @@ function editTavolo(t){ const n=!t; t=t||{nome:"",posti:4,sala:S.sala==="tutto"?
     <label>Nome<input class="f" id="eN" value="${esc(t.nome)}" placeholder="es. 19, A, Pedana 4"></label>
     <div class="grid2"><label>Posti<input class="f" id="eP" type="number" min="1" value="${esc(t.posti)}"></label>
     <label>Forma<select class="f" id="eF"><option value="quadrato" ${t.forma!=="tondo"?"selected":""}>Quadrato</option><option value="tondo" ${t.forma==="tondo"?"selected":""}>Tondo</option></select></label></div>
-    <label>Sala<select class="f" id="eS">${SALE.map(s=>`<option ${s===t.sala?"selected":""}>${esc(s)}</option>`).join("")}</select></label>
+    <label>Sala<select class="f" id="eS">${SALE.map(s=>`<option ${s===salaDi(t)?"selected":""}>${esc(s)}</option>`).join("")}</select></label>
     <div class="grid2"><label>Larghezza<select class="f" id="eW">${[[6,"Piccolo"],[8,"Normale"],[10,"Grande"],[13,"Lungo"],[16,"Molto lungo"],[20,"Tavolata"]].map(([v,l])=>`<option value="${v}" ${v==(t.w||8)?"selected":""}>${l}</option>`).join("")}</select></label>
     <label>Altezza<select class="f" id="eH">${[[8,"Bassa"],[11,"Normale"],[14,"Alta"],[18,"Molto alta"],[24,"Tavolata"]].map(([v,l])=>`<option value="${v}" ${v==(t.h||11)?"selected":""}>${l}</option>`).join("")}</select></label></div>
     <button class="btn gold" id="eOk">${n?"Aggiungi":"Salva"}</button>${n?"":`<button class="btn red" id="eDel">Elimina tavolo</button>`}`);
@@ -237,7 +243,16 @@ function editTavolo(t){ const n=!t; t=t||{nome:"",posti:4,sala:S.sala==="tutto"?
     try{ if(n) await addDoc(collection(db,"tavoli"),{...d,x:t.x,y:t.y}); else await updateDoc(doc(db,"tavoli",t.id),d); if(d.sala!==S.sala) S.sala=d.sala; close(); toast("Salvato ✓"); }catch(e){toast("Errore: "+e.code);} };
   if($("#eDel")) $("#eDel").onclick=async()=>{ if(confirm(`Eliminare il tavolo ${t.nome}?`)){ await deleteDoc(doc(db,"tavoli",t.id)).catch(e=>toast(e.code)); close(); } }; }
 
-const GRUPPI={"Sala principale":[...Array.from({length:18},(_,i)=>String(i+1)),"Pedana 1","Pedana 2","Pedana 3"],"Saletta ABCD":["A","B","C","D"],"Sala divani":[],"Veranda":Array.from({length:12},(_,i)=>"Veranda "+(i+1))};
+const salvaSale=async l=>{ await setDoc(doc(db,"impostazioni","locale"),{sale:l},{merge:true}); };
+async function nuovaSala(){ const n=(prompt("Nome della nuova sala (es. Veranda, Giardino):")||"").trim(); if(!n) return;
+  if(SALE.some(s=>s.toLowerCase()===n.toLowerCase())) return toast("Esiste già");
+  try{ await salvaSale([...SALE,n]); S.sala=n; toast("Sala creata ✓ Ora aggiungi i tavoli"); }catch(e){toast("Errore: "+e.code);} }
+async function rinominaSala(){ const v=S.sala, n=(prompt("Nuovo nome per "+v+":",v)||"").trim(); if(!n||n===v) return;
+  if(SALE.some(s=>s.toLowerCase()===n.toLowerCase())) return toast("Esiste già");
+  try{ const b=writeBatch(db); S.tav.filter(t=>salaDi(t)===v).forEach(t=>b.update(doc(db,"tavoli",t.id),{sala:n})); await b.commit(); await salvaSale(SALE.map(s=>s===v?n:s)); S.sala=n; toast("Rinominata ✓"); }catch(e){toast("Errore: "+e.code);} }
+async function eliminaSala(){ const v=S.sala; if(S.tav.some(t=>t.sala===v)) return toast("Prima sposta o elimina i tavoli di questa sala");
+  if(!confirm("Eliminare la sala "+v+"?")) return; try{ await salvaSale(SALE.filter(s=>s!==v)); S.sala=SALE[0]; toast("Eliminata ✓"); }catch(e){toast("Errore: "+e.code);} }
+const GRUPPI={"Sala principale":[...Array.from({length:18},(_,i)=>String(i+1)),"Pedana 1","Pedana 2","Pedana 3"],};
 async function seed(sala){
   const nomi=(GRUPPI[sala]||[]).filter(n=>!S.tav.some(t=>t.nome.toLowerCase()===n.toLowerCase()));
   if(!nomi.length){ editTavolo({nome:"",posti:4,sala,forma:"quadrato",w:8,h:11,x:4,y:6}); return; }
