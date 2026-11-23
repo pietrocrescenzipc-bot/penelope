@@ -39,7 +39,8 @@ label.l{font-size:14px;font-weight:600;color:#374151;display:block;margin-bottom
 .f{width:100%;min-height:52px;border:1.5px solid #C9CED6;border-radius:12px;padding:10px 14px;background:#fff}
 textarea.f{min-height:90px}
 .f:focus{outline:3px solid #BFD3F2;border-color:var(--blue)}
-.search{width:100%;min-height:54px;border:0;border-radius:14px;padding:0 16px;font-size:18px}
+.search{width:100%;min-height:54px;border:0;border-radius:14px;padding:0 16px 0 46px;font-size:18px;background:#fff url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2722%27 height=%2722%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%234B5563%27 stroke-width=%272.2%27%3E%3Ccircle cx=%2711%27 cy=%2711%27 r=%277%27/%3E%3Cpath d=%27M20 20l-4-4%27/%3E%3C/svg%3E") no-repeat 14px center}
+.lens{padding-left:44px!important;background:#fff url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2720%27 height=%2720%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%234B5563%27 stroke-width=%272.2%27%3E%3Ccircle cx=%2711%27 cy=%2711%27 r=%277%27/%3E%3Cpath d=%27M20 20l-4-4%27/%3E%3C/svg%3E") no-repeat 13px center!important}
 .chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 4px}
 .chips button{flex-shrink:0;min-height:44px;border-radius:22px;border:1.5px solid #C9CED6;background:#fff;padding:0 14px;font-weight:600;font-size:15px}
 .chips button.on{background:var(--navy);border-color:var(--navy);color:#fff}
@@ -274,12 +275,15 @@ async function evento(clienteId,tipo,testo,extra={}){ if(!clienteId) return; try
 
 /* ---------- nuova / modifica prenotazione ---------- */
 async function formPrenotazione(p=null,cli=null){
-  const e=p||{data:S.data,turno:"cena",ora:"",persone:2,sala:"",tavolo:"",note:"",telefono:cli?.telefono||"",nome:cli?[cli.nome,cli.cognome].filter(Boolean).join(" "):"",stato:"confermata"};
+  const e=p||{data:S.data,turno:"cena",ora:"",persone:2,sala:"",tavolo:"",note:"",telefono:cli?.telefono||"",nome:cli?[cli.nome,cli.cognome].filter(Boolean).join(" "):"",nomeSolo:cli?.nome,cognomeSolo:cli?.cognome,email:cli?.email||"",stato:"confermata"};
   const tavoli=S.tav.map(t=>t.nome).sort((a,b)=>String(a).localeCompare(String(b),undefined,{numeric:true}));
   sheet(p?"Modifica prenotazione":"Nuova prenotazione",`
-    <div><label class="l" for="fCerca">Cerca cliente (nome, cognome o telefono)</label><input class="f" id="fCerca" autocomplete="off" placeholder="es. Rossi oppure 333…"><div id="fRis"></div></div>
-    <div><label class="l" for="fTel">Telefono</label><input class="f" id="fTel" type="tel" inputmode="tel" value="${esc(e.telefono)}" placeholder="333 123 4567"><div id="fCliInfo" class="muted" style="margin-top:6px"></div></div>
-    <div><label class="l" for="fNome">Nome e cognome</label><input class="f" id="fNome" value="${esc(e.nome)}" autocomplete="off"></div>
+    <div class="muted">Scrivi in uno dei campi con la lente: compaiono i clienti già presenti. Se non c'è, compila i campi e verrà aggiunto.</div>
+    <div class="grid2"><div><label class="l" for="fN">Nome</label><input class="f lens" id="fN" value="${esc(e.nomeSolo??e.nome.split(" ")[0]??"")}" autocomplete="off"></div>
+      <div><label class="l" for="fC">Cognome</label><input class="f lens" id="fC" value="${esc(e.cognomeSolo??e.nome.split(" ").slice(1).join(" "))}" autocomplete="off"></div></div>
+    <div><label class="l" for="fTel">Telefono</label><input class="f lens" id="fTel" type="tel" inputmode="tel" value="${esc(e.telefono)}" placeholder="333 123 4567" autocomplete="off"></div>
+    <div id="fRis"></div><div id="fCliInfo" class="muted"></div>
+    <div><label class="l" for="fMail">Email (facoltativa)</label><input class="f" id="fMail" type="email" inputmode="email" value="${esc(e.email||"")}" autocomplete="off"></div>
     <div class="grid2"><div><label class="l" for="fData">Giorno</label><input class="f" id="fData" type="date" value="${esc(e.data)}"></div>
       <div><span class="l">Persone</span><div class="stepper"><button type="button" id="pMeno" aria-label="Meno">−</button><span class="big" id="pN">${esc(e.persone)}</span><button type="button" id="pPiu" aria-label="Più">+</button></div></div></div>
     <div><span class="l">Orario</span><div class="slots" id="fSlots"></div><input class="f" id="fOraAltro" placeholder="Altro orario (es. 20:15)" style="margin-top:8px"></div>
@@ -295,31 +299,33 @@ async function formPrenotazione(p=null,cli=null){
     $("#fSlots").innerHTML=S.cfg.orari.cena.map(o=>`<button type="button" class="slot ${o===ora?"on":""}" data-or="${o}">${o}<small>${m[o]?m[o]+" pers.":"libero"}</small></button>`).join("");
     document.querySelectorAll("[data-or]").forEach(b=>b.onclick=()=>{ora=b.dataset.or;$("#fOraAltro").value="";drawSlots();prev();});
     $("#fFull")?.remove(); if(tot>=cap)$("#fSlots").insertAdjacentHTML("afterend",`<div class="warn" style="margin-top:8px" id="fFull">Serata piena (${tot}/${cap}): valuta la lista d'attesa.</div>`);};
-  const prev=()=>{if($("#fPrev"))$("#fPrev").textContent=fill(S.cfg.msg.conferma,{nome:($("#fNome").value||"").split(" ")[0],giorno:bello($("#fData").value),ora:$("#fOraAltro").value||ora||"--:--",persone});};
+  const prev=()=>{if($("#fPrev"))$("#fPrev").textContent=fill(S.cfg.msg.conferma,{nome:$("#fN").value.trim(),giorno:bello($("#fData").value),ora:$("#fOraAltro").value||ora||"--:--",persone});};
   const info=async()=>{const t=telNorm($("#fTel").value);$("#fCliInfo").innerHTML="";cliente=null;if(t.length<10)return;
-    const c=await getCliente("t"+t); if(c){cliente=c;const gg=giorniFa(c.ultimaPresenza);$("#fCliInfo").innerHTML=`${badge(c)} <span style="color:var(--blue);font-weight:700">Cliente già presente</span> · ${c.presenze||0} visite · ${c.puntiFidelity||0} punti${gg!==null?` · ultima visita ${gg} giorni fa`:""}`;if(!$("#fNome").value)$("#fNome").value=[c.nome,c.cognome].filter(Boolean).join(" ");prev();}
+    const c=await getCliente("t"+t); if(c){cliente=c;const gg=giorniFa(c.ultimaPresenza);$("#fCliInfo").innerHTML=`${badge(c)} <span style="color:var(--blue);font-weight:700">Cliente già presente</span> · ${c.presenze||0} visite · ${c.puntiFidelity||0} punti${gg!==null?` · ultima visita ${gg} giorni fa`:""}`;if(!$("#fN").value)$("#fN").value=c.nome||"";if(!$("#fC").value)$("#fC").value=c.cognome||"";if(!$("#fMail").value&&c.email)$("#fMail").value=c.email;prev();}
     else $("#fCliInfo").textContent="Cliente nuovo: verrà aggiunto all'elenco clienti.";};
-  $("#fCerca").addEventListener("input",()=>{const r=cercaIdx($("#fCerca").value).slice(0,8);
-    $("#fRis").innerHTML=r.length?`<div class="card list" style="margin-top:6px">${r.map(x=>`<button type="button" class="li" data-pick="${x.id}"><span><b>${esc(x.nome)}</b> <span class="muted">${esc(x.tel)}</span></span><span>›</span></button>`).join("")}</div>`:"";
-    document.querySelectorAll("[data-pick]").forEach(b=>b.onclick=()=>{const x=S.idx.find(y=>y.id===b.dataset.pick);$("#fTel").value=x.tel||"";$("#fNome").value=x.nome||"";$("#fCerca").value="";$("#fRis").innerHTML="";info();});});
-  $("#fTel").addEventListener("input",info);$("#fNome").addEventListener("input",prev);$("#fData").addEventListener("change",()=>{drawSlots();prev();});
+  const cerca=()=>{const q=[$("#fN").value,$("#fC").value,$("#fTel").value.replace(/\D/g,"").replace(/^(00)?39(?=3)/,"")].filter(x=>x.trim()).join(" ");if(q.trim().length<2||cliente){$("#fRis").innerHTML="";return;}const r=cercaIdx(q).slice(0,8);
+    $("#fRis").innerHTML=r.length?`<div class="card list"><div class="muted">Clienti trovati: tocca per sceglierlo</div>${r.map(x=>`<button type="button" class="li" data-pick="${x.id}"><span><b>${esc(x.nome)}</b> <span class="muted">${esc(x.tel)}</span></span><span>›</span></button>`).join("")}</div>`:"";
+    document.querySelectorAll("[data-pick]").forEach(b=>b.onclick=async()=>{const x=S.idx.find(y=>y.id===b.dataset.pick);const c=await getCliente(x.id);$("#fTel").value=x.tel||"";$("#fN").value=c?.nome||(x.nome||"").split(" ")[0];$("#fC").value=c?.cognome||(x.nome||"").split(" ").slice(1).join(" ");if(c?.email)$("#fMail").value=c.email;$("#fRis").innerHTML="";info();});};
+  ["#fN","#fC"].forEach(s=>$(s).addEventListener("input",()=>{cliente=null;$("#fCliInfo").innerHTML="";cerca();prev();}));
+  $("#fTel").addEventListener("input",()=>{info();cerca();});$("#fData").addEventListener("change",()=>{drawSlots();prev();});
   $("#fOraAltro").addEventListener("input",()=>{ora="";drawSlots();prev();});
   $("#pMeno").onclick=()=>{persone=Math.max(1,persone-1);$("#pN").textContent=persone;prev();};
   $("#pPiu").onclick=()=>{persone++;$("#pN").textContent=persone;prev();};
   $("#fTav").onchange=()=>{const t=S.tav.find(x=>x.nome===$("#fTav").value);if(t&&t.sala)$("#fSala").value=t.sala;};
   drawSlots();prev();if(e.telefono)info();
   $("#fSave").onclick=async()=>{
-    const nome=$("#fNome").value.trim(),tel=$("#fTel").value.trim(),oraF=$("#fOraAltro").value.trim()||ora;
-    if(!nome){toast("Scrivi il nome");return;} if(!oraF){toast("Scegli l'orario");return;}
+    const nN=$("#fN").value.trim(),nC=$("#fC").value.trim(),mail=$("#fMail").value.trim().toLowerCase(),nome=[nN,nC].filter(Boolean).join(" "),tel=$("#fTel").value.trim(),oraF=$("#fOraAltro").value.trim()||ora;
+    if(!nN){toast("Scrivi il nome");return;} if(!telNorm(tel)&&!p){ if(!confirm("Manca il telefono: il cliente non riceverà WhatsApp e non verrà salvato nell'elenco. Continuare?")) return; } if(!oraF){toast("Scegli l'orario");return;}
     const t=telNorm(tel), clienteId=t?"t"+t:(p?.clienteId||null), tav=$("#fTav").value;
-    const dati={nome,telefono:t?"+"+t:tel,clienteId,data:$("#fData").value,turno:"cena",ora:oraF,persone,sala:$("#fSala").value,tavolo:tav,tavoli:tav?[tav]:(p?.tavoli||[]),note:$("#fNote").value.trim(),
+    const dati={nome,email:mail,telefono:t?"+"+t:tel,clienteId,data:$("#fData").value,turno:"cena",ora:oraF,persone,sala:$("#fSala").value,tavolo:tav,tavoli:tav?[tav]:(p?.tavoli||[]),note:$("#fNote").value.trim(),
       stato:$("#fAtt").checked?"attesa":(p&&p.stato!=="attesa"?p.stato:"confermata"),aggiornatoIl:serverTimestamp(),aggiornatoDa:S.me.nome||""};
     if(!tav&&p) dati.tavoli=p.tavoli||[];
     $("#fSave").disabled=true;
     try{
       if(p){ await updateDoc(doc(db,"prenotazioni",p.id),dati); evento(clienteId,"prenotazione",`Prenotazione modificata: ${bello(dati.data)} ${dati.ora}`); }
       else{ await addDoc(collection(db,"prenotazioni"),{...dati,creatoIl:serverTimestamp(),creatoDa:S.me.nome||"",canale:"staff"});
-        if(clienteId&&!cliente){ const [n,...cg]=nome.split(" "); await setDoc(doc(db,"clienti",clienteId),{nome:n,cognome:cg.join(" "),telefono:"+"+t,presenze:0,puntiFidelity:0,dataRegistrazione:iso(new Date()),provenienza:"prenotazione",origine:"penelope",consensi:{privacy:true,marketing:false,profilazione:false,fonte:"prenotazione staff",dataConsenso:iso(new Date())}},{merge:true});
+        if(clienteId&&cliente&&mail&&!cliente.email) setDoc(doc(db,"clienti",clienteId),{email:mail},{merge:true}).catch(()=>{});
+        if(clienteId&&!cliente){ await setDoc(doc(db,"clienti",clienteId),{nome:nN,cognome:nC,email:mail||null,telefono:"+"+t,presenze:0,puntiFidelity:0,dataRegistrazione:iso(new Date()),provenienza:"prenotazione",origine:"penelope",consensi:{privacy:true,marketing:false,profilazione:false,fonte:"prenotazione staff",dataConsenso:iso(new Date())}},{merge:true});
           const riga=`${clienteId}|${nome}|+${t}`; setDoc(doc(db,"indice","nuovi"),{nuovi:arrayUnion(riga)},{merge:true}).catch(()=>{}); S.idx?.push({id:clienteId,nome,tel:"+"+t,k:norm(nome)+" "+t}); }
         evento(clienteId,"prenotazione",`Prenotazione per ${bello(dati.data)} alle ${dati.ora}, ${persone} persone`);
         if($("#fWa")?.checked){ wa(t,$("#fPrev").textContent); evento(clienteId,"whatsapp","Messaggio WhatsApp: Conferma prenotazione"); } }
