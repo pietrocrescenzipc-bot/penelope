@@ -160,13 +160,13 @@ onAuthStateChanged(auth,async u=>{
   if(!u){$("#login").classList.remove("hidden");["#app","#tabs","#fab"].forEach(s=>$(s).classList.add("hidden"));return;}
   try{ const sd=await getDoc(doc(db,"staff",u.uid)); if(!sd.exists()){$("#lerr").textContent="Account non abilitato. Chiedi all'amministratore.";await signOut(auth);return;}
     S.me={uid:u.uid,...sd.data()};
-    const cd=await getDoc(doc(db,"impostazioni","locale")).catch(()=>null); const c=cd&&cd.exists()?cd.data():{};
+    const [cd,tv]=await Promise.all([getDoc(doc(db,"impostazioni","locale")).catch(()=>null),getDocs(collection(db,"tavoli")).catch(()=>null)]); const c=cd&&cd.exists()?cd.data():{};
     S.cfg={...CFG_DEF,...c,msg:{...CFG_DEF.msg,...(c.msg||{})}};
-    const tv=await getDocs(collection(db,"tavoli")).catch(()=>null); S.tav=tv?tv.docs.map(d=>({id:d.id,...d.data()})):[];
+    S.tav=tv?tv.docs.map(d=>({id:d.id,...d.data()})):[];
     if(!S.cfg.coperti?.cena) S.cfg.coperti={cena:S.tav.reduce((t,x)=>t+(+x.posti||0),0)||80};
   }catch(e){$("#lerr").textContent="Errore di collegamento. Riprova.";return;}
   $("#login").classList.add("hidden");
-  if(EMBED){ caricaIndice(); const pid=QP.get("pren"), cid=QP.get("cli");
+  if(EMBED){ setTimeout(caricaIndice,800); const pid=QP.get("pren"), cid=QP.get("cli");
     if(pid){ const d=await getDoc(doc(db,"prenotazioni",pid)).catch(()=>null); if(d&&d.exists()) return dettaglioPren({id:d.id,...d.data()}); }
     if(cid) return schedaCliente(cid);
     if(QP.get("nuova")){ if(QP.get("data")) S.data=QP.get("data"); return formPrenotazione(); }
@@ -274,7 +274,7 @@ function vediSala(){
 
 /* ---------- dettaglio prenotazione ---------- */
 async function dettaglioPren(p){
-  const c=await getCliente(p.clienteId); const nome1=(p.nome||"").split(" ")[0];
+  const c=S.cli.get(p.clienteId); const nome1=(p.nome||"").split(" ")[0];
   const vars={nome:nome1,giorno:bello(p.data),ora:p.ora,persone:p.persone};
   const msg=k=>{ wa(p.telefono,fill(S.cfg.msg[k],vars)); evento(p.clienteId,"whatsapp",`Messaggio WhatsApp: ${MSG_NOMI[k]}`); };
   sheet(p.nome||"Prenotazione",`
@@ -284,12 +284,13 @@ async function dettaglioPren(p){
       <textarea class="f" id="dNote" placeholder="compleanno, bambini, allergie, seggiolone…" style="background:#FFFBEA;font-weight:700">${esc(p.note||"")}</textarea>
       <button class="btn gold hidden" id="dNoteSave">Salva note</button></div>
     <button class="card" id="dCli" style="border:0;text-align:left;display:flex;align-items:center;gap:12px;width:100%">
-      <span style="font-size:0">${badge(c)}</span><span style="flex:1"><span style="font-weight:700;display:block">${esc(c?[c.nome,c.cognome].filter(Boolean).join(" "):p.nome||"")}</span><span class="muted">${c?`${c.presenze||0} visite · ${c.puntiFidelity||0} punti${c.ultimaPresenza?" · ultima "+corto(c.ultimaPresenza):""}`:"Cliente nuovo"} · apri anagrafica</span></span><span style="font-size:24px" aria-hidden="true">›</span></button>
+<span id="dCliIn" style="display:contents">${cliCard(c,p)}</span><span style="font-size:24px" aria-hidden="true">›</span></button>
     ${["confermata","attesa"].includes(p.stato)?`<button class="btn block" id="bArr" style="min-height:64px;font-size:20px">✓ È arrivato</button>`:""}
     <div class="grid2"><button class="btn wa" id="bConf">WhatsApp conferma</button><button class="btn wa" id="bBenv">WhatsApp benvenuto</button></div>
     <button class="btn light block" id="bMod">Modifica prenotazione</button>
     ${p.stato==="attesa"?`<button class="btn light block" id="bConfm">Conferma il posto</button>`:p.stato==="confermata"?`<button class="btn light block" id="bAtt">Metti in lista d'attesa</button>`:`<button class="btn light block" id="bRip">Rimetti tra le prenotazioni</button>`}
     ${["confermata","attesa","arrivato"].includes(p.stato)?`<div class="grid2"><button class="btn light" id="bNs">Non è venuto</button><button class="btn red" id="bRif">Rifiuta</button></div><button class="btn red block" id="bAnn">Annulla prenotazione</button>`:""}`);
+  if(p.clienteId&&!S.cli.has(p.clienteId)) getCliente(p.clienteId).then(cc=>{ const el=document.getElementById("dCliIn"); if(el) el.innerHTML=cliCard(cc,p); });
   $("#bConf").onclick=()=>msg("conferma"); $("#bBenv").onclick=()=>msg("benvenuto");
   $("#bMod").onclick=()=>formPrenotazione(p);
   $("#dCli").onclick=()=>{ if(p.clienteId) schedaCliente(p.clienteId); else toast("Cliente senza telefono: non è nell'elenco"); };
@@ -305,6 +306,7 @@ async function dettaglioPren(p){
   if($("#bRif")) $("#bRif").onclick=()=>{ if(confirm("Rifiutare questa prenotazione?")) cambia("rifiutata","Prenotazione rifiutata","rifiutata"); };
   if($("#bAnn")) $("#bAnn").onclick=()=>{ if(confirm("Annullare questa prenotazione?")) cambia("annullata","Prenotazione annullata","annullata"); };
 }
+function cliCard(c,p){ return `<span>${p.clienteId&&!S.cli.has(p.clienteId)?'<span class="muted">…</span>':badge(c)}</span><span style="flex:1"><span style="font-weight:700;display:block">${esc(c?[c.nome,c.cognome].filter(Boolean).join(" "):p.nome||"")}</span><span class="muted">${c?`${c.presenze||0} visite · ${c.puntiFidelity||0} punti${c.ultimaPresenza?" · ultima "+corto(c.ultimaPresenza):""}`:(p.clienteId&&!S.cli.has(p.clienteId)?"caricamento…":"Cliente nuovo")} · apri anagrafica</span></span>`; }
 async function stato(p,s){ try{ await updateDoc(doc(db,"prenotazioni",p.id),{stato:s,aggiornatoIl:serverTimestamp(),aggiornatoDa:S.me.nome||""}); toast("Fatto ✓"); }catch(e){ toast("Errore: "+e.code); } }
 async function evento(clienteId,tipo,testo,extra={}){ if(!clienteId) return; try{ await addDoc(collection(db,"clienti",clienteId,"eventi"),{tipo,testo,quando:serverTimestamp(),da:S.me.nome||"",...extra}); }catch(e){} }
 
@@ -374,7 +376,7 @@ async function formPrenotazione(p=null,cli=null){
 function viewClienti(){ const b=boxRicerca(id=>schedaCliente(id),"Cerca nome, cognome o telefono");
   $("#hdr").innerHTML=`<div class="brand">PENELOPE · THE GALLEON</div><div class="h1">Clienti</div><div style="margin-top:10px">${b.html}</div>`; b.bind(); }
 async function schedaCliente(id){
-  S.cli.delete(id); const c=await getCliente(id); if(!c){toast("Cliente non ancora disponibile (import in corso?)");return;}
+  const c=await getCliente(id); if(!c){toast("Cliente non ancora disponibile (import in corso?)");return;}
   const nome=[c.nome,c.cognome].filter(Boolean).join(" ")||"Cliente", gg=giorniFa(c.ultimaPresenza);
   sheet(nome,`
     <div class="card" style="background:var(--navy);color:#fff"><div class="row between"><span style="color:#AEB8C8">${esc(c.telefono||"")}${c.email?" · "+esc(c.email):""}</span><span>${badge(c)}</span></div>

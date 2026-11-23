@@ -44,12 +44,15 @@ aside h3{margin:8px 2px 0;font-family:'Barlow Condensed',sans-serif;font-size:19
 .drop-list.over{outline:3px dashed var(--gold2);outline-offset:-4px;border-radius:12px}
 .planwrap{position:relative;overflow:auto;padding:16px}
 .plans{display:grid;gap:16px}
-.plans.tutto{grid-template-columns:1fr 1fr}
+.plans.tutto{grid-template-columns:1fr}
 .zona{background:#fff;border-radius:18px;box-shadow:0 2px 10px rgba(15,27,45,.08);overflow:hidden}
 .zona h4{margin:0;padding:10px 14px;font-family:'Barlow Condensed',sans-serif;font-size:20px;display:flex;justify-content:space-between;align-items:center;background:#F3F5F8;border-bottom:1px solid var(--line)}
 .zona h4 span{font-family:Barlow,system-ui,sans-serif;font-size:13px;color:var(--mute);font-weight:600}
 .plan{position:relative;width:100%;aspect-ratio:16/10;background:#FBFAF7;background-image:radial-gradient(#E6E2D8 1px,transparent 1px);background-size:18px 18px}
 .plans.solo .plan{min-width:720px}
+.plan.big{aspect-ratio:16/11;min-width:900px;background-color:#FBFAF7}
+.zg{position:absolute;border:2px dashed #D8D2C2;border-radius:14px;background:rgba(217,192,138,.06)}
+.zg span{position:absolute;top:6px;left:10px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:16px;color:#A89A78;letter-spacing:.5px;text-transform:uppercase}
 .tav{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;touch-action:none;user-select:none}
 .tav{min-width:46px;min-height:46px}
 .tav .top{position:absolute;inset:11%;border-radius:12px;background:var(--free);border:2.5px solid #A9B3C2;box-shadow:0 3px 8px rgba(15,27,45,.15);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2px;overflow:hidden;transition:transform .12s}
@@ -78,7 +81,7 @@ aside h3{margin:8px 2px 0;font-family:'Barlow Condensed',sans-serif;font-size:19
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--navy);color:#fff;padding:14px 18px;border-radius:14px;z-index:60;font-weight:600}
 .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:14px;color:var(--mute);margin-top:12px;align-items:center}
 .legend i{display:inline-block;width:16px;height:16px;border-radius:5px;margin-right:6px;vertical-align:-3px;border:2px solid #A9B3C2;background:#fff}
-@media (max-width:1000px){.plans.tutto{grid-template-columns:1fr}}
+
 @media (max-width:800px){.body{grid-template-columns:1fr}aside{max-height:34vh;border-right:0;border-bottom:1px solid var(--line)}}
 </style>
 </head>
@@ -121,6 +124,9 @@ const bello=s=>{const d=new Date(s+"T12:00:00");return `${GG[d.getDay()]} ${d.ge
 const toast=m=>{const t=document.createElement("div");t.className="toast";t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2600);};
 const iniziali=n=>String(n||"?").split(" ").filter(Boolean).slice(0,2).map(x=>x[0].toUpperCase()).join("");
 const SALE=["Sala principale","Saletta ABCD","Sala divani","Veranda"];
+const REG={"Sala principale":[0,0,62,64],"Saletta ABCD":[63,0,37,34],"Sala divani":[63,35,37,29],"Veranda":[0,65,100,35]};
+const geo=(t,g)=>{ if(!g) return {x:t.x,y:t.y,w:t.w||8,h:t.h||11}; const r=REG[t.sala]||[0,0,100,100];
+  return {x:t.gx??+(r[0]+1+t.x*(r[2]-2)/100).toFixed(1), y:t.gy??+(r[1]+5+t.y*(r[3]-6)/100).toFixed(1), w:(t.w||8)*.56, h:(t.h||11)*.56}; };
 const S={data:iso(new Date()),sala:"tutto",edit:false,tav:[],pren:[],me:null,u2:null};
 
 $("#lf").onsubmit=async e=>{e.preventDefault();try{await signInWithEmailAndPassword(auth,$("#lem").value.trim(),$("#lpw").value);$("#lpw").value="";}catch(x){$("#lerr").textContent="Email o password non corretti.";}};
@@ -137,7 +143,7 @@ function ascolta(){ if(S.u2)S.u2(); S.u2=onSnapshot(query(collection(db,"prenota
 const shift=n=>{const d=new Date(S.data+"T12:00:00");d.setDate(d.getDate()+n);S.data=iso(d);ascolta();draw();};
 $("#nuova").onclick=()=>apri(`index.html?embed=1&nuova=1&data=${S.data}`);
 $("#prev").onclick=()=>shift(-1); $("#next").onclick=()=>shift(1); $("#oggi").onclick=()=>{S.data=iso(new Date());ascolta();draw();};
-$("#edit").onclick=()=>{S.edit=!S.edit; if(S.edit&&S.sala==="tutto") S.sala=SALE[0]; $("#edit").textContent=S.edit?"✓ Fine modifica":"✎ Modifica sala";draw();};
+$("#edit").onclick=()=>{S.edit=!S.edit; $("#edit").textContent=S.edit?"✓ Fine modifica":"✎ Modifica sala";draw();};
 window.addEventListener("message",e=>{ if(e.data&&e.data.penelope==="chiudi") $("#embed")?.remove(); });
 
 const tavDi=p=>p.tavoli&&p.tavoli.length?p.tavoli:(p.tavolo?String(p.tavolo).split(" + "):[]);
@@ -146,8 +152,8 @@ function sedie(t){ const n=Math.min(+t.posti||0,12); if(!n) return ""; let h="";
   for(let i=0;i<n;i++){ let x,y; if(t.forma==="tondo"){ const a=2*Math.PI*i/n-Math.PI/2; x=50+46*Math.cos(a); y=50+46*Math.sin(a); }
     else { const lato=i%4, k=Math.floor(i/4), tot=Math.ceil((n-lato)/4), pos=(k+1)/(tot+1)*100; [x,y]=[[pos,3],[97,pos],[pos,97],[3,pos]][lato]; }
     h+=`<span class="ch" style="left:calc(${x}% - 6%);top:calc(${y}% - 6%)"></span>`; } return h; }
-function tavoloHTML(t){ const ps=S.pren.filter(p=>tavDi(p).includes(t.nome)); const st=ps.some(p=>p.stato==="arrivato")?"arr":ps.length?"busy":"";
-  return `<div class="tav ${t.forma==="tondo"?"round":""} ${st}" data-t="${t.id}" style="left:${t.x}%;top:${t.y}%;width:${t.w||8}%;height:${t.h||11}%">${sedie(t)}<div class="top"><div class="tn">${esc(S.sala==="tutto"?String(t.nome).replace(/^Pedana /,"P").replace(/^Veranda /,"V"):t.nome)}</div>${ps.length?ps.map(p=>`<div class="who" data-bk="${p.id}">${p.note?"📝":""}${esc((p.nome||"").split(" ")[0])} · ${esc(p.ora||"")}</div>`).join(""):`<div class="tp">${esc(t.posti||"")} posti</div>`}</div></div>`; }
+function tavoloHTML(t,g){ const G=geo(t,g); const ps=S.pren.filter(p=>tavDi(p).includes(t.nome)); const st=ps.some(p=>p.stato==="arrivato")?"arr":ps.length?"busy":"";
+  return `<div class="tav ${t.forma==="tondo"?"round":""} ${st}" data-t="${t.id}" style="left:${G.x}%;top:${G.y}%;width:${G.w}%;height:${G.h}%">${sedie(t)}<div class="top"><div class="tn">${esc(S.sala==="tutto"?String(t.nome).replace(/^Pedana /,"P").replace(/^Veranda /,"V"):t.nome)}</div>${ps.length?ps.map(p=>`<div class="who" data-bk="${p.id}">${p.note?"📝":""}${esc((p.nome||"").split(" ")[0])} · ${esc(p.ora||"")}</div>`).join(""):`<div class="tp">${esc(t.posti||"")} posti</div>`}</div></div>`; }
 
 function draw(){
   $("#titolo").textContent=bello(S.data);
@@ -155,19 +161,22 @@ function draw(){
   $("#stat").innerHTML=`<div><b>${att.length}</b>prenotazioni</div><div><b>${pax}${posti?"/"+posti:""}</b>coperti</div><div><b>${att.filter(p=>p.stato==="arrivato").length}</b>arrivati</div>`;
   const tabs=[["tutto","Tutto il locale"],...SALE.map(s=>[s,s])];
   $("#tabs").innerHTML=tabs.map(([k,t])=>`<button class="${k===S.sala?"on":""}" data-s="${esc(k)}">${esc(t)}</button>`).join("");
-  document.querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>{ if(S.edit&&b.dataset.s==="tutto") return toast("Per modificare scegli una sala"); S.sala=b.dataset.s;draw();});
+  document.querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>{ S.sala=b.dataset.s;draw();});
   // lista
   const libere=S.pren.filter(p=>!tavDi(p).length), sedute=S.pren.filter(p=>tavDi(p).length);
   const card=p=>`<div class="bk ${p.stato==="arrivato"?"arr":""} ${p.stato==="attesa"?"att":""}" data-bk="${p.id}"><div class="av">${esc(iniziali(p.nome))}</div><div style="flex:1;min-width:0"><span class="n">${esc(p.nome||"—")}</span><small>👥 ${esc(p.persone)}${tavDi(p).length?" · 🍽 "+esc(tavDi(p).join(" + ")):""}${p.stato==="attesa"?" · in attesa":""}${p.stato==="arrivato"?" · arrivati ✓":""}</small>${p.note?`<span class="nota">📝 ${esc(p.note)}</span>`:""}</div><span class="pill">${esc(p.ora||"")}</span></div>`;
   $("#side").innerHTML=`<h3>Da sistemare · ${libere.length}</h3>${libere.map(card).join("")||'<div class="muted">Tutti hanno un tavolo 👍</div>'}<h3>Al tavolo · ${sedute.length}</h3>${sedute.map(card).join("")}<div class="muted" style="margin-top:6px">Trascina qui un nome per togliergli il tavolo.</div>`;
   document.querySelectorAll("#side [data-bk]").forEach(el=>dragBooking(el,S.pren.find(p=>p.id===el.dataset.bk)));
   // piantine
-  const zone=S.sala==="tutto"?SALE:[S.sala];
-  $("#plans").className="plans "+(S.sala==="tutto"?"tutto":"solo")+(S.edit?" edit":"");
-  $("#plans").innerHTML=zone.map(z=>{ const tv=S.tav.filter(t=>t.sala===z).sort(ordNome); const occ=tv.filter(t=>S.pren.some(p=>tavDi(p).includes(t.nome))).length;
-    return `<div class="zona"><h4>${esc(z)}<span>${tv.length?`${occ} occupati · ${tv.length-occ} liberi`:"nessun tavolo"}</span></h4><div class="plan" data-zona="${esc(z)}">${tv.map(tavoloHTML).join("")||`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;color:var(--mute)">Nessun tavolo qui.${S.me?.ruolo==="admin"?`<button class="btn gold" data-seed="${esc(z)}">Crea i tavoli</button>`:""}</div>`}</div></div>`; }).join("");
+  const TUTTO=S.sala==="tutto";
+  $("#plans").className="plans "+(TUTTO?"tutto":"solo")+(S.edit?" edit":"");
+  if(TUTTO){ const occ=S.tav.filter(t=>S.pren.some(p=>tavDi(p).includes(t.nome))).length;
+    $("#plans").innerHTML=`<div class="zona"><h4>Tutto il locale<span>${occ} occupati · ${S.tav.length-occ} liberi</span></h4><div class="plan big">${SALE.map(z=>{const r=REG[z];return `<div class="zg" style="left:${r[0]}%;top:${r[1]}%;width:${r[2]}%;height:${r[3]}%"><span>${esc(z)}</span></div>`;}).join("")}${S.tav.map(t=>tavoloHTML(t,true)).join("")}</div></div>`
+      +(S.tav.length?"":`<div class="muted" style="margin-top:10px">Nessun tavolo: apri una sala per crearli.</div>`);
+  } else $("#plans").innerHTML=[S.sala].map(z=>{ const tv=S.tav.filter(t=>t.sala===z).sort(ordNome); const occ=tv.filter(t=>S.pren.some(p=>tavDi(p).includes(t.nome))).length;
+    return `<div class="zona"><h4>${esc(z)}<span>${tv.length?`${occ} occupati · ${tv.length-occ} liberi`:"nessun tavolo"}</span></h4><div class="plan">${tv.map(t=>tavoloHTML(t,false)).join("")||`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;color:var(--mute)">Nessun tavolo qui.${S.me?.ruolo==="admin"?`<button class="btn gold" data-seed="${esc(z)}">Crea i tavoli</button>`:""}</div>`}</div></div>`; }).join("");
   document.querySelectorAll("[data-seed]").forEach(b=>b.onclick=()=>seed(b.dataset.seed));
-  document.querySelectorAll(".tav").forEach(el=>{ const t=S.tav.find(x=>x.id===el.dataset.t); if(S.edit) dragTable(el,t); else el.onclick=e=>{ if(!e.target.closest("[data-bk]")) menuTavolo(t); }; });
+  document.querySelectorAll(".tav").forEach(el=>{ const t=S.tav.find(x=>x.id===el.dataset.t); if(S.edit) dragTable(el,t,TUTTO); else el.onclick=e=>{ if(!e.target.closest("[data-bk]")) menuTavolo(t); }; });
   document.querySelectorAll(".tav [data-bk]").forEach(el=>{ if(!S.edit) dragBooking(el,S.pren.find(p=>p.id===el.dataset.bk)); });
   $("#editbar").classList.toggle("hidden",!S.edit);
   if(S.edit){ $("#editbar").innerHTML=`<button class="btn gold" id="addT">+ Aggiungi tavolo</button><span class="muted">Trascina i tavoli per spostarli. Toccali per cambiare nome, posti, sala, forma e dimensione.</span>`; $("#addT").onclick=()=>editTavolo(null); }
@@ -208,10 +217,10 @@ function menuTavolo(t){ const ps=S.pren.filter(p=>tavDi(p).includes(t.nome));
   if($("#mLib")) $("#mLib").onclick=()=>{ ps.forEach(p=>setTav(p,tavDi(p).filter(n=>n!==t.nome),p.sala)); close(); }; }
 
 /* ---- modifica tavoli ---- */
-function dragTable(el,t){ el.onpointerdown=e=>{ e.preventDefault(); const plan=el.parentElement.getBoundingClientRect(); const sx=e.clientX,sy=e.clientY,ox=t.x,oy=t.y; let moved=false;
+function dragTable(el,t,g){ el.onpointerdown=e=>{ e.preventDefault(); const plan=el.parentElement.getBoundingClientRect(); const G=geo(t,g); const sx=e.clientX,sy=e.clientY,ox=G.x,oy=G.y; let moved=false, nx=ox, ny=oy;
   const mv=ev=>{ if(!moved&&Math.hypot(ev.clientX-sx,ev.clientY-sy)<6) return; moved=true;
-    t.x=Math.max(0,Math.min(100-(t.w||8),Math.round((ox+(ev.clientX-sx)/plan.width*100)*2)/2)); t.y=Math.max(0,Math.min(100-(t.h||11),Math.round((oy+(ev.clientY-sy)/plan.height*100)*2)/2)); el.style.left=t.x+"%"; el.style.top=t.y+"%"; };
-  const up=async()=>{ window.removeEventListener("pointermove",mv);window.removeEventListener("pointerup",up); if(!moved){ editTavolo(t); return; } try{ await updateDoc(doc(db,"tavoli",t.id),{x:t.x,y:t.y}); }catch(e){toast("Errore: "+e.code);} };
+    nx=Math.max(0,Math.min(100-G.w,Math.round((ox+(ev.clientX-sx)/plan.width*100)*2)/2)); ny=Math.max(0,Math.min(100-G.h,Math.round((oy+(ev.clientY-sy)/plan.height*100)*2)/2)); el.style.left=nx+"%"; el.style.top=ny+"%"; };
+  const up=async()=>{ window.removeEventListener("pointermove",mv);window.removeEventListener("pointerup",up); if(!moved){ editTavolo(t); return; } const d=g?{gx:nx,gy:ny}:{x:nx,y:ny}; Object.assign(t,d); try{ await updateDoc(doc(db,"tavoli",t.id),d); }catch(e){toast("Errore: "+e.code);} };
   window.addEventListener("pointermove",mv); window.addEventListener("pointerup",up); }; }
 function editTavolo(t){ const n=!t; t=t||{nome:"",posti:4,sala:S.sala==="tutto"?SALE[0]:S.sala,forma:"quadrato",w:8,h:11,x:2,y:2};
   sheet(n?"Nuovo tavolo":"Modifica tavolo "+t.nome,`
@@ -233,7 +242,8 @@ async function seed(sala){
   if(!nomi.length){ editTavolo({nome:"",posti:4,sala,forma:"quadrato",w:8,h:11,x:4,y:6}); return; }
   if(!confirm(`Creo in ${sala} i tavoli: ${nomi.join(", ")}? Poi li sposti e sistemi i posti con ✎ Modifica sala.`)) return;
   const b=writeBatch(db), cols=nomi.length>12?7:nomi.length>4?6:4; // tavoli più grandi e leggibili
-  nomi.forEach((nome,i)=>{ const r=Math.floor(i/cols),c=i%cols; b.set(doc(collection(db,"tavoli")),{nome,sala,posti:4,forma:"quadrato",w:11,h:16,x:2+c*(96/cols),y:4+r*22}); });
+  const rows=Math.ceil(nomi.length/cols), passo=Math.min(30,88/rows);
+  nomi.forEach((nome,i)=>{ const r=Math.floor(i/cols),c=i%cols; b.set(doc(collection(db,"tavoli")),{nome,sala,posti:4,forma:"quadrato",w:11,h:16,x:2+c*(96/cols),y:4+r*passo}); });
   try{ await b.commit(); toast("Tavoli creati ✓"); }catch(e){toast("Errore: "+e.code);}
 }
 </script>
