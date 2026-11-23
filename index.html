@@ -168,7 +168,9 @@ onAuthStateChanged(auth,async u=>{
   $("#login").classList.add("hidden");
   if(EMBED){ caricaIndice(); const pid=QP.get("pren"), cid=QP.get("cli");
     if(pid){ const d=await getDoc(doc(db,"prenotazioni",pid)).catch(()=>null); if(d&&d.exists()) return dettaglioPren({id:d.id,...d.data()}); }
-    if(cid) return schedaCliente(cid); return parent.postMessage({penelope:"chiudi"},"*"); }
+    if(cid) return schedaCliente(cid);
+    if(QP.get("nuova")){ if(QP.get("data")) S.data=QP.get("data"); return formPrenotazione(); }
+    return parent.postMessage({penelope:"chiudi"},"*"); }
   ["#app","#tabs"].forEach(s=>$(s).classList.remove("hidden"));
   history.replaceState({tab:"agenda"},""); show("agenda"); caricaIndice();
 });
