@@ -175,14 +175,19 @@ async function caricaIndice(){
 function cercaIdx(q){ q=norm(q).trim(); if(q.length<2||!S.idx) return [];
   const parti=q.split(/\s+/).map(p=>/^\+?\d+$/.test(p)?p.replace(/\D/g,""):p);
   const res=[]; for(const x of S.idx){ if(parti.every(p=>x.k.includes(p))){ res.push(x); if(res.length>=40) break; } } return res; }
+async function cercaRemota(q){ q=q.trim(); const out=[], add=d=>{ if(!out.find(x=>x.id===d.id)){ const v=d.data(); out.push({id:d.id,nome:[v.nome,v.cognome].filter(Boolean).join(" "),tel:v.telefono||""}); } };
+  try{ const t=telNorm(q); if(/^[\d\s+]+$/.test(q)){ if(t){ const d=await getDoc(doc(db,"clienti","t"+t)); if(d.exists()) add(d); } return out; }
+    const w=q.split(/\s+/)[0], forme=[...new Set([w.charAt(0).toUpperCase()+w.slice(1).toLowerCase(),w.toUpperCase(),w.toLowerCase()])];
+    for(const campo of ["cognome","nome"]) for(const f of forme){ const s2=await getDocs(query(collection(db,"clienti"),where(campo,">=",f),where(campo,"<=",f+"\uf8ff"),limit(15))); s2.docs.forEach(add); }
+  }catch(e){} return out.slice(0,40); }
+async function trova(q){ return (S.idx&&S.idx.length)? cercaIdx(q) : await cercaRemota(q); }
 function boxRicerca(onPick,placeholder){
   return {html:`<input class="search" id="qBox" placeholder="${esc(placeholder)}" autocomplete="off" aria-label="Cerca cliente">`,
-    bind(){ const draw=()=>{ const q=$("#qBox").value; if(q.trim().length<2){ $("#main").innerHTML=`<div class="muted">Scrivi almeno 2 lettere del nome, del cognome o del telefono.</div>`; return; }
-        if(!S.idx){ $("#main").innerHTML=`<div class="muted">Sto preparando la ricerca…</div>`; setTimeout(draw,600); return; }
-        const r=cercaIdx(q);
+    bind(){ const draw=async()=>{ const q=$("#qBox").value; if(q.trim().length<2){ $("#main").innerHTML=`<div class="muted">Scrivi almeno 2 lettere del nome, del cognome o del telefono.</div>`; return; }
+        const r=await trova(q); if($("#qBox").value!==q) return;
         $("#main").innerHTML=r.length?`<div class="card list">${r.map(x=>`<button class="li" data-c="${x.id}"><div><div style="font-weight:700">${esc(x.nome||"Senza nome")}</div><div class="muted">${esc(x.tel||"")}</div></div><span aria-hidden="true">›</span></button>`).join("")}</div>`:`<div class="card">Nessun cliente trovato.</div>`;
         document.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>onPick(b.dataset.c)); };
-      $("#qBox").addEventListener("input",draw); draw(); setTimeout(()=>$("#qBox").focus(),100); } };
+      let tmr; $("#qBox").addEventListener("input",()=>{clearTimeout(tmr);tmr=setTimeout(draw,S.idx&&S.idx.length?0:350);}); draw(); setTimeout(()=>$("#qBox").focus(),100); } };
 }
 async function getCliente(id){ if(!id) return null; if(S.cli.has(id)) return S.cli.get(id);
   const d=await getDoc(doc(db,"clienti",id)).catch(()=>null); const c=d&&d.exists()?{id,...d.data()}:null; S.cli.set(id,c); return c; }
@@ -293,7 +298,7 @@ async function formPrenotazione(p=null,cli=null){
     <label class="row" style="gap:12px;font-weight:600"><input type="checkbox" id="fAtt" ${e.stato==="attesa"?"checked":""} style="width:26px;height:26px"> Metti in lista d'attesa</label>
     ${!p?`<div class="card" style="display:flex;flex-direction:column;gap:10px"><label class="row" style="gap:12px;font-weight:700"><input type="checkbox" id="fWa" checked style="width:26px;height:26px"> Manda conferma su WhatsApp</label><div id="fPrev" style="background:var(--greenbg);border-radius:4px 14px 14px 14px;padding:10px 12px;font-size:15px"></div></div>`:""}
     <button class="btn gold block" id="fSave" style="min-height:60px;font-size:19px">${p?"Salva modifiche":"Salva prenotazione"}</button>`);
-  let ora=e.ora, persone=+e.persone||2, cliente=null;
+  let ora=e.ora, persone=+e.persone||2, cliente=null; let lastR=[];
   const occ=async()=>{const s=await getDocs(query(collection(db,"prenotazioni"),where("data","==",$("#fData").value)));const m={};s.docs.forEach(d=>{const x=d.data();if(["confermata","arrivato"].includes(x.stato)&&d.id!==p?.id)m[x.ora]=(m[x.ora]||0)+(+x.persone||0);});return m;};
   const drawSlots=async()=>{const m=await occ().catch(()=>({}));const tot=Object.values(m).reduce((a,b)=>a+b,0);const cap=S.cfg.coperti.cena||80;
     $("#fSlots").innerHTML=S.cfg.orari.cena.map(o=>`<button type="button" class="slot ${o===ora?"on":""}" data-or="${o}">${o}<small>${m[o]?m[o]+" pers.":"libero"}</small></button>`).join("");
@@ -303,9 +308,9 @@ async function formPrenotazione(p=null,cli=null){
   const info=async()=>{const t=telNorm($("#fTel").value);$("#fCliInfo").innerHTML="";cliente=null;if(t.length<10)return;
     const c=await getCliente("t"+t); if(c){cliente=c;const gg=giorniFa(c.ultimaPresenza);$("#fCliInfo").innerHTML=`${badge(c)} <span style="color:var(--blue);font-weight:700">Cliente già presente</span> · ${c.presenze||0} visite · ${c.puntiFidelity||0} punti${gg!==null?` · ultima visita ${gg} giorni fa`:""}`;if(!$("#fN").value)$("#fN").value=c.nome||"";if(!$("#fC").value)$("#fC").value=c.cognome||"";if(!$("#fMail").value&&c.email)$("#fMail").value=c.email;prev();}
     else $("#fCliInfo").textContent="Cliente nuovo: verrà aggiunto all'elenco clienti.";};
-  const cerca=()=>{const q=[$("#fN").value,$("#fC").value,$("#fTel").value.replace(/\D/g,"").replace(/^(00)?39(?=3)/,"")].filter(x=>x.trim()).join(" ");if(q.trim().length<2||cliente){$("#fRis").innerHTML="";return;}const r=cercaIdx(q).slice(0,8);
+  const cerca=async()=>{const q=[$("#fN").value,$("#fC").value,$("#fTel").value.replace(/\D/g,"").replace(/^(00)?39(?=3)/,"")].filter(x=>x.trim()).join(" ");if(q.trim().length<2||cliente){$("#fRis").innerHTML="";return;}const r=(await trova(q)).slice(0,8); lastR=r;
     $("#fRis").innerHTML=r.length?`<div class="card list"><div class="muted">Clienti trovati: tocca per sceglierlo</div>${r.map(x=>`<button type="button" class="li" data-pick="${x.id}"><span><b>${esc(x.nome)}</b> <span class="muted">${esc(x.tel)}</span></span><span>›</span></button>`).join("")}</div>`:"";
-    document.querySelectorAll("[data-pick]").forEach(b=>b.onclick=async()=>{const x=S.idx.find(y=>y.id===b.dataset.pick);const c=await getCliente(x.id);$("#fTel").value=x.tel||"";$("#fN").value=c?.nome||(x.nome||"").split(" ")[0];$("#fC").value=c?.cognome||(x.nome||"").split(" ").slice(1).join(" ");if(c?.email)$("#fMail").value=c.email;$("#fRis").innerHTML="";info();});};
+    document.querySelectorAll("[data-pick]").forEach(b=>b.onclick=async()=>{const x=lastR.find(y=>y.id===b.dataset.pick);const c=await getCliente(x.id);$("#fTel").value=x.tel||"";$("#fN").value=c?.nome||(x.nome||"").split(" ")[0];$("#fC").value=c?.cognome||(x.nome||"").split(" ").slice(1).join(" ");if(c?.email)$("#fMail").value=c.email;$("#fRis").innerHTML="";info();});};
   ["#fN","#fC"].forEach(s=>$(s).addEventListener("input",()=>{cliente=null;$("#fCliInfo").innerHTML="";cerca();prev();}));
   $("#fTel").addEventListener("input",()=>{info();cerca();});$("#fData").addEventListener("change",()=>{drawSlots();prev();});
   $("#fOraAltro").addEventListener("input",()=>{ora="";drawSlots();prev();});
