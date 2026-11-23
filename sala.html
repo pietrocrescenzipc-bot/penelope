@@ -171,7 +171,7 @@ function draw(){
   const TUTTO=S.sala==="tutto";
   $("#plans").className="plans "+(TUTTO?"tutto":"solo")+(S.edit?" edit":"");
   if(TUTTO){ const occ=S.tav.filter(t=>S.pren.some(p=>tavDi(p).includes(t.nome))).length;
-    $("#plans").innerHTML=`<div class="zona"><h4>Tutto il locale<span>${occ} occupati · ${S.tav.length-occ} liberi</span></h4><div class="plan big">${SALE.map(z=>{const r=REG[z];return `<div class="zg" style="left:${r[0]}%;top:${r[1]}%;width:${r[2]}%;height:${r[3]}%"><span>${esc(z)}</span></div>`;}).join("")}${S.tav.map(t=>tavoloHTML(t,true)).join("")}</div></div>`
+    $("#plans").innerHTML=`<div class="zona"><h4>Tutto il locale<span>${occ} occupati · ${S.tav.length-occ} liberi</span></h4><div class="plan big">${S.tav.map(t=>tavoloHTML(t,true)).join("")}</div></div>`
       +(S.tav.length?"":`<div class="muted" style="margin-top:10px">Nessun tavolo: apri una sala per crearli.</div>`);
   } else $("#plans").innerHTML=[S.sala].map(z=>{ const tv=S.tav.filter(t=>t.sala===z).sort(ordNome); const occ=tv.filter(t=>S.pren.some(p=>tavDi(p).includes(t.nome))).length;
     return `<div class="zona"><h4>${esc(z)}<span>${tv.length?`${occ} occupati · ${tv.length-occ} liberi`:"nessun tavolo"}</span></h4><div class="plan">${tv.map(t=>tavoloHTML(t,false)).join("")||`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;color:var(--mute)">Nessun tavolo qui.${S.me?.ruolo==="admin"?`<button class="btn gold" data-seed="${esc(z)}">Crea i tavoli</button>`:""}</div>`}</div></div>`; }).join("");

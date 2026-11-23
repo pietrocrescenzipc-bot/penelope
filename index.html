@@ -322,7 +322,7 @@ async function formPrenotazione(p=null,cli=null){
     <div id="fRis"></div><div id="fCliInfo" class="muted"></div>
     <div><label class="l" for="fMail">Email (facoltativa)</label><input class="f" id="fMail" type="email" inputmode="email" value="${esc(e.email||"")}" autocomplete="off"></div>
     <div class="grid2"><div><label class="l" for="fData">Giorno</label><input class="f" id="fData" type="date" value="${esc(e.data)}"></div>
-      <div><span class="l">Persone</span><div class="stepper"><button type="button" id="pMeno" aria-label="Meno">−</button><span class="big" id="pN">${esc(e.persone)}</span><button type="button" id="pPiu" aria-label="Più">+</button></div></div></div>
+      <div><span class="l">Persone</span><div class="stepper"><button type="button" id="pMeno" aria-label="Meno">−</button><input id="pN" type="number" inputmode="numeric" min="1" max="200" value="${esc(e.persone)}" aria-label="Numero di persone" style="width:70px;border:0;text-align:center;font-size:22px;font-weight:700;background:transparent;color:var(--txt)"><button type="button" id="pPiu" aria-label="Più">+</button></div></div></div>
     <div><span class="l">Orario</span><div class="slots" id="fSlots"></div><input class="f" id="fOraAltro" placeholder="Altro orario (es. 20:15)" style="margin-top:8px"></div>
     <div class="grid2"><div><label class="l" for="fSala">Sala</label><select class="f" id="fSala"><option value="">— nessuna —</option>${S.cfg.sale.map(s=>`<option ${s===e.sala?"selected":""}>${esc(s)}</option>`).join("")}</select></div>
       <div><label class="l" for="fTav">Tavolo</label><select class="f" id="fTav"><option value="">dal tablet</option>${tavoli.map(t=>`<option ${t===e.tavolo?"selected":""}>${esc(t)}</option>`).join("")}</select></div></div>
@@ -346,8 +346,11 @@ async function formPrenotazione(p=null,cli=null){
   ["#fN","#fC"].forEach(s=>$(s).addEventListener("input",()=>{cliente=null;$("#fCliInfo").innerHTML="";cerca();prev();}));
   $("#fTel").addEventListener("input",()=>{info();cerca();});$("#fData").addEventListener("change",()=>{drawSlots();prev();});
   $("#fOraAltro").addEventListener("input",()=>{ora="";drawSlots();prev();});
-  $("#pMeno").onclick=()=>{persone=Math.max(1,persone-1);$("#pN").textContent=persone;prev();};
-  $("#pPiu").onclick=()=>{persone++;$("#pN").textContent=persone;prev();};
+  $("#pMeno").onclick=()=>{persone=Math.max(1,persone-1);$("#pN").value=persone;prev();};
+  $("#pPiu").onclick=()=>{persone++;$("#pN").value=persone;prev();};
+  $("#pN").addEventListener("input",()=>{const v=parseInt($("#pN").value,10);if(v>0){persone=v;prev();}});
+  $("#pN").addEventListener("focus",()=>$("#pN").select());
+  $("#pN").addEventListener("blur",()=>{if(!(parseInt($("#pN").value,10)>0))$("#pN").value=persone;});
   $("#fTav").onchange=()=>{const t=S.tav.find(x=>x.nome===$("#fTav").value);if(t&&t.sala)$("#fSala").value=t.sala;};
   drawSlots();prev();if(e.telefono)info();
   $("#fSave").onclick=async()=>{
