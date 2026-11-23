@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Galleon Club – Import clienti</title>
+<style>
+  body{font-family:Segoe UI,Arial,sans-serif;background:#F3F4F6;color:#14233A;margin:0;padding:32px}
+  .box{max-width:560px;margin:0 auto;background:#fff;border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:14px}
+  h1{margin:0;font-size:24px}
+  label{font-size:13px;font-weight:600;color:#374151}
+  input{height:42px;border:1px solid #C9CED6;border-radius:10px;padding:0 12px;font-size:15px}
+  input[type=file]{padding:8px}
+  button{height:46px;border:0;border-radius:10px;background:#14233A;color:#fff;font-size:15px;font-weight:700;cursor:pointer}
+  button:disabled{background:#9CA3AF;cursor:default}
+  .bar{height:12px;background:#E5E7EB;border-radius:6px;overflow:hidden}
+  .bar div{height:12px;width:0;background:#D9C08A}
+  #log{font-size:13px;white-space:pre-wrap;background:#F9FAFB;border-radius:8px;padding:10px;min-height:60px}
+</style>
+</head>
+<body>
+<div class="box">
+  <h1>Galleon Club – Import clienti</h1>
+  <div>1) Accedi con il tuo account admin di galleon-club</div>
+  <label for="em">Email</label><input id="em" type="email" autocomplete="username">
+  <label for="pw">Password</label><input id="pw" type="password" autocomplete="current-password">
+  <button id="login">Accedi</button>
+  <div>2) Scegli il file <b>clienti_galleon.json</b> (o il file dei punti)</div>
+  <input id="file" type="file" accept=".json" disabled>
+  <button id="go" disabled>Importa</button>
+  <div class="bar"><div id="bar"></div></div>
+  <div id="log">In attesa…</div>
+</div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, writeBatch, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const app = initializeApp({
+  apiKey: "AIzaSyBzpnM1H7Nk99bGqiKoFvJfZfUEhxYt1yI",
+  authDomain: "galleon-club.firebaseapp.com",
+  projectId: "galleon-club",
+  storageBucket: "galleon-club.firebasestorage.app",
+  messagingSenderId: "256580919264",
+  appId: "1:256580919264:web:1639030e273fae781fd585"
+});
+const auth = getAuth(app), db = getFirestore(app);
+const $ = id => document.getElementById(id);
+const log = t => { $("log").textContent = t; };
+const LIMITE_GIORNO = 18000;           // il piano gratuito consente ~20.000 scritture al giorno
+const BATCH = 400;
+
+$("login").onclick = async () => {
+  try {
+    await signInWithEmailAndPassword(auth, $("em").value.trim(), $("pw").value);
+    $("pw").value = "";
+    $("file").disabled = false; $("go").disabled = false;
+    log("Accesso eseguito. Ora scegli il file e premi Importa.");
+  } catch (e) { log("Accesso non riuscito: " + e.code); }
+};
+
+$("go").onclick = async () => {
+  const f = $("file").files[0];
+  if (!f) { log("Scegli prima il file."); return; }
+  const data = JSON.parse(await f.text());
+  const coll = data._collezione || "clienti"; delete data._collezione;
+  const ids = Object.keys(data);
+  const key = "galleon_import_" + f.name;
+  const oggi = new Date().toISOString().slice(0,10);
+  let st = JSON.parse(localStorage.getItem(key) || "{}");
+  let start = st.fatti || 0;
+  let scrittiOggi = st.giorno === oggi ? (st.oggi || 0) : 0;
+  $("go").disabled = true;
+  try {
+    for (let i = start; i < ids.length; i += BATCH) {
+      if (scrittiOggi >= LIMITE_GIORNO) {
+        log(`Fermato per oggi: ${i} di ${ids.length} importati.\nRiapri questa pagina domani e premi di nuovo Importa con lo stesso file: riparte da dove si è fermato.`);
+        return;
+      }
+      const b = writeBatch(db);
+      const pezzo = ids.slice(i, i + BATCH);
+      for (const id of pezzo) b.set(doc(db, coll, id), { ...data[id], importatoIl: serverTimestamp() }, { merge: true });
+      await b.commit();
+      scrittiOggi += pezzo.length;
+      const fatti = Math.min(i + BATCH, ids.length);
+      localStorage.setItem(key, JSON.stringify({ fatti, giorno: oggi, oggi: scrittiOggi }));
+      $("bar").style.width = (100 * fatti / ids.length) + "%";
+      log(`Importati ${fatti} di ${ids.length}…`);
+    }
+    log(`Fatto! Importati tutti i ${ids.length} record.`);
+  } catch (e) {
+    log("Errore: " + (e.code || e.message) + "\nPuoi premere di nuovo Importa: riparte da dove si è fermato.");
+    $("go").disabled = false;
+  }
+};
+</script>
+</body>
+</html>
