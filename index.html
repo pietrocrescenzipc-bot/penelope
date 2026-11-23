@@ -50,8 +50,10 @@ textarea.f{min-height:90px}
 .ok{background:var(--greenbg);color:var(--green);border-radius:14px;padding:12px 14px;font-weight:600}
 .bar{height:10px;background:#2A3A54;border-radius:5px;overflow:hidden}.bar>div{height:10px;background:var(--gold)}
 .pren{display:flex;gap:12px;align-items:center;border:0;width:100%;text-align:left;background:#fff;border-radius:16px;padding:13px}
-.pren .ora{width:56px;text-align:center;font-weight:700;font-size:20px;flex-shrink:0}
+.pren .ora{width:68px;text-align:center;font-weight:700;font-size:20px;flex-shrink:0}
 .pren .ora small{display:block;font-size:13px;color:var(--mute);font-weight:500}
+.tavb{display:inline-flex;align-items:center;gap:3px;margin-top:5px;background:#E8EDF5;color:var(--navy);border-radius:8px;padding:3px 6px;font-size:16px;font-weight:700;line-height:1.1;max-width:100%;word-break:break-word}
+.tavb svg{flex-shrink:0}
 .pren .nome{font-weight:700;font-size:18px}
 .pren .sub{font-size:14px;color:var(--mute)}
 .badge{font-size:15px;margin-left:4px}
@@ -236,7 +238,7 @@ function drawAgenda(){
   h+=`<div class="chips">${FILTRI.map(([k,t,fn])=>`<button data-f="${k}" class="${k===S.filtro?"on":""}">${t} (${S.pren.filter(fn).length})</button>`).join("")}</div>`;
   h+=`<div class="row between"><span class="muted">${lista.reduce((s,p)=>s+(+p.persone||0),0)} persone</span><div class="chips" style="padding:0"><button data-o="ora" class="${S.ordine==="ora"?"on":""}">Per orario</button><button data-o="nome" class="${S.ordine==="nome"?"on":""}">A–Z</button></div></div>`;
   h+=lista.length?lista.map(p=>{const c=S.cli.get(p.clienteId); const ch=STATI[p.stato]||["c-conf",p.stato];
-    return `<button class="pren" data-p="${p.id}"><div class="ora">${esc(p.ora||"--")}<small>${p.tavolo?esc(p.tavolo):"&nbsp;"}</small></div><div style="flex:1;min-width:0"><div class="nome">${esc(p.nome||"Senza nome")}${p.clienteId&&S.cli.has(p.clienteId)?badge(c):""}</div><div class="sub">${esc(p.persone)} persone${p.sala?" · "+esc(p.sala):""}</div>${p.note?`<div class="nota">📝 ${esc(p.note)}</div>`:""}</div>${S.filtro==="annullate"?`<span class="chip ${ch[0]}">${ch[1]}</span>`:""}</button>`;}).join("")
+    return `<button class="pren" data-p="${p.id}"><div class="ora">${esc(p.ora||"--")}${p.tavolo?`<div class="tavb" title="Tavolo"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M3 9h18M5 9v10M19 9v10M8 9v5h8V9"/></svg>${esc(String(p.tavolo).replace(/Pedana /g,"P").replace(/Veranda /g,"V"))}</div>`:""}</div><div style="flex:1;min-width:0"><div class="nome">${esc(p.nome||"Senza nome")}${p.clienteId&&S.cli.has(p.clienteId)?badge(c):""}</div><div class="sub">${esc(p.persone)} persone${p.sala?" · "+esc(p.sala):""}</div>${p.note?`<div class="nota">📝 ${esc(p.note)}</div>`:""}</div>${S.filtro==="annullate"?`<span class="chip ${ch[0]}">${ch[1]}</span>`:""}</button>`;}).join("")
     :`<div class="card muted">${S.filtro==="attese"?"Nessuna prenotazione da arrivare. Premi <b>Prenota</b> per aggiungerne una.":"Nessuna prenotazione qui."}</div>`;
   $("#main").innerHTML=h;
   document.querySelectorAll("[data-f]").forEach(b=>b.onclick=()=>{S.filtro=b.dataset.f;drawAgenda();});
