@@ -50,7 +50,7 @@ aside h3{margin:8px 2px 0;font-family:'Barlow Condensed',sans-serif;font-size:19
 .zona h4 span{font-family:Barlow,system-ui,sans-serif;font-size:13px;color:var(--mute);font-weight:600}
 .plan{position:relative;width:100%;aspect-ratio:16/10;background:#FBFAF7;background-image:radial-gradient(#E6E2D8 1px,transparent 1px);background-size:18px 18px}
 .plans.solo .plan{min-width:720px}
-.plan.big{aspect-ratio:16/11;min-width:900px;background-color:#FBFAF7}
+.plan.big{aspect-ratio:16/12;min-width:900px}
 .zg{position:absolute;border:2px dashed #D8D2C2;border-radius:14px;background:rgba(217,192,138,.06)}
 .zg span{position:absolute;top:6px;left:10px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:16px;color:#A89A78;letter-spacing:.5px;text-transform:uppercase}
 .tav{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;touch-action:none;user-select:none}
@@ -59,11 +59,10 @@ aside h3{margin:8px 2px 0;font-family:'Barlow Condensed',sans-serif;font-size:19
 .tav.round .top{border-radius:50%}
 .tav .ch{position:absolute;width:12%;height:12%;min-width:7px;min-height:7px;border-radius:50%;background:#C8CFDA}
 .tav .tn{font-weight:700;font-size:15px;line-height:1}
-.tutto .tav .tn{font-size:12px}
+
 .tav .tp{font-size:11px;color:var(--mute)}
 .tav .who{font-size:12px;font-weight:700;line-height:1.1;max-width:100%;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;padding:0 2px}
-.tutto .tav .who{font-size:10px;-webkit-line-clamp:1}
-.tutto .tav .tp{display:none}
+
 .tav.busy .top{background:var(--busy);border-color:var(--busyb)}
 .tav.busy .ch{background:#EBC65A}
 .tav.arr .top{background:var(--arr);border-color:var(--arrb)}
@@ -125,8 +124,10 @@ const toast=m=>{const t=document.createElement("div");t.className="toast";t.text
 const iniziali=n=>String(n||"?").split(" ").filter(Boolean).slice(0,2).map(x=>x[0].toUpperCase()).join("");
 const SALE=["Sala principale","Saletta ABCD","Sala divani","Veranda"];
 const REG={"Sala principale":[0,0,62,64],"Saletta ABCD":[63,0,37,34],"Sala divani":[63,35,37,29],"Veranda":[0,65,100,35]};
-const geo=(t,g)=>{ if(!g) return {x:t.x,y:t.y,w:t.w||8,h:t.h||11}; const r=REG[t.sala]||[0,0,100,100];
-  return {x:t.gx??+(r[0]+1+t.x*(r[2]-2)/100).toFixed(1), y:t.gy??+(r[1]+5+t.y*(r[3]-6)/100).toFixed(1), w:(t.w||8)*.56, h:(t.h||11)*.56}; };
+const ordTutti=()=>S.tav.slice().sort((a,b)=>(SALE.indexOf(a.sala)-SALE.indexOf(b.sala))||String(a.nome).localeCompare(String(b.nome),undefined,{numeric:true}));
+const geo=(t,g)=>{ if(!g) return {x:t.x,y:t.y,w:t.w||8,h:t.h||11};
+  const i=ordTutti().findIndex(x=>x.id===t.id), C=9, r=Math.floor(i/C), c=i%C;
+  return {x:t.gx??+(2+c*(96/C)+1).toFixed(1), y:t.gy??+(3+r*(94/Math.max(5,Math.ceil(S.tav.length/C)))).toFixed(1), w:7.5, h:11}; };
 const S={data:iso(new Date()),sala:"tutto",edit:false,tav:[],pren:[],me:null,u2:null};
 
 $("#lf").onsubmit=async e=>{e.preventDefault();try{await signInWithEmailAndPassword(auth,$("#lem").value.trim(),$("#lpw").value);$("#lpw").value="";}catch(x){$("#lerr").textContent="Email o password non corretti.";}};
@@ -153,7 +154,7 @@ function sedie(t){ const n=Math.min(+t.posti||0,12); if(!n) return ""; let h="";
     else { const lato=i%4, k=Math.floor(i/4), tot=Math.ceil((n-lato)/4), pos=(k+1)/(tot+1)*100; [x,y]=[[pos,3],[97,pos],[pos,97],[3,pos]][lato]; }
     h+=`<span class="ch" style="left:calc(${x}% - 6%);top:calc(${y}% - 6%)"></span>`; } return h; }
 function tavoloHTML(t,g){ const G=geo(t,g); const ps=S.pren.filter(p=>tavDi(p).includes(t.nome)); const st=ps.some(p=>p.stato==="arrivato")?"arr":ps.length?"busy":"";
-  return `<div class="tav ${t.forma==="tondo"?"round":""} ${st}" data-t="${t.id}" style="left:${G.x}%;top:${G.y}%;width:${G.w}%;height:${G.h}%">${sedie(t)}<div class="top"><div class="tn">${esc(S.sala==="tutto"?String(t.nome).replace(/^Pedana /,"P").replace(/^Veranda /,"V"):t.nome)}</div>${ps.length?ps.map(p=>`<div class="who" data-bk="${p.id}">${p.note?"📝":""}${esc((p.nome||"").split(" ")[0])} · ${esc(p.ora||"")}</div>`).join(""):`<div class="tp">${esc(t.posti||"")} posti</div>`}</div></div>`; }
+  return `<div class="tav ${t.forma==="tondo"?"round":""} ${st}" data-t="${t.id}" style="left:${G.x}%;top:${G.y}%;width:${G.w}%;height:${G.h}%">${sedie(t)}<div class="top"><div class="tn">${esc(t.nome)}</div>${ps.length?ps.map(p=>`<div class="who" data-bk="${p.id}">${p.note?"📝":""}${esc((p.nome||"").split(" ")[0])} · ${esc(p.ora||"")}</div>`).join(""):`<div class="tp">${esc(t.posti||"")} posti</div>`}</div></div>`; }
 
 function draw(){
   $("#titolo").textContent=bello(S.data);
