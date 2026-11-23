@@ -175,7 +175,9 @@ async function caricaIndice(){
 }
 function cercaIdx(q){ q=norm(q).trim(); if(q.length<2||!S.idx) return [];
   const parti=q.split(/\s+/).map(p=>/^\+?\d+$/.test(p)?p.replace(/\D/g,""):p);
-  const res=[]; for(const x of S.idx){ if(parti.every(p=>x.k.includes(p))){ res.push(x); if(res.length>=40) break; } } return res; }
+  const res=S.idx.filter(x=>parti.every(p=>x.k.includes(p)));
+  const inizia=x=>parti.some(p=>x.k.startsWith(p)||x.k.includes(" "+p))?0:1;
+  res.sort((a,b)=>inizia(a)-inizia(b)||a.k.localeCompare(b.k,"it")); return res; }
 async function cercaRemota(q){ q=q.trim(); const out=[], add=d=>{ if(!out.find(x=>x.id===d.id)){ const v=d.data(); out.push({id:d.id,nome:[v.nome,v.cognome].filter(Boolean).join(" "),tel:v.telefono||""}); } };
   try{ const t=telNorm(q); if(/^[\d\s+]+$/.test(q)){ if(t){ const d=await getDoc(doc(db,"clienti","t"+t)); if(d.exists()) add(d); } return out; }
     const w=q.split(/\s+/)[0], forme=[...new Set([w.charAt(0).toUpperCase()+w.slice(1).toLowerCase(),w.toUpperCase(),w.toLowerCase()])];
@@ -186,7 +188,8 @@ function boxRicerca(onPick,placeholder){
   return {html:`<input class="search" id="qBox" placeholder="${esc(placeholder)}" autocomplete="off" aria-label="Cerca cliente">`,
     bind(){ const draw=async()=>{ const q=$("#qBox").value; if(q.trim().length<2){ $("#main").innerHTML=`<div class="muted">Scrivi almeno 2 lettere del nome, del cognome o del telefono.</div>`; return; }
         const r=await trova(q); if($("#qBox").value!==q) return;
-        $("#main").innerHTML=r.length?`<div class="card list">${r.map(x=>`<button class="li" data-c="${x.id}"><div><div style="font-weight:700">${esc(x.nome||"Senza nome")}</div><div class="muted">${esc(x.tel||"")}</div></div><span aria-hidden="true">›</span></button>`).join("")}</div>`:`<div class="card">Nessun cliente trovato.</div>`;
+        const tot=r.length; const vis=r.slice(0,300);
+        $("#main").innerHTML=tot?`<div class="muted">${tot} clienti trovati${tot>300?" (ne vedi 300: aggiungi il cognome per restringere)":""}</div><div class="card list">${vis.map(x=>`<button class="li" data-c="${x.id}"><div><div style="font-weight:700">${esc(x.nome||"Senza nome")}</div><div class="muted">${esc(x.tel||"")}</div></div><span aria-hidden="true">›</span></button>`).join("")}</div>`:`<div class="card">Nessun cliente trovato.</div>`;
         document.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>onPick(b.dataset.c)); };
       let tmr; $("#qBox").addEventListener("input",()=>{clearTimeout(tmr);tmr=setTimeout(draw,S.idx&&S.idx.length?0:350);}); draw(); setTimeout(()=>$("#qBox").focus(),100); } };
 }
@@ -309,8 +312,8 @@ async function formPrenotazione(p=null,cli=null){
   const info=async()=>{const t=telNorm($("#fTel").value);$("#fCliInfo").innerHTML="";cliente=null;if(t.length<10)return;
     const c=await getCliente("t"+t); if(c){cliente=c;const gg=giorniFa(c.ultimaPresenza);$("#fCliInfo").innerHTML=`${badge(c)} <span style="color:var(--blue);font-weight:700">Cliente già presente</span> · ${c.presenze||0} visite · ${c.puntiFidelity||0} punti${gg!==null?` · ultima visita ${gg} giorni fa`:""}`;if(!$("#fN").value)$("#fN").value=c.nome||"";if(!$("#fC").value)$("#fC").value=c.cognome||"";if(!$("#fMail").value&&c.email)$("#fMail").value=c.email;prev();}
     else $("#fCliInfo").textContent="Cliente nuovo: verrà aggiunto all'elenco clienti.";};
-  const cerca=async()=>{const q=[$("#fN").value,$("#fC").value,$("#fTel").value.replace(/\D/g,"").replace(/^(00)?39(?=3)/,"")].filter(x=>x.trim()).join(" ");if(q.trim().length<2||cliente){$("#fRis").innerHTML="";return;}const r=(await trova(q)).slice(0,8); lastR=r;
-    $("#fRis").innerHTML=r.length?`<div class="card list"><div class="muted">Clienti trovati: tocca per sceglierlo</div>${r.map(x=>`<button type="button" class="li" data-pick="${x.id}"><span><b>${esc(x.nome)}</b> <span class="muted">${esc(x.tel)}</span></span><span>›</span></button>`).join("")}</div>`:"";
+  const cerca=async()=>{const q=[$("#fN").value,$("#fC").value,$("#fTel").value.replace(/\D/g,"").replace(/^(00)?39(?=3)/,"")].filter(x=>x.trim()).join(" ");if(q.trim().length<2||cliente){$("#fRis").innerHTML="";return;}const tutti=await trova(q); const r=tutti.slice(0,50); lastR=r;
+    $("#fRis").innerHTML=r.length?`<div class="muted" style="margin-bottom:4px">${tutti.length} clienti trovati: tocca per sceglierlo${tutti.length>50?" (scrivi anche il cognome per restringere)":""}</div><div class="card list" style="max-height:320px;overflow-y:auto;-webkit-overflow-scrolling:touch">${r.map(x=>`<button type="button" class="li" data-pick="${x.id}"><span><b>${esc(x.nome)}</b> <span class="muted">${esc(x.tel)}</span></span><span>›</span></button>`).join("")}</div>`:"";
     document.querySelectorAll("[data-pick]").forEach(b=>b.onclick=async()=>{const x=lastR.find(y=>y.id===b.dataset.pick);const c=await getCliente(x.id);$("#fTel").value=x.tel||"";$("#fN").value=c?.nome||(x.nome||"").split(" ")[0];$("#fC").value=c?.cognome||(x.nome||"").split(" ").slice(1).join(" ");if(c?.email)$("#fMail").value=c.email;$("#fRis").innerHTML="";info();});};
   ["#fN","#fC"].forEach(s=>$(s).addEventListener("input",()=>{cliente=null;$("#fCliInfo").innerHTML="";cerca();prev();}));
   $("#fTel").addEventListener("input",()=>{info();cerca();});$("#fData").addEventListener("change",()=>{drawSlots();prev();});
