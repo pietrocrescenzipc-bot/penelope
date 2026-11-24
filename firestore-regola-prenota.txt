@@ -1,3 +1,4 @@
+// PUBBLICATA nella console Firebase il 24/11/2026 (dentro match /prenotazioni/{id}).
 // Da AGGIUNGERE alle regole Firestore (Firebase console > Firestore > Regole),
 // dentro "match /databases/{database}/documents { ... }", senza togliere le regole che ci sono gia'.
 // Permette a chiunque di CREARE solo una richiesta di prenotazione web (non leggere, non modificare).
@@ -8,8 +9,8 @@
         && request.resource.data.canale == 'web'
         && request.resource.data.persone is int && request.resource.data.persone >= 1 && request.resource.data.persone <= 60
         && request.resource.data.nome is string && request.resource.data.nome.size() <= 80
-        && request.resource.data.telefono is string && request.resource.data.telefono.matches('^\\+393[0-9]{8,9}$')
-        && request.resource.data.clienteId == 't' + request.resource.data.telefono.replace('\\+','')
+        && request.resource.data.telefono is string && request.resource.data.telefono.matches('^[+]393[0-9]{8,9}$')
+        && request.resource.data.clienteId == 't' + request.resource.data.telefono.replace('[+]','')
         && request.resource.data.data is string && request.resource.data.data.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
         && request.resource.data.ora is string && request.resource.data.ora.matches('^[0-9]{2}:[0-9]{2}$')
         && request.resource.data.note is string && request.resource.data.note.size() <= 400
