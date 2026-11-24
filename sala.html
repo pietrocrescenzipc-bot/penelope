@@ -110,6 +110,24 @@ aside{background:#fff;border-right:1px solid var(--line);display:flex;flex-direc
 .rqc span{cursor:pointer}.rqc small{color:var(--mute)}
 .webb{display:inline-block;background:var(--y2);color:#fff;border-radius:6px;padding:2px 8px;font-size:12px;font-weight:700;cursor:pointer;margin-left:6px}
 #embed .x{position:absolute;top:10px;right:14px;z-index:2;width:46px;height:46px;border-radius:50%;border:0;background:#fff;font-size:22px;box-shadow:0 2px 10px rgba(0,0,0,.3)}
+/* dettaglio prenotazione (come Pienissimo) */
+#det{position:fixed;inset:0;z-index:75;background:#fff;display:flex;flex-direction:column}
+#det .dh{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:3px solid var(--navy)}#det .dh h2{margin:0;flex:1;text-align:center;font-size:18px;letter-spacing:1px}
+#det .db{flex:1;overflow:auto;display:grid;grid-template-columns:1.35fr 1fr;gap:0}
+#det .col{padding:12px 16px}#det .col+.col{border-left:1px solid var(--line);background:#FAFBFC}
+#det .rw{display:grid;grid-template-columns:90px 1fr;gap:8px;align-items:start;padding:7px 0;border-bottom:1px solid #F0F1F3}
+#det .rw>label{font-weight:600;font-size:13px;padding-top:9px}#det .rw>label i{color:var(--red);font-style:normal}
+.chs{display:flex;gap:6px;flex-wrap:wrap}
+.chs button{min-width:48px;min-height:40px;border:1.5px solid #D5D9E0;background:#fff;border-radius:9px;padding:3px 9px;font-size:13px;line-height:1.1}
+.chs button.on{background:var(--blue);border-color:var(--blue);color:#fff}
+.chs button.occ{background:#F1F2F4;color:#A0A6B0;text-decoration:line-through}.chs button.on.occ{background:var(--y3);border-color:var(--y3);color:#fff;text-decoration:none}
+.chs button.fit{border-color:var(--free)}.chs button small{display:block;font-size:10px;opacity:.8}
+.chs .sl{border-width:2px;font-weight:700}
+#det .f{min-height:40px}#det textarea.f{min-height:70px;resize:vertical}
+#det .df{display:flex;gap:10px;padding:10px 14px;border-top:1px solid var(--line);justify-content:flex-end;align-items:center}
+#det .df .btn{min-width:130px}.btn.orange{background:var(--y2);color:#fff}
+.sw{display:flex;align-items:center;gap:10px;font-weight:600}.sw input{width:22px;height:22px}
+.warnbox{background:#FFF0F0;border:1.5px solid var(--red);color:#8A1C1C;border-radius:10px;padding:8px 12px;font-weight:600;font-size:13px}
 /* barra bassa */
 .bot{background:#fff;border-top:1px solid var(--line);display:flex;justify-content:center;gap:40px;padding:6px}
 .bot button{border:0;background:none;display:flex;flex-direction:column;align-items:center;font-size:12px;color:var(--mute);position:relative;padding:2px 14px}.bot button b{font-size:21px}.bot button.on{color:var(--red)}.bot .bdg{right:2px}
@@ -153,6 +171,7 @@ aside{background:#fff;border-right:1px solid var(--line);display:flex;flex-direc
   <div class="main" id="main"></div>
   <div class="bot" id="bot"></div>
 </div>
+<div id="det" class="hidden"></div>
 <div id="sheetRoot"></div>
 
 <script type="module">
@@ -216,7 +235,7 @@ const vaiGiorno=s=>{S.data=s;S.slot=null;ascolta();draw();};
 /* ---------- barra alta ---------- */
 $("#cal").onclick=()=>{const i=$("#calI");i.value=S.data;i.showPicker?.()||i.click();};
 $("#calI").onchange=e=>e.target.value&&vaiGiorno(e.target.value);
-$("#nuova").onclick=()=>apri(`classica.html?embed=1&nuova=1&data=${S.data}`);
+$("#nuova").onclick=()=>dettaglio(null);
 $("#bell").onclick=()=>{S.vista="rich";draw();};
 $("#fs").onclick=()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen?.().catch(()=>{});
 $("#ham").onclick=menu;
@@ -244,9 +263,9 @@ function draw(){ if(!S.me) return;
   ({lista:vLista,piantina:vPiantina,arrivi:vArrivi,planning:vPlanning,mese:vMese})[S.tab](m);
 }
 function drawRich(){ const l=S.rich, el=$("#rq"); el.classList.toggle("hidden",!l.length); if(!l.length) return;
-  el.innerHTML=`<b>📥 ${l.length} ${l.length>1?"richieste":"richiesta"} online da accettare:</b>`+l.map(p=>`<div class="rqc"><span data-rqo="${p.id}"><b>${esc(p.nome)}</b> <small>${esc(bello(p.data))} · ${esc(p.ora)} · ${esc(p.persone)} pers.</small></span><div class="acc"><button class="si" data-ok="${p.id}">✓ Accetta</button><button class="no" data-no="${p.id}">✕</button></div></div>`).join("");
+  el.innerHTML=`<b>📥 ${l.length} ${l.length>1?"richieste":"richiesta"} online da accettare:</b>`+l.map(p=>`<div class="rqc"><span data-rqo="${p.id}"><b>${esc(p.nome)}</b> <small>${esc(bello(p.data))} · ${esc(p.ora)} · ${esc(p.persone)} pers.</small></span><div class="acc"><button class="si" data-ok="${p.id}">✓ Gestisci</button><button class="no" data-no="${p.id}">✕</button></div></div>`).join("");
   el.querySelectorAll("[data-rqo]").forEach(b=>b.onclick=()=>accettaChiedi(S.rich.find(p=>p.id===b.dataset.rqo)));
-  el.querySelectorAll("[data-ok]").forEach(b=>b.onclick=()=>accetta(S.rich.find(p=>p.id===b.dataset.ok),true));
+  el.querySelectorAll("[data-ok]").forEach(b=>b.onclick=()=>dettaglio(S.rich.find(p=>p.id===b.dataset.ok)));
   el.querySelectorAll("[data-no]").forEach(b=>b.onclick=()=>accetta(S.rich.find(p=>p.id===b.dataset.no),false)); }
 function drawTools(){
   const vis=S.pren.filter(p=>inTurno(p)), att=vis.filter(p=>ATT.includes(p.stato)||p.stato==="arrivato");
@@ -298,7 +317,7 @@ function legaRighe(root){
   root.querySelectorAll("[data-ge]").forEach(b=>b.onclick=()=>apriScheda(P(b.dataset.ge)));
   root.querySelectorAll("[data-wa]").forEach(b=>b.onclick=()=>{const p=P(b.dataset.wa);wa(p.telefono,fill(S.cfg.msg?.conferma||MSG.conferma,{nome:(p.nome||"").split(" ")[0],giorno:bello(p.data),ora:p.ora,persone:p.persone}));});
   root.querySelectorAll("[data-rq]").forEach(b=>b.onclick=e=>{e.stopPropagation();accettaChiedi(P(b.dataset.rq));});
-  root.querySelectorAll("[data-ok]").forEach(b=>b.onclick=()=>accetta(P(b.dataset.ok),true));
+  root.querySelectorAll("[data-ok]").forEach(b=>b.onclick=()=>dettaglio(P(b.dataset.ok)));
   root.querySelectorAll("[data-no]").forEach(b=>b.onclick=()=>accetta(P(b.dataset.no),false));
 }
 function vLista(m){
@@ -378,7 +397,7 @@ function dragBooking(el,p){ if(!p) return;
       if(!moved) return;
       const z=trova(ev.clientX,ev.clientY); if(!z) return;
       const tav=z.classList.contains("tav")?S.tav.find(x=>x.id===z.dataset.t):z.dataset.tn?S.tav.find(x=>x.nome===z.dataset.tn):null;
-      if(tav){ if(p.stato==="richiesta") return toast("Prima accetta la richiesta"); const cur=tavDi(p); if(cur.includes(tav.nome)) return;
+      if(tav){ if(p.stato==="richiesta") return dettaglio(p,{tavoli:[tav.nome],sala:tav.sala}); const cur=tavDi(p); if(cur.includes(tav.nome)) return;
         if(cur.length) scegli(`${p.nome}: spostare o unire?`,[[`Sposta al tavolo ${tav.nome}`,()=>setTav(p,[tav.nome],tav.sala)],[`Unisci (${cur.join(" + ")} + ${tav.nome})`,()=>setTav(p,[...cur,tav.nome],tav.sala)]]);
         else setTav(p,[tav.nome],tav.sala);
         const occ=S.pren.filter(x=>x.id!==p.id&&vivo(x)&&tavDi(x).includes(tav.nome)&&Math.abs(mi(x.ora)-mi(p.ora))<Math.max(durata(x),durata(p)));
@@ -452,11 +471,11 @@ function chiudi(p){ if(!p) return;
   if(CH.includes(p.stato)) return scegli(`Riaprire la prenotazione di ${p.nome}?`,[["Riapri",async()=>{await agg(p,{stato:p.fila?"attesa":"confermata",liberato:false},"Riaperta");
     if(p.clienteId&&p.stato==="arrivato"&&!p.walkin) setDoc(doc(db,"clienti",p.clienteId),{presenze:increment(-1)},{merge:true}).catch(()=>{});
     if(p.clienteId&&p.stato==="noshow") setDoc(doc(db,"clienti",p.clienteId),{noShow:increment(-1)},{merge:true}).catch(()=>{});}]]);
-  const ops=[["Arrivati",()=>arrivati(p)],["Non arrivati",async()=>{await agg(p,{stato:"noshow"},"Segnato come non arrivato");if(p.clienteId){setDoc(doc(db,"clienti",p.clienteId),{noShow:increment(1)},{merge:true}).catch(()=>{});evento(p.clienteId,"noshow","Non arrivato");}}]];
+  const ops=[["Arrivati",()=>tavDi(p).length?arrivati(p):sceltaTavolo(p,"Arrivati",()=>arrivati(p))],["Non arrivati",async()=>{await agg(p,{stato:"noshow"},"Segnato come non arrivato");if(p.clienteId){setDoc(doc(db,"clienti",p.clienteId),{noShow:increment(1)},{merge:true}).catch(()=>{});evento(p.clienteId,"noshow","Non arrivato");}}]];
   if(p.stato!=="attesa") ops.push(["Sposta in FilaFast",()=>agg(p,{stato:"attesa",fila:true,attesa:+p.attesa||15},"Spostata in FilaFast")]);
   scegli(`Vuoi chiudere la prenotazione di ${p.nome} per ${p.persone}?`,ops); }
-function accettaChiedi(p){ scegli(`Richiesta web: ${p.nome} · ${bello(p.data)} alle ${p.ora} · ${p.persone} persone${p.note?" · "+p.note:""}`,[["Accetta",()=>accetta(p,true)],["Rifiuta",()=>accetta(p,false)],["Apri e modifica",()=>apriScheda(p)]]); }
-async function accetta(p,si){ if(!p) return; const o={nome:(p.nome||"").split(" ")[0],giorno:bello(p.data),ora:p.ora,persone:p.persone};
+function accettaChiedi(p,pre){ if(p) dettaglio(p,pre); }
+async function accetta(p,si,inviaWa=true){ if(!p) return; const o={nome:(p.nome||"").split(" ")[0],giorno:bello(p.data),ora:p.ora,persone:p.persone};
   if(!si){ if(!confirm(`Rifiutare la richiesta di ${p.nome}?`)) return; await agg(p,{stato:"rifiutata"},"Richiesta rifiutata"); if(p.telefono) wa(p.telefono,fill(S.cfg.msg?.rifiutata||MSG.rifiutata,o)); return; }
   await agg(p,{stato:"confermata"},"Prenotazione accettata ✓");
   const t=telNorm(p.telefono);
@@ -466,12 +485,102 @@ async function accetta(p,si){ if(!p) return; const o={nome:(p.nome||"").split(" 
       setDoc(doc(db,"indice","nuovi"),{nuovi:arrayUnion(`${p.clienteId}|${p.nome}|+${t}`)},{merge:true}).catch(()=>{}); }
     const tg=[p.provenienza,p.fonte&&("link "+p.fonte),"prenotazione web"].filter(Boolean).map(x=>String(x).toLowerCase());
     setDoc(doc(db,"clienti",p.clienteId),{tags:arrayUnion(...tg),...(p.provenienza?{provenienzaWeb:p.provenienza}:{})},{merge:true}).catch(()=>{}); S.cli.delete(p.clienteId); }
-  if(p.telefono) wa(p.telefono,fill(S.cfg.msg?.conferma||MSG.conferma,o)); }
+  if(p.telefono&&inviaWa) wa(p.telefono,fill(S.cfg.msg?.conferma||MSG.conferma,o)); }
+
+
+/* ---------- DETTAGLIO PRENOTAZIONE (nuova, modifica, richiesta web) ---------- */
+const OCC={};
+async function prenDel(data){ if(data===S.data) return S.pren; if(OCC[data]) return OCC[data];
+  const s=await getDocs(query(collection(db,"prenotazioni"),where("data","==",data))).catch(()=>null); return OCC[data]=s?s.docs.map(d=>({id:d.id,...d.data()})):[]; }
+const occupato=(l,nome,e,id)=>l.some(x=>x.id!==id&&(ATT.includes(x.stato)||(x.stato==="arrivato"&&!x.liberato))&&tavDi(x).includes(nome)&&Math.abs(mi(x.ora)-mi(e.ora))<Math.max(durata(x),+e.durata||90));
+function orariDi(){ const o=S.cfg.orari?.cena?.length?S.cfg.orari.cena:["19:00","19:30","20:00","20:30","21:00","21:30","22:00"]; const l=[];for(let m=mi(o[0])-60;m<=mi(o[o.length-1])+60;m+=15)l.push(hm(m));return l; }
+async function dettaglio(p,pre={}){
+  const web=p?.stato==="richiesta", nuovo=!p, n=new Date();
+  const e={data:S.data,ora:"",persone:2,durata:+S.cfg.durataStd||90,sala:"",tavoli:[],causale:"",note:"",notePrivate:"",avvisati:false,torta:false,prive:false,nome:"",telefono:"",email:"",...(p||{}),...pre};
+  e.tavoli=pre.tavoli||tavDi(e); if(!e.sala&&e.tavoli.length) e.sala=salaTav(e.tavoli[0])||""; e.durata=+e.durata||90; e.persone=+e.persone||2;
+  if(e.sala&&!pre.sala&&!S.sale.includes(e.sala)) e.sala="";
+  history.pushState({det:1},"");
+  const box=$("#det"); box.classList.remove("hidden");
+  const fine=()=>{box.classList.add("hidden");box.innerHTML="";if(history.state?.det)history.back();};
+  let occL=await prenDel(e.data);
+  const draw2=async()=>{
+    const days=Array.from({length:10},(_,i)=>{const d=new Date();d.setDate(d.getDate()+i);return iso(d);}); if(!days.includes(e.data)) days.unshift(e.data);
+    const ore=orariDi(); if(e.ora&&!ore.includes(e.ora)) ore.push(e.ora), ore.sort();
+    const tv=S.tav.filter(t=>t.sala===e.sala).sort(ordNome);
+    const liberi=tv.filter(t=>!occupato(occL,t.nome,e,p?.id));
+    box.innerHTML=`<div class="dh"><button class="ib" id="dX" title="Chiudi">←</button><h2>${web?"RICHIESTA WEB · DETTAGLIO PRENOTAZIONE":nuovo?"NUOVA PRENOTAZIONE":"DETTAGLIO PRENOTAZIONE"}</h2><span style="width:42px"></span></div>
+    <div class="db"><div class="col">
+     ${web?`<div class="warnbox">Richiesta arrivata dal link online${p.provenienza?" · ci ha conosciuto: "+esc(p.provenienza):""}. Scegli sala e tavolo, poi premi <b>Conferma</b>.</div>`:""}
+     <div class="rw"><label>Data<i>*</i></label><div class="chs">${days.map(s=>{const d=D(s);return `<button class="${s===e.data?"on":""}" data-dd="${s}"><small>${GS[d.getDay()]}</small>${d.getDate()} ${MM[d.getMonth()].slice(0,3)}</button>`;}).join("")}<input type="date" class="f" id="dCal" style="width:150px" value="${e.data}"></div></div>
+     <div class="rw"><label>Ora<i>*</i></label><div class="chs">${ore.map(o=>`<button class="${o===e.ora?"on":""}" data-do="${o}">${o}</button>`).join("")}</div></div>
+     <div class="rw"><label>Persone<i>*</i></label><div class="chs">${Array.from({length:12},(_,i)=>i+1).map(k=>`<button class="${k===e.persone?"on":""}" data-dp="${k}">${k}</button>`).join("")}<input type="number" class="f" id="dPn" min="1" style="width:80px" value="${e.persone}"></div></div>
+     <div class="rw"><label>Sala<i>*</i></label><div class="chs">${S.sale.map(x=>`<button class="sl" style="border-color:${colSala(x)};${x===e.sala?`background:${colSala(x)};color:#fff`:`color:${colSala(x)}`}" data-ds="${esc(x)}">${esc(x)}</button>`).join("")}</div></div>
+     <div class="rw"><label>Durata<i>*</i></label><div class="chs">${[60,90,120,150,180].map(m=>`<button class="${m===e.durata?"on":""}" data-du="${m}">${m<60?m+" min":Math.floor(m/60)+(m%60?" ore 30":m===60?" ora":" ore")}</button>`).join("")}</div></div>
+     <div class="rw"><label>Tavolo<i>*</i></label><div>${e.sala?`<div class="chs">${tv.map(t=>{const oc=occupato(occL,t.nome,e,p?.id),fit=!oc&&(+t.posti||0)>=e.persone&&(+t.postiMin||1)<=e.persone;return `<button class="${e.tavoli.includes(t.nome)?"on":""} ${oc?"occ":""} ${fit?"fit":""}" data-dt="${esc(t.nome)}">${esc(t.nome)}<small>${t.postiMin?t.postiMin+"-":""}${t.posti||""}</small></button>`;}).join("")||'<span class="muted">Nessun tavolo in questa sala</span>'}</div>
+       <div class="muted" style="margin-top:4px">${e.ora?`${liberi.length} liberi alle ${e.ora} · bordo verde = adatti a ${e.persone} persone · barrati = già occupati · puoi sceglierne più di uno per unirli`:"Scegli prima l'ora per vedere i tavoli liberi"}</div>`:'<span class="muted">Scegli prima la sala</span>'}</div></div>
+     <div class="rw"><label>Causale</label><select class="f" id="dCa"><option value="">—</option>${[...new Set([...(S.cfg.causali||[]),e.causale].filter(Boolean))].map(c=>`<option ${c===e.causale?"selected":""}>${esc(c)}</option>`).join("")}</select></div>
+     <div class="rw"><label></label><div class="chs" style="gap:18px"><label class="sw"><input type="checkbox" id="dAv" ${e.avvisati?"checked":""}>Avvisato</label><label class="sw"><input type="checkbox" id="dTo" ${e.torta?"checked":""}>Torta</label><label class="sw"><input type="checkbox" id="dPr" ${e.prive?"checked":""}>Privè</label></div></div>
+    </div><div class="col"><b>Contatto</b>
+     <div class="rw"><label>Nome<i>*</i></label><input class="f" id="dNo" value="${esc(e.nome)}" autocomplete="off"></div>
+     <div class="rw"><label>Telefono</label><input class="f" id="dTe" inputmode="tel" value="${esc(e.telefono)}"></div>
+     <div class="rw"><label>Email</label><input class="f" id="dEm" type="email" value="${esc(e.email||"")}"></div>
+     <div id="dCli" class="muted"></div>
+     <div class="rw"><label>Note</label><textarea class="f" id="dNt">${esc(e.note)}</textarea></div>
+     <div class="rw"><label>Note private</label><textarea class="f" id="dNp" placeholder="Visibili solo allo staff">${esc(e.notePrivate||"")}</textarea></div>
+     ${p?.creatoIl?.toDate?`<div class="muted">Creata il ${p.creatoIl.toDate().toLocaleString("it-IT")}${p.creatoDa?" da "+esc(p.creatoDa):""} · canale ${esc(p.canale||"")}</div>`:""}
+    </div></div>
+    <div class="df">${web?`<button class="btn red" id="dRi">Rifiuta</button>`:""}${!nuovo&&!web&&p.stato!=="annullata"?`<button class="btn red" id="dEl">Cancella prenotazione</button>`:""}<span style="flex:1"></span>
+     ${nuovo||web?`<label class="sw"><input type="checkbox" id="dWa" ${S.cfg.prefConferma?.chiedi===false?"":"checked"}>Invia conferma WhatsApp</label>`:""}
+     <button class="btn light" id="dAn">Annulla</button><button class="btn green" id="dOk">${web?"Conferma":nuovo?"Salva prenotazione":"Salva"}</button></div>`;
+    const leggi=()=>{e.nome=$("#dNo").value;e.telefono=$("#dTe").value;e.email=$("#dEm").value;e.note=$("#dNt").value;e.notePrivate=$("#dNp").value;e.causale=$("#dCa").value;e.avvisati=$("#dAv").checked;e.torta=$("#dTo").checked;e.prive=$("#dPr").checked;};
+    const ri=f=>()=>{leggi();f();draw2();};
+    $$("[data-dd]").forEach(b=>b.onclick=async()=>{leggi();e.data=b.dataset.dd;occL=await prenDel(e.data);draw2();});
+    $("#dCal").onchange=async ev=>{if(!ev.target.value)return;leggi();e.data=ev.target.value;occL=await prenDel(e.data);draw2();};
+    $$("[data-do]").forEach(b=>b.onclick=ri(()=>e.ora=b.dataset.do));
+    $$("[data-dp]").forEach(b=>b.onclick=ri(()=>e.persone=+b.dataset.dp)); $("#dPn").onchange=ri(()=>e.persone=+$("#dPn").value||e.persone);
+    $$("[data-ds]").forEach(b=>b.onclick=ri(()=>{if(e.sala!==b.dataset.ds){e.sala=b.dataset.ds;e.tavoli=[];}}));
+    $$("[data-du]").forEach(b=>b.onclick=ri(()=>e.durata=+b.dataset.du));
+    $$("[data-dt]").forEach(b=>b.onclick=ri(()=>{const t=b.dataset.dt;e.tavoli=e.tavoli.includes(t)?e.tavoli.filter(x=>x!==t):[...e.tavoli,t];}));
+    $("#dX").onclick=$("#dAn").onclick=()=>fine();
+    const cerca=async()=>{const t=telNorm($("#dTe").value);if(!t)return $("#dCli").textContent="";const c=await getDoc(doc(db,"clienti","t"+t)).catch(()=>null);
+      if(c&&c.exists()){const x=c.data();$("#dCli").innerHTML=`✓ Cliente in anagrafica: <b>${esc((x.nome||"")+" "+(x.cognome||""))}</b> · ${+x.presenze||0} visite${x.fiammelle?" · "+"🔥".repeat(Math.min(3,x.fiammelle)):""}${x.puntiFidelity?" · "+x.puntiFidelity+" punti":""}`;if(!$("#dNo").value.trim())$("#dNo").value=`${x.nome||""} ${x.cognome||""}`.trim();}
+      else $("#dCli").textContent="Cliente nuovo: verrà aggiunto all'anagrafica.";};
+    $("#dTe").onchange=cerca; cerca();
+    if($("#dRi")) $("#dRi").onclick=async()=>{fine();await accetta(p,false);};
+    if($("#dEl")) $("#dEl").onclick=async()=>{if(!confirm(`Cancellare la prenotazione di ${p.nome}?`))return;await agg(p,{stato:"annullata"},"Prenotazione cancellata");if(p.clienteId)setDoc(doc(db,"clienti",p.clienteId),{annullate:increment(1)},{merge:true}).catch(()=>{});fine();};
+    $("#dOk").onclick=async()=>{ leggi();
+      if(!e.nome.trim()) return toast("Scrivi il nome"); if(!e.ora) return toast("Scegli l'ora"); if(!e.sala) return toast("Scegli la sala");
+      if(!e.tavoli.length&&!confirm("Non hai scelto il tavolo.\n\nVuoi salvare lo stesso? La prenotazione resterà tra quelle «Da assegnare».")) return;
+      const oc=e.tavoli.filter(t=>occupato(occL,t,e,p?.id)); if(oc.length&&!confirm(`Il tavolo ${oc.join(", ")} è già occupato a quell'ora. Confermare lo stesso?`)) return;
+      const t=telNorm(e.telefono), cid=t?"t"+t:(p?.clienteId||null);
+      const d={nome:e.nome.trim(),telefono:t?"+"+t:e.telefono.trim(),email:e.email.trim()||null,clienteId:cid,data:e.data,ora:e.ora,turno:turnoDi(e),persone:e.persone,durata:e.durata,sala:e.sala,tavoli:e.tavoli,tavolo:e.tavoli.join(" + "),
+        causale:e.causale,note:e.note.trim(),notePrivate:e.notePrivate.trim(),avvisati:e.avvisati,torta:e.torta,prive:e.prive};
+      const wa1=$("#dWa")?.checked;
+      try{ if(nuovo){ await addDoc(collection(db,"prenotazioni"),{...d,stato:"confermata",canale:"tablet",creatoIl:serverTimestamp(),creatoDa:S.me.nome||""});
+          if(cid&&t){const ex=await getDoc(doc(db,"clienti",cid)).catch(()=>null);if(!ex||!ex.exists()){const [nm,...cg]=d.nome.split(" ");await setDoc(doc(db,"clienti",cid),{nome:nm,cognome:cg.join(" "),telefono:"+"+t,email:d.email,presenze:0,puntiFidelity:0,dataRegistrazione:iso(new Date()),origine:"penelope",consensi:{privacy:true,marketing:false,profilazione:false}},{merge:true}).catch(()=>{});setDoc(doc(db,"indice","nuovi"),{nuovi:arrayUnion(`${cid}|${d.nome}|+${t}`)},{merge:true}).catch(()=>{});}}
+          toast("Prenotazione salvata ✓"); }
+        else if(web){ await agg(p,d); await accetta({...p,...d},true,wa1); }
+        else await agg(p,d,"Salvato ✓");
+        delete OCC[e.data]; fine();
+        if(nuovo&&wa1&&t) wa("+"+t,fill(S.cfg.msg?.conferma||MSG.conferma,{nome:d.nome.split(" ")[0],giorno:bello(d.data),ora:d.ora,persone:d.persone}));
+        if(e.data!==S.data&&(nuovo||web)) toast(`Salvata per ${bello(e.data)}`);
+      }catch(x){toast("Errore: "+(x.code||x.message));} };
+  };
+  draw2();
+}
+function sceltaTavolo(p,titolo,dopo){ const tv=S.tav.filter(t=>t.sala===(salaP(p)||S.sala)).sort(ordNome), e={ora:p.ora,durata:durata(p)};
+  sheet(`${p.nome} non ha un tavolo`,`<p>Scegli il tavolo dove li fai sedere${salaP(p)?" in "+esc(salaP(p)):""}:</p><div class="chs">${tv.map(t=>{const oc=occupato(S.pren,t.nome,e,p.id);return `<button class="${oc?"occ":""}" data-st2="${esc(t.nome)}">${esc(t.nome)}<small>${t.posti||""}</small></button>`;}).join("")}</div><button class="btn light" id="stS">${esc(titolo)} senza tavolo</button>`);
+  $$("[data-st2]").forEach(b=>b.onclick=async()=>{close();const t=S.tav.find(x=>x.nome===b.dataset.st2);await setTav(p,[t.nome],t.sala);dopo();});
+  $("#stS").onclick=()=>{close();dopo();}; }
+/* la pagina non si chiude con il tasto indietro o per errore */
+history.pushState({app:1},"");
+window.addEventListener("popstate",()=>{ if(!$("#det").classList.contains("hidden")){ $("#det").classList.add("hidden"); $("#det").innerHTML=""; } history.pushState({app:1},""); });
+window.addEventListener("beforeunload",e=>{ e.preventDefault(); e.returnValue=""; });
 
 /* ---------- fogli, scheda e menu ---------- */
-function apriScheda(p){ if(p) apri(`classica.html?embed=1&pren=${encodeURIComponent(p.id)}`); }
+function apriScheda(p){ if(p) dettaglio(p); }
 function apri(url,x){ $("#embed")?.remove(); const w=document.createElement("div"), t0=Date.now(); w.id="embed"; w.innerHTML=`<iframe src="${url}" title="Penelope"></iframe><button class="x" aria-label="Chiudi">✕</button>`;
-  w.onclick=e=>{if((e.target===w||e.target.classList.contains("x"))&&Date.now()-t0>500)w.remove();}; document.body.appendChild(w); }
+  w.querySelector(".x").onclick=()=>w.remove(); document.body.appendChild(w); }
 function sheet(t,h){ const t0=Date.now(); $("#sheetRoot").innerHTML=`<div class="sheet-bg" id="sb"><div class="sheet" role="dialog"><h2>${esc(t)}</h2>${h}<button class="btn light" id="sx">Chiudi</button></div></div>`; $("#sx").onclick=close; $("#sb").onclick=e=>{if(e.target.id==="sb"&&Date.now()-t0>500)close();}; }
 const close=()=>$("#sheetRoot").innerHTML="";
 function scegli(t,ops){ sheet(t,ops.map((o,i)=>`<button class="btn ${i?"light":""}" data-o="${i}">${esc(o[0])}</button>`).join("")); $$("[data-o]").forEach(b=>b.onclick=()=>{close();ops[+b.dataset.o][1]();}); }
