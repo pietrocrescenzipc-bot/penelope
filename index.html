@@ -203,9 +203,9 @@ const I={ // icone
  back:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 5l-7 7 7 7"/></svg>'};
 const fiamma=(on=true)=>`<svg width="20" height="20" viewBox="0 0 24 24"><path d="M12 2c1 4 6 6 6 12a6 6 0 0 1-12 0c0-3 2-5 3-6 0 2 1 3 2 3 0-3-1-6 1-9z" fill="${on?"#F26B1D":"#9AA0AA"}"/><path d="M12 13c1 2 3 3 3 5a3 3 0 0 1-6 0c0-1 1-2 1-3 1 1 2 0 2-2z" fill="${on?"#FFC53D":"#fff"}"/></svg>`;
 const albero=secco=>`<svg width="22" height="22" viewBox="0 0 24 24"><path d="M11 22v-8l-3-3M13 22v-6l3-3M12 14V8" stroke="${secco?"#7A5230":"#6B4A2B"}" stroke-width="2" fill="none" stroke-linecap="round"/>${secco?"":'<circle cx="12" cy="7" r="5" fill="#2EAD4B"/><circle cx="8" cy="10" r="3" fill="#3FC25E"/><circle cx="16" cy="10" r="3" fill="#3FC25E"/>'}</svg>`;
-const livello=c=>{const n=+c?.presenze||0;return n>=40?5:n>=20?4:n>=10?3:n>=5?2:n>=2?1:0;};
+const livello=c=>{if(!c)return 0;if(Number.isInteger(c.fiammelle))return c.fiammelle;const t=(c.tags||[]).map(x=>String(x).match(/^(\d) Fiammelle$/)).find(Boolean);if(t)return +t[1];const n=+c.presenze||0,k=+(S.cfg?.marketing?.interazioni5)||12;return n>=k?5:n>=k*.6?4:n>=k*.4?3:n>=k*.2?2:n>=2?1:0;};
 const fiammelle=c=>{const l=livello(c);return Array.from({length:5},(_,i)=>fiamma(i<l)).join("");};
-const stIcona=c=>{if(!c)return albero(false);const gg=giorniFa(c.ultimaPresenza);if(livello(c)>=3&&!(gg>90))return fiamma(true);return albero(gg!==null&&gg>90);};
+const stIcona=c=>{if(!c)return albero(false);const gg=giorniFa(c.ultimaPresenza),ina=+(S.cfg?.marketing?.inattiviGg)||60;if(livello(c)>=3&&!(gg>ina))return fiamma(true);return albero(gg!==null&&gg>ina);};
 
 /* ===== stato ===== */
 const S={vista:"agenda",sub:"pren",modo:null,data:iso(new Date()),turno:"cena",ordine:"ora",filtro:"",win:60,cfg:null,me:null,pren:[],tav:[],cli:new Map(),idx:null,unsub:null,richieste:[]};

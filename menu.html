@@ -9,9 +9,9 @@
 :root{--navy:#14233A;--red:#9B1B1B;--gold:#D9C08A;--line:#ECEDEF;--txt:#1F2430;--mute:#6B7280}
 *{box-sizing:border-box}html,body{margin:0;background:#F6F4EF;color:var(--txt);font-family:Nunito,system-ui,sans-serif;font-size:15px}
 button,input{font-family:inherit;font-size:15px;color:inherit}button{cursor:pointer;border:0;background:none}
-header{background:var(--navy);text-align:center;padding:16px 14px 14px;position:relative}
+header{background:var(--navy);text-align:center;padding:10px 14px 14px}
 header img{width:100%;max-width:280px;background:#fff;border-radius:14px;padding:6px;display:block;margin:0 auto}
-.lang{position:absolute;top:12px;right:12px;display:flex;gap:4px}.lang button{background:rgba(255,255,255,.15);color:#fff;border-radius:8px;padding:5px 9px;font-weight:800;font-size:12px}.lang button.on{background:var(--gold);color:var(--navy)}
+.lang{display:flex;gap:4px;justify-content:flex-end;margin-bottom:8px}.lang button{background:rgba(255,255,255,.15);color:#fff;border-radius:8px;padding:5px 9px;font-weight:800;font-size:12px}.lang button.on{background:var(--gold);color:var(--navy)}
 nav{position:sticky;top:0;z-index:5;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.06)}
 .cats{display:flex;gap:8px;overflow-x:auto;padding:10px 12px;scrollbar-width:none}.cats::-webkit-scrollbar{display:none}
 .cats button{flex:0 0 auto;padding:8px 14px;border-radius:18px;background:#F1F2F4;font-weight:700;font-size:13px;white-space:nowrap}.cats button.on{background:var(--red);color:#fff}
@@ -30,7 +30,7 @@ footer a{color:var(--red);font-weight:800}
 </style>
 </head>
 <body>
-<header><img src="logo-galleon.jpg" alt="The Galleon Pub & Pizzeria"><div class="lang"><button data-l="it" class="on">IT</button><button data-l="en">EN</button></div></header>
+<header><div class="lang"><button data-l="it" class="on">IT</button><button data-l="en">EN</button></div><img src="logo-galleon.jpg" alt="The Galleon Pub & Pizzeria"></header>
 <nav><div class="cats" id="cats"></div><div class="srch"><input id="q" placeholder="Cerca nel menu…" aria-label="Cerca nel menu"></div></nav>
 <main id="m"><div class="vuoto">Caricamento del menu…</div></main>
 <footer><a href="prenota.html?fonte=menu">📅 Prenota un tavolo</a><br><br>The Galleon Pub &amp; Pizzeria · Via Tuderte 47, Marsciano · 075 874 2304<br><span id="al"></span></footer>

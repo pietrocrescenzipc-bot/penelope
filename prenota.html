@@ -56,11 +56,11 @@ textarea.f{min-height:80px;resize:vertical}
 </main>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, addDoc, serverTimestamp, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const db=getFirestore(initializeApp({apiKey:"AIzaSyBzpnM1H7Nk99bGqiKoFvJfZfUEhxYt1yI",authDomain:"galleon-club.firebaseapp.com",projectId:"galleon-club",storageBucket:"galleon-club.firebasestorage.app",messagingSenderId:"256580919264",appId:"1:256580919264:web:1639030e273fae781fd585"}));
 const $=s=>document.querySelector(s), pad=n=>String(n).padStart(2,"0"), iso=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
 const GS=["dom","lun","mar","mer","gio","ven","sab"],MS=["gen","feb","mar","apr","mag","giu","lug","ago","set","ott","nov","dic"],GG=["domenica","lunedì","martedì","mercoledì","giovedì","venerdì","sabato"],MM=["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","agosto","settembre","ottobre","novembre","dicembre"];
-const ORE=["19:00","19:30","20:00","20:30","21:00","21:30","22:00"];
+let ORE=["19:00","19:30","20:00","20:30","21:00","21:30","22:00"];
 const PROV=["Passaparola","Google","Instagram","Facebook","TripAdvisor","Passando davanti","Già cliente","Altro"];
 const FONTE=(new URLSearchParams(location.search).get("fonte")||"").toLowerCase().replace(/[^a-z0-9 _-]/g,"").slice(0,30);
 const S={pax:2,data:iso(new Date()),ora:"",prov:""};
@@ -79,6 +79,7 @@ function draw(){
  document.querySelectorAll("[data-v]").forEach(b=>b.onclick=()=>{S.prov=b.dataset.v;draw();});
 }
 draw();
+getDoc(doc(db,"menu","prenota")).then(d=>{const o=d.exists()?d.data().orari:null;if(Array.isArray(o)&&o.length){ORE=o;draw();}}).catch(()=>{});
 $("#go").onclick=async()=>{
  const nome=$("#nome").value.trim(),cogn=$("#cogn").value.trim(),mail=$("#mail").value.trim().toLowerCase(),note=$("#note").value.trim();
  let t=$("#tel").value.replace(/\D/g,"");if(t.startsWith("0039"))t=t.slice(4);if(t.startsWith("39")&&t.length===12)t=t.slice(2);
