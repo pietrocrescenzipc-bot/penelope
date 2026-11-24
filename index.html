@@ -42,6 +42,7 @@ button,input,textarea{font-family:inherit;font-size:15px;color:inherit}button{cu
 .lista{display:flex;flex-direction:column}
 .sw{position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
 .act{position:absolute;inset:0 0 0 auto;width:192px;display:flex}
+.actL{position:absolute;inset:0 auto 0 0;width:100%;background:var(--ora);color:#fff;font-size:28px;font-weight:800;display:flex;align-items:center;padding-left:22px}
 .act button{flex:1;display:grid;place-items:center;background:#E9ECF1;color:#3A4050}.act button:nth-child(2){background:#DCE1E8}.act button:nth-child(3){background:#CDD4DE}
 .pc{position:relative;background:#fff;display:flex;gap:10px;padding:12px 12px 12px 18px;transition:transform .2s;touch-action:pan-y}
 .pc::before{content:"";position:absolute;left:0;top:0;bottom:0;width:7px;background:var(--ora)}
@@ -309,7 +310,7 @@ function disegna(){
 function card(p){
  const c=S.cli.get(p.clienteId), cl=p.stato==="arrivato"?"arr":p.stato==="attesa"?"att":p.stato==="richiesta"?"ric":["noshow","rifiutata","annullata"].includes(p.stato)?"ann":"";
  const sub=[c?.presenze?c.presenze+" visite":"",c?.provincia||p.provincia||"",p.causale||(p.canale==="web"?"prenotazione web":"prenotazione")].filter(Boolean).join(" - ");
- return `<div class="sw" data-id="${p.id}"><div class="act"><button data-a="cli" aria-label="Cliente">${I.user}</button><button data-a="mod" aria-label="Modifica">${I.docu}</button><button data-a="chat" aria-label="Chat">${I.send}</button></div>
+ return `<div class="sw" data-id="${p.id}"><div class="actL">•••</div><div class="act"><button data-a="cli" aria-label="Cliente">${I.user}</button><button data-a="mod" aria-label="Modifica">${I.docu}</button><button data-a="chat" aria-label="Chat">${I.send}</button></div>
  <div class="pc ${cl}"><button class="chk" data-a="chiudi" aria-label="Chiudi prenotazione">${p.stato==="arrivato"?I.check:p.stato==="noshow"?"✕":""}</button>
   <div class="info"><div class="meta"><span>${I.pers}${esc(p.persone)}</span><span>${I.ora}${esc(p.ora||"--")}</span>${p.tavolo?`<span>${I.tav}${esc(p.tavolo)}</span>`:""}${p.attesa?`<span>⏳${p.attesa}′</span>`:""}</div>
    <div class="nm">${esc(p.nome||"Senza nome")}</div><div class="sub">${esc(sub)}${(c?.nazione||"IT")==="IT"?" 🇮🇹":""}</div>${p.note?`<div class="nt">${esc(p.note)}</div>`:""}</div>
@@ -320,8 +321,8 @@ function attivaCard(w){
  const p=S.pren.find(x=>x.id===w.dataset.id)||S.richieste.find(x=>x.id===w.dataset.id), pc=w.querySelector(".pc");
  let x0=null,y0=0,dx=0,aperta=false;
  pc.addEventListener("touchstart",e=>{x0=e.touches[0].clientX;y0=e.touches[0].clientY;dx=0;},{passive:true});
- pc.addEventListener("touchmove",e=>{if(x0===null)return;const mx=e.touches[0].clientX-x0;if(Math.abs(e.touches[0].clientY-y0)>Math.abs(mx))return;dx=Math.max(-192,Math.min(0,mx+(aperta?-192:0)));pc.style.transition="none";pc.style.transform=`translateX(${dx}px)`;},{passive:true});
- pc.addEventListener("touchend",()=>{pc.style.transition="";if(x0===null)return;x0=null;aperta=dx<-80;pc.style.transform=aperta?"translateX(-192px)":"";});
+ pc.addEventListener("touchmove",e=>{if(x0===null)return;const mx=e.touches[0].clientX-x0;if(Math.abs(e.touches[0].clientY-y0)>Math.abs(mx))return;dx=Math.max(-192,Math.min(aperta?0:140,mx+(aperta?-192:0)));w.querySelector(".act").style.visibility=dx>0?"hidden":"";pc.style.transition="none";pc.style.transform=`translateX(${dx}px)`;},{passive:true});
+ pc.addEventListener("touchend",()=>{pc.style.transition="";if(x0===null)return;x0=null;if(dx>70){pc.style.transform="";aperta=false;w.querySelector(".act").style.visibility="";return chiudi(p);}aperta=dx<-80;pc.style.transform=aperta?"translateX(-192px)":"";});
  w.onclick=e=>{const a=e.target.closest("[data-a]")?.dataset.a;
   if(a==="chiudi")return chiudi(p);if(a==="cli")return p.clienteId?schedaCliente(p.clienteId):toast("Cliente senza scheda");
   if(a==="chat")return wa(p.telefono,"");if(a==="mod"||!aperta){if(aperta){pc.style.transform="";aperta=false;}return S.modo==="richieste"?richiesta(p):formPren(p);}
