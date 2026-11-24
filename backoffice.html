@@ -3,79 +3,91 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Penelope · Back office</title><link rel="icon" href="icona-192.png">
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--blu:#1E5AA8;--blu2:#2F6BEB;--az:#17A2B8;--verde:#28A745;--rosso:#DC3545;--ora:#F5A000;--gial:#F5C400;--line:#E6E8EC;--txt:#2A2F3A;--mute:#8A909C;--bg:#F8F8F8}
-*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--txt);font-family:Nunito,system-ui,sans-serif;font-size:14px}
+:root{--navy:#14233A;--navy2:#1D3150;--gold:#D9B26A;--bg:#F5F3EE;--txt:#17202F;--mute:#7A8394;--line:#ECE8DF;--green:#2E9D5B;--red:#D04545;--blue:#2F6BEB;--org:#E8962E;--blu2:#2F6BEB;--verde:#2E9D5B;--rosso:#D04545;--az:#2B8FA8}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--txt);font-family:Inter,system-ui,sans-serif;font-size:14px}
 button,input,select,textarea{font-family:inherit;font-size:14px;color:inherit}button{cursor:pointer}
-.hidden{display:none!important}
-#top{height:62px;background:#fff;display:flex;align-items:center;padding:0 22px;box-shadow:0 1px 6px rgba(0,0,0,.06);position:sticky;top:0;z-index:5}
-#top .logo{flex:1;text-align:center;font-weight:800;letter-spacing:1px;color:#1B2B4B;font-size:19px}#top .logo small{display:block;font-size:9px;letter-spacing:.5px;color:var(--mute);font-weight:600}
-#top .loc{color:var(--mute);font-size:13px;display:flex;gap:10px;align-items:center}
-#bar{height:3px;background:var(--gial)}
-#wrap{display:flex;min-height:calc(100vh - 65px)}
-#side{width:96px;background:#fff;flex:0 0 96px;box-shadow:1px 0 4px rgba(0,0,0,.04);overflow-y:auto;max-height:calc(100vh - 65px);position:sticky;top:65px}
-#side button{width:100%;border:0;background:none;padding:12px 4px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:#555;border-left:3px solid transparent}
-#side button.on{color:var(--blu);border-left-color:var(--blu);background:#F4F7FC}#side button.off{opacity:.35}
-#side svg{width:24px;height:24px}
-#subm{width:180px;flex:0 0 180px;background:#fff;border-left:1px solid var(--line);padding:16px 10px}
-#subm button{display:flex;gap:8px;align-items:center;width:100%;border:0;background:none;text-align:left;padding:8px 8px;border-radius:6px;color:#555}
-#subm button.on{color:var(--blu);font-weight:700;background:#F0F4FB}
-#main{flex:1;min-width:0;padding:22px 30px 60px}
-.hd{display:flex;align-items:center;gap:14px;margin-bottom:14px}.hd h1{margin:0;font-weight:400;font-size:26px}.hd .crumb{color:var(--mute);font-size:12px}.hd .sp{flex:1}
-.plus{width:36px;height:36px;border-radius:50%;border:0;background:none;color:var(--blu2);font-size:30px;line-height:1}
+.hidden{display:none!important}a{color:var(--blue)}
+#app{display:flex;min-height:100vh}
+#side{width:230px;flex:0 0 230px;background:var(--navy);color:#C9D2E0;padding:22px 14px;display:flex;flex-direction:column;gap:4px;position:sticky;top:0;height:100vh}
+#side .logo{display:flex;align-items:center;gap:10px;margin:0 4px 24px}#side .logo b{color:#fff;font-size:18px;letter-spacing:.5px}#side .logo span{width:38px;height:38px;border-radius:10px;background:var(--gold);color:var(--navy);display:grid;place-items:center;font-weight:800}
+#side button{display:flex;gap:12px;align-items:center;padding:11px 12px;border-radius:10px;font-weight:600;border:0;background:none;color:inherit;text-align:left;font-size:14.5px}
+#side button:hover{background:#ffffff0f}#side button.on{background:var(--navy2);color:#fff;box-shadow:inset 3px 0 var(--gold)}
+#side .bdg{margin-left:auto;background:var(--red);color:#fff;border-radius:10px;padding:1px 7px;font-size:11px}
+#side .foot{margin-top:auto;color:#7F8BA0;font-size:12px;padding:0 6px}#side .foot button{padding:6px 0;color:#C9D2E0;font-size:12.5px}
+#body{flex:1;min-width:0;display:flex;flex-direction:column}
+#tabs{display:flex;gap:6px;padding:18px 32px 0;flex-wrap:wrap}#tabs:empty{display:none}
+#tabs button{border:1px solid var(--line);background:#fff;border-radius:20px;padding:7px 15px;font-weight:600;font-size:13px;color:#4B5160}#tabs button.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+#main{padding:18px 32px 60px}
+.hd{display:flex;align-items:center;gap:14px;margin-bottom:18px}.hd h1{margin:0;font-size:26px;font-weight:700}.hd .crumb{display:none}.hd .sp{flex:1}
+.plus{border:0;border-radius:12px;padding:10px 16px;font-weight:700;background:var(--gold);color:var(--navy);font-size:14px}.plus::after{content:" Nuovo"}
 .filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
-.pill{border:1px solid #CDD2DA;border-radius:16px;padding:5px 12px;background:#fff;font-size:12px}
-.srch{border:1px solid #CDD2DA;border-radius:16px;padding:5px 12px;width:200px}
-.btn{border:0;border-radius:18px;padding:7px 16px;font-weight:700;color:#fff;background:var(--blu2)}
-.btn.az{background:var(--az)}.btn.v{background:var(--verde)}.btn.r{background:var(--rosso)}.btn.g{background:#E3E7EE;color:#444}.btn.o{background:#C9A227}
-.card{background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.06);padding:16px;margin-bottom:14px}
-.grid{display:grid;gap:14px}.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
-.kpi{text-align:center}.kpi small{display:block;color:var(--mute);text-transform:uppercase;font-size:11px;letter-spacing:.5px}.kpi b{font-size:30px;font-weight:400;display:block;margin:6px 0}.kpi i{font-style:normal;font-size:11px;color:var(--mute)}
-.sez{font-size:18px;color:#666;margin:22px 0 10px}
-table{width:100%;border-collapse:collapse;background:#fff}
-th{text-align:left;font-weight:600;color:#666;font-size:12px;padding:8px;border-bottom:1px solid var(--line)}
-td{padding:9px 8px;border-bottom:1px solid #F0F1F3;vertical-align:middle}
-tr.click:hover td{background:#F7F9FC;cursor:pointer}
-.chip{display:inline-block;border-radius:10px;padding:2px 9px;font-size:11px;font-weight:700;color:#fff}
-.sw{display:inline-block;width:14px;height:34px;border-radius:2px;vertical-align:middle}
-.cons{display:flex;gap:24px;font-size:12px;color:#666;padding:4px 8px 10px}
-.ok{color:var(--verde)}.no{color:#999}
-.f{border:1px solid #CDD2DA;border-radius:6px;padding:8px 10px;width:100%;background:#fff}
-label.l{display:block;font-size:12px;font-weight:700;color:#555;margin:10px 0 4px}
+.pill,.f2{border:1px solid var(--line);border-radius:20px;padding:7px 13px;background:#fff;font-size:13px;font-weight:600}
+.chipf{border:1px solid var(--line);background:#fff;border-radius:20px;padding:8px 14px;font-weight:600;font-size:13px}.chipf.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.srch{border:1px solid var(--line);border-radius:12px;padding:10px 14px;background:#fff;min-width:240px}
+.big{flex:1;font-size:15px;padding:13px 16px}
+.btn{border:0;border-radius:12px;padding:9px 16px;font-weight:700;color:#fff;background:var(--navy)}
+.btn.az{background:var(--az)}.btn.v{background:var(--green)}.btn.r{background:var(--red)}.btn.g{background:#fff;color:var(--txt);border:1px solid var(--line)}.btn.o{background:var(--gold);color:var(--navy)}
+.btn:disabled{opacity:.45}
+.card{background:#fff;border-radius:16px;padding:18px;border:1px solid var(--line);margin-bottom:16px}
+.grid{display:grid;gap:16px}.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.grid>.card{margin-bottom:0}
+.kpi{text-align:left}.kpi small{display:block;color:var(--mute);font-weight:600;font-size:12.5px}.kpi b{font-size:30px;font-weight:700;display:block;margin:6px 0 2px}.kpi i{font-style:normal;font-size:12px;font-weight:600;color:var(--mute)}
+.up{color:var(--green)!important}.dn{color:var(--red)!important}
+.sez{font-size:15px;font-weight:700;color:var(--txt);margin:22px 0 10px}
+h3{margin:0 0 12px;font-size:15px}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-weight:600;color:var(--mute);font-size:12px;padding:9px 10px;border-bottom:1px solid var(--line)}
+td{padding:11px 10px;border-bottom:1px solid #F3F0EA;vertical-align:middle}
+tr.click:hover td{background:#FAF8F3;cursor:pointer}tr.sel td{background:#FFF8E9}
+.chip{display:inline-block;border-radius:8px;padding:3px 9px;font-size:12px;font-weight:700;color:#fff}
+.sw{display:inline-block;width:12px;height:30px;border-radius:4px;vertical-align:middle}
+.cons{display:flex;gap:20px;font-size:12px;color:var(--mute);padding:2px 10px 10px;flex-wrap:wrap}
+.ok{color:var(--green)}.no{color:#B4B9C2}
+.f{border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%;background:#fff}
+label.l{display:block;font-size:12px;font-weight:700;color:#4B5160;margin:12px 0 5px}
 textarea.f{min-height:110px;resize:vertical}
-.muted{color:var(--mute);font-size:12px}
+.muted{color:var(--mute);font-size:12.5px}
 .pager{display:flex;gap:8px;justify-content:center;align-items:center;margin-top:12px}
-.cal{display:grid;grid-template-columns:repeat(7,1fr);background:#fff;border:1px solid var(--line)}
-.cal div{min-height:84px;border:1px solid #F0F1F3;padding:6px;position:relative}
-.cal .gh{min-height:auto;font-weight:700;color:#666;font-size:12px;background:#FAFAFA}
-.cal .n{position:absolute;top:6px;right:8px;color:#888}.cal .oggi{background:#EAF2FF;border:2px solid #9CC0F5}.cal .fuori{background:#FAFAFA;color:#bbb}
-.bd{display:inline-flex;gap:3px;align-items:center;margin:28px 4px 0 0;font-size:11px}.bd b{background:#E5484D;color:#fff;border-radius:9px;padding:1px 6px}.bd i{background:#555;color:#fff;border-radius:9px;padding:1px 6px;font-style:normal}
-.bars{display:flex;align-items:flex-end;gap:10px;height:180px;border-bottom:1px solid var(--line);padding-top:10px}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.cal div{min-height:92px;border:1px solid #F3F0EA;padding:8px;position:relative}
+.cal .gh{min-height:auto;font-weight:700;color:var(--mute);font-size:12px;background:#FAF8F3;text-transform:uppercase}
+.cal .n{position:absolute;top:8px;right:10px;color:#9AA0AA;font-weight:600}.cal .oggi{background:#FFF8E9;box-shadow:inset 0 0 0 2px var(--gold)}.cal .fuori{background:#FAF8F3}
+.bd{display:inline-flex;gap:4px;align-items:center;margin:30px 4px 0 0;font-size:12px}.bd b{background:var(--navy);color:#fff;border-radius:9px;padding:2px 8px}.bd i{background:#EEE9DF;color:var(--txt);border-radius:9px;padding:2px 8px;font-style:normal;font-weight:700}
+.bars{display:flex;align-items:flex-end;gap:10px;height:180px;border-bottom:1px solid var(--line);padding-top:16px}
 .bars div{flex:1;display:flex;gap:3px;align-items:flex-end;height:100%;position:relative}
-.bars span{flex:1;border-radius:3px 3px 0 0;min-height:2px}.bars em{position:absolute;bottom:-20px;left:0;right:0;text-align:center;font-style:normal;font-size:11px;color:#888}
-.leg{display:flex;gap:14px;margin-top:28px;font-size:12px}.leg i{display:inline-block;width:12px;height:12px;border-radius:2px;margin-right:4px;vertical-align:-2px}
-.ov{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:20;display:flex;align-items:flex-start;justify-content:center;padding:50px 20px;overflow-y:auto}
-.mod{background:#fff;border-radius:10px;width:100%;max-width:640px;padding:20px 22px}.mod h3{margin:0 0 10px;font-weight:600}
-.mf{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:10px 18px;border-radius:8px;z-index:40}
-.fl{display:inline-flex;gap:1px}
-#login{min-height:100vh;display:flex;align-items:center;justify-content:center}
-#login form{background:#fff;padding:30px;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,.08);width:340px;display:flex;flex-direction:column;gap:10px}
-@media print{#top,#bar,#side,#subm,.filters,.hd .plus,.noprint{display:none!important}#main{padding:0}}
+.bars span{flex:1;border-radius:5px 5px 0 0;min-height:2px}.bars em{position:absolute;bottom:-20px;left:0;right:0;text-align:center;font-style:normal;font-size:11px;color:var(--mute)}
+.bars b{position:absolute;top:-16px;left:0;right:0;text-align:center;font-size:11px}
+.leg{display:flex;gap:14px;margin-top:28px;font-size:12px}.leg i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:4px;vertical-align:-2px}
+.hbar{display:flex;align-items:center;gap:10px;margin:7px 0;font-size:13px}.hbar span{width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.hbar div{flex:1;height:10px;background:#EEE9DF;border-radius:5px;overflow:hidden}.hbar div i{display:block;height:100%;background:var(--navy)}.hbar b{width:50px;text-align:right}
+.bar{height:8px;border-radius:4px;background:#EEE9DF;overflow:hidden;margin-top:8px}.bar div{height:100%}
+.ov{position:fixed;inset:0;background:rgba(20,35,58,.45);z-index:20;display:flex;align-items:flex-start;justify-content:center;padding:50px 20px;overflow-y:auto}
+.mod{background:#fff;border-radius:18px;width:100%;max-width:660px;padding:22px 24px}.mod h3{margin:0 0 10px;font-weight:700;font-size:18px}
+.mf{display:flex;gap:10px;justify-content:flex-end;margin-top:18px}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:12px 20px;border-radius:12px;z-index:40;font-weight:600}
+.fl{display:inline-flex;gap:0}
+.av{width:36px;height:36px;border-radius:50%;background:#E9EEF8;color:var(--blue);display:grid;place-items:center;font-weight:800;font-size:13px;flex:0 0 36px}
+.ric{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}.ric:last-child{border:0}.ric .t{flex:1;min-width:0}.ric .t b{display:block}.ric .t span{color:var(--mute);font-size:12.5px}
+.bok{background:#E6F4EC;color:var(--green);border:0;border-radius:9px;padding:7px 11px;font-weight:700}.bno{background:#FBEAEA;color:var(--red);border:0;border-radius:9px;padding:7px 11px;font-weight:700}
+.hist{display:flex;align-items:flex-end;gap:8px;height:150px;border-bottom:1px solid var(--line)}.hist div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;font-size:11px;color:var(--mute)}.hist span{width:100%;border-radius:6px 6px 0 0;background:#D8E3F8;min-height:2px}.hist span.a{background:var(--green)}.hist em{font-style:normal;font-weight:700;color:var(--txt);margin-bottom:3px}
+.mass{display:flex;gap:8px;align-items:center;background:var(--navy);color:#fff;border-radius:12px;padding:10px 14px;margin-bottom:12px}.mass button{border:0;border-radius:9px;padding:7px 12px;font-weight:700;background:#ffffff1f;color:#fff}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}.stats div{background:#F7F5F0;border-radius:12px;padding:10px;text-align:center}.stats b{display:block;font-size:20px}.stats small{color:var(--mute);font-size:11px}
+.punti{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;border-radius:16px;padding:16px}.punti b{font-size:30px;color:var(--gold)}
+.tag{display:inline-block;background:#F1EEE7;border-radius:8px;padding:3px 8px;font-size:12px;margin:0 4px 4px 0}
+#login{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--navy)}
+#login form{background:#fff;padding:30px;border-radius:18px;width:340px;display:flex;flex-direction:column;gap:10px}
+@media print{#side,#tabs,.filters,.plus,.noprint{display:none!important}#main{padding:0}body{background:#fff}}
 </style>
 </head>
 <body>
-<div id="login" class="hidden"><form id="lf"><h2 style="margin:0;text-align:center">PENELOPE · Back office</h2><input class="f" id="lem" type="email" placeholder="Email" required><input class="f" id="lpw" type="password" placeholder="Password" required><button class="btn" type="submit">Entra</button><div id="lerr" class="muted" style="text-align:center"></div></form></div>
-<div id="app" class="hidden">
- <div id="top"><span style="width:200px"></span><div class="logo">PENELOPE<small>IL GESTIONALE DEL THE GALLEON</small></div><div class="loc"><span id="who"></span><button class="btn g" id="esci">Esci</button></div></div><div id="bar"></div>
- <div id="wrap"><nav id="side"></nav><div id="subm"></div><main id="main"></main></div>
-</div>
+<div id="login" class="hidden"><form id="lf"><h2 style="margin:0;text-align:center">PENELOPE</h2><div class="muted" style="text-align:center">The Galleon Pub &amp; Pizzeria</div><input class="f" id="lem" type="email" placeholder="Email" required><input class="f" id="lpw" type="password" placeholder="Password" required><button class="btn" type="submit">Entra</button><div id="lerr" class="muted" style="text-align:center"></div></form></div>
+<div id="app" class="hidden"><nav id="side"></nav><div id="body"><div id="tabs"></div><main id="main"></main></div></div>
 <div id="root"></div>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc, updateDoc, addDoc, deleteDoc, collection, query, where, orderBy, limit, startAfter, getDocs, getCountFromServer, serverTimestamp, writeBatch, arrayUnion, arrayRemove, Timestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, addDoc, deleteDoc, collection, query, where, orderBy, limit, startAfter, getDocs, getCountFromServer, onSnapshot, runTransaction, serverTimestamp, writeBatch, arrayUnion, arrayRemove, Timestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const app=initializeApp({apiKey:"AIzaSyBzpnM1H7Nk99bGqiKoFvJfZfUEhxYt1yI",authDomain:"galleon-club.firebaseapp.com",projectId:"galleon-club",storageBucket:"galleon-club.firebasestorage.app",messagingSenderId:"256580919264",appId:"1:256580919264:web:1639030e273fae781fd585"});
 const auth=getAuth(app),db=getFirestore(app);
 const PIEN={"sale":[{"nome":"Estivo","cap":140,"col":"#8BC34A","tavoli":[{"nome":"1","min":2,"max":4,"forma":"quadrato"},{"nome":"10","min":6,"max":8,"forma":"orizzontale"},{"nome":"100","min":2,"max":6,"forma":"tondo"},{"nome":"101","min":2,"max":6,"forma":"tondo"},{"nome":"102","min":2,"max":6,"forma":"tondo"},{"nome":"11","min":2,"max":4,"forma":"quadrato"},{"nome":"12","min":2,"max":4,"forma":"quadrato"},{"nome":"13","min":2,"max":4,"forma":"quadrato"},{"nome":"14","min":2,"max":4,"forma":"quadrato"},{"nome":"15","min":2,"max":4,"forma":"quadrato"},{"nome":"16","min":6,"max":8,"forma":"orizzontale"},{"nome":"17","min":2,"max":4,"forma":"quadrato"},{"nome":"18","min":6,"max":8,"forma":"orizzontale"},{"nome":"2","min":2,"max":4,"forma":"quadrato"},{"nome":"3","min":2,"max":4,"forma":"quadrato"},{"nome":"4","min":2,"max":4,"forma":"quadrato"},{"nome":"5","min":2,"max":4,"forma":"quadrato"},{"nome":"6","min":2,"max":4,"forma":"quadrato"},{"nome":"7","min":2,"max":4,"forma":"quadrato"},{"nome":"8","min":6,"max":8,"forma":"orizzontale"},{"nome":"9","min":6,"max":8,"forma":"orizzontale"},{"nome":"A","min":6,"max":18,"forma":"verticale"},{"nome":"A1","min":4,"max":6,"forma":"rett_verticale"},{"nome":"A2","min":4,"max":8,"forma":"rett_verticale"},{"nome":"B","min":6,"max":16,"forma":"verticale"},{"nome":"B1","min":4,"max":6,"forma":"rett_verticale"},{"nome":"B2","min":4,"max":6,"forma":"rett_verticale"},{"nome":"C","min":6,"max":8,"forma":"verticale"},{"nome":"C1","min":4,"max":6,"forma":"rett_verticale"},{"nome":"C2","min":4,"max":6,"forma":"rett_verticale"},{"nome":"D","min":6,"max":8,"forma":"verticale"},{"nome":"E","min":1,"max":18,"forma":"verticale"},{"nome":"x","min":1,"max":4,"forma":"rombo"}]},{"nome":"Invernale","cap":130,"col":"#F5A000","tavoli":[{"nome":"1","min":2,"max":4,"forma":"quadrato"},{"nome":"10","min":2,"max":4,"forma":"quadrato"},{"nome":"11","min":2,"max":4,"forma":"quadrato"},{"nome":"12","min":2,"max":4,"forma":"quadrato"},{"nome":"13","min":2,"max":4,"forma":"quadrato"},{"nome":"14","min":4,"max":6,"forma":"rettangolare"},{"nome":"14 bis","min":1,"max":4,"forma":"rombo"},{"nome":"15","min":4,"max":6,"forma":"rettangolare"},{"nome":"15 bis","min":1,"max":4,"forma":"rombo"},{"nome":"16","min":4,"max":6,"forma":"rettangolare"},{"nome":"16 bis","min":1,"max":4,"forma":"rombo"},{"nome":"17","min":4,"max":6,"forma":"rettangolare"},{"nome":"17 bis","min":1,"max":4,"forma":"rombo"},{"nome":"18","min":4,"max":6,"forma":"rettangolare"},{"nome":"2","min":1,"max":8,"forma":"quadrato"},{"nome":"3","min":4,"max":6,"forma":"rettangolare"},{"nome":"4","min":4,"max":6,"forma":"rettangolare"},{"nome":"5","min":2,"max":4,"forma":"quadrato"},{"nome":"6","min":2,"max":4,"forma":"quadrato"},{"nome":"8","min":2,"max":4,"forma":"quadrato"},{"nome":"9","min":2,"max":4,"forma":"quadrato"},{"nome":"A","min":4,"max":6,"forma":"rett_verticale"},{"nome":"B","min":4,"max":6,"forma":"rett_verticale"},{"nome":"C","min":4,"max":6,"forma":"rett_verticale"},{"nome":"D","min":4,"max":6,"forma":"rett_verticale"},{"nome":"P1","min":6,"max":8,"forma":"orizzontale"},{"nome":"P2","min":6,"max":8,"forma":"orizzontale"},{"nome":"P3","min":6,"max":8,"forma":"orizzontale"}]},{"nome":"Veranda","cap":60,"col":"#7A1F8C","tavoli":[{"nome":"V1","min":2,"max":4,"forma":"quadrato"},{"nome":"V10","min":2,"max":4,"forma":"quadrato"},{"nome":"V11","min":2,"max":4,"forma":"quadrato"},{"nome":"V12","min":6,"max":8,"forma":"orizzontale"},{"nome":"V2","min":2,"max":4,"forma":"quadrato"},{"nome":"V3","min":2,"max":4,"forma":"quadrato"},{"nome":"V4","min":2,"max":4,"forma":"quadrato"},{"nome":"V5","min":2,"max":4,"forma":"quadrato"},{"nome":"V6","min":2,"max":4,"forma":"quadrato"},{"nome":"V7","min":2,"max":4,"forma":"quadrato"},{"nome":"V8","min":2,"max":4,"forma":"quadrato"},{"nome":"V9","min":2,"max":4,"forma":"quadrato"}]}],"causali":["8 Marzo Festa della Donna","Aperitivo","Asporto","cena","cene di classe social","compleanno","Delivery","Dopo cena","europei2024","Famiglia","Festa della MAMMA S","Festa della MAMMA W","Festa del PAPA'","Halloween","ordine diretto","prenotazione catenaria","Promozione 2x1 sagra Ammeto","PROMOZIONE ANNIVERSARY 2X1","San Valentino","Walkin"]};
@@ -96,7 +108,7 @@ const fiammeN=n=>`<span class="fl">${n===0?fiamma(false):Array.from({length:n},(
 function modal(t,html,onOk,ok="Salva"){const ov=document.createElement("div");ov.className="ov";ov.innerHTML=`<div class="mod"><h3>${esc(t)}</h3>${html}<div class="mf"><button class="btn g" data-x>Annulla</button>${onOk?`<button class="btn v" data-ok>${esc(ok)}</button>`:""}</div></div>`;
  $("#root").appendChild(ov);ov.querySelector("[data-x]").onclick=()=>ov.remove();ov.onclick=e=>{if(e.target===ov)ov.remove();};
  if(onOk)ov.querySelector("[data-ok]").onclick=async()=>{const b=ov.querySelector("[data-ok]");b.disabled=true;try{if(await onOk(ov)!==false)ov.remove();}catch(e){toast("Errore: "+(e.code||e.message));}b.disabled=false;};return ov;}
-const hd=(t,crumb,plus)=>`<div class="hd"><h1>${esc(t)}</h1><span class="crumb">Home | ${esc(crumb)} | ${esc(t)}</span><span class="sp"></span>${plus?`<button class="plus noprint" id="plus" title="Nuovo">+</button>`:""}</div>`;
+const hd=(t,crumb,plus)=>`<div class="hd"><h1>${esc(t)}</h1><span class="sp"></span><span id="hdx"></span>${plus?`<button class="plus noprint" id="plus" title="Nuovo">+</button>`:""}</div>`;
 
 /* stato e config */
 const S={me:null,cfg:{},tav:[]};
@@ -110,33 +122,33 @@ async function salvaCfg(d){try{await setDoc(doc(db,"impostazioni","locale"),d,{m
 
 /* menu (come Pienissimo) */
 const IC={dash:'<path d="M3 4h18v12H3zM8 20h8M12 16v4M6 12l3-3 3 2 5-5"/>',ass:'<path d="M12 3a8 7 0 1 0 0 14l4 4v-5a8 7 0 0 0-4-13z"/>',cli:'<circle cx="8" cy="8" r="3"/><circle cx="16" cy="8" r="3"/><path d="M2 20c0-4 3-6 6-6s6 2 6 6M14 14c4 0 8 2 8 6"/>',mkt:'<path d="M3 5h18v12H3zM7 21h10M8 13l3-3 2 2 4-4"/>',ai:'<path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5zM18 15l.8 2.2L21 18l-2.2.8L18 21l-.8-2.2L15 18l2.2-.8z"/>',form:'<path d="M6 3h12v18H6zM9 7h6M9 11h6M9 15h4"/>',app:'<rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/>',menu:'<path d="M4 4h7v16H4zM13 4h7v16h-7zM6 8h3M15 8h3"/>',ord:'<path d="M5 7h14l-1 13H6zM9 7a3 3 0 0 1 6 0"/>',pren:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',gift:'<path d="M3 9h18v4H3zM5 13h14v8H5zM12 9v12M12 9c-2-4-6-4-6-1s6 1 6 1 6 2 6-1-4-3-6 1"/>',wa:'<path d="M4 20l1.5-4A8 8 0 1 1 9 19z"/>',sond:'<path d="M4 4h16v12H8l-4 4zM8 9h8M8 12h5"/>',timb:'<circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/>',team:'<circle cx="12" cy="7" r="3"/><path d="M5 21c0-4 3-7 7-7s7 3 7 7"/>',bi:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',imp:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/>',stat:'<path d="M3 3v18h18M7 15l4-4 3 3 5-6"/>',rend:'<path d="M4 18l6-6 4 4 6-8M14 8h6v6"/>'};
-const MENU=[["dash","Dashboard",[["dashboard","Dashboard"]]],["ass","Assistenza",[["guida","Guida Penelope"]]],["cli","Clienti",[["clienti","Elenco"],["importa","Importazione"],["impFid","Importa fidelity"]]],
- ["mkt","Marketing",[["fidelity","Fidelity"],["tags","Tags"],["invio","Invio Messaggi"],["mktimp","Impostazioni"]]],["ai","AI",null],["form","Forms",[["forms","Forms Prenotazioni"],["links","Links generali"]]],["app","APP",null],["menu","Menu",[["menuEl","Elenco Menu"],["menuImp","Importa da Pienissimo"],["menuLink","Link e QR code"]]],["ord","Ordini",null],
- ["pren","Prenotazioni",[["prenotazioni","Prenotazioni"],["web","Prenotazioni Web"],["storico","Storico"],["mese","Vista Mese"]]],["gift","Giftcard",null],["wa","WhatsApp",[["wamsg","Template Messaggi"],["waapi","WhatsApp Api Meta"]]],["sond","Sondaggi",null],["timb","Timbrature",null],["team","Gestione Team",[["utenti","Collaboratori"]]],["bi","B.I.",null],
- ["imp","Impostazioni",[["locale","Imp. generali"],["messaggi","Messaggi"],["causali","Causali"],["sale","Sale"],["tavoli","Tavoli"],["utenti","Utenti"],["importaPien","Importa da Pienissimo"]]],["stat","Statistiche",[["trend","Trend"],["statfid","Fidelity"]]],["rend","Rendimenti",null]];
-let SEZ="dash",PAG="dashboard";
+const MENU=[["oggi","🏠","Oggi",[["oggi","Oggi"]]],["pren","📅","Prenotazioni",[["prenotazioni","Giorno"],["mese","Calendario"],["web","Richieste web"],["storico","Storico"]]],
+ ["cli","👥","Clienti",[["clienti","Elenco"],["tags","Tag"],["impFid","Importa fidelity"],["importa","Importa clienti"]]],["fid","⭐","Fidelity",[["fidelity","Programma e premi"],["statfid","Classifica"]]],
+ ["stat","📊","Statistiche",[["trend","Andamento"]]],["msg","💬","Messaggi",[["promo","Promozioni"],["invio","Invio a gruppi"],["messaggi","Messaggi automatici"],["waapi","WhatsApp"]]],
+ ["menu","🍕","Menu",[["menuEl","Piatti e prezzi"],["menuLink","Link e QR code"],["menuImp","Importa da Pienissimo"]]],
+ ["imp","⚙️","Impostazioni",[["locale","Locale e orari"],["sale","Sale"],["tavoli","Tavoli"],["causali","Causali"],["mktimp","Fiammelle e inattivi"],["forms","Prenotazione online"],["links","Link utili"],["utenti","Utenti"],["importaPien","Importa da Pienissimo"]]]];
+let SEZ="oggi",PAG="oggi",RICH=0;
 function drawSide(){
- $("#side").innerHTML=MENU.map(([k,t,sub])=>`<button data-s="${k}" class="${k===SEZ?"on":""} ${sub?"":"off"}" title="${sub?"":"Non attivo in Penelope"}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">${IC[k]}</svg>${t}</button>`).join("");
- const m=MENU.find(x=>x[0]===SEZ);
- $("#subm").innerHTML=m[2]?m[2].map(([p,t])=>`<button data-p="${p}" class="${p===PAG?"on":""}">▤ ${t}</button>`).join(""):"";
- $$("#side [data-s]").forEach(b=>b.onclick=()=>{const mm=MENU.find(x=>x[0]===b.dataset.s);SEZ=mm[0];if(!mm[2]){PAG="off";}else PAG=mm[2][0][0];vai();});
- $$("#subm [data-p]").forEach(b=>b.onclick=()=>{PAG=b.dataset.p;vai();});
+ $("#side").innerHTML=`<div class="logo"><span>G</span><b>PENELOPE</b></div>`+MENU.map(([k,ic,t])=>`<button data-s="${k}" class="${k===SEZ?"on":""}">${ic} ${t}${k==="pren"&&RICH?`<span class="bdg">${RICH}</span>`:""}</button>`).join("")+`<div class="foot">${esc(S.cfg.nomeLocale||"")}<br>${esc(S.me?.nome||"")}<br><button id="esci" style="padding:6px 0">Esci</button></div>`;
+ const m=MENU.find(x=>x[0]===SEZ);$("#tabs").innerHTML=m[3].length>1?m[3].map(([p,t])=>`<button data-p="${p}" class="${p===PAG?"on":""}">${t}</button>`).join(""):"";
+ $$("#side [data-s]").forEach(b=>b.onclick=()=>{const mm=MENU.find(x=>x[0]===b.dataset.s);SEZ=mm[0];PAG=mm[3][0][0];vai();});
+ $$("#tabs [data-p]").forEach(b=>b.onclick=()=>{PAG=b.dataset.p;vai();});$("#esci").onclick=()=>signOut(auth);
 }
 window.addEventListener("hashchange",()=>{const [s,p]=location.hash.slice(1).split("/");if(s&&(s!==SEZ||p!==PAG)&&MENU.find(x=>x[0]===s)){SEZ=s;PAG=p;vai();}});
 function vai(){drawSide();if(location.hash.slice(1)!==SEZ+"/"+PAG)location.hash=SEZ+"/"+PAG;$("#main").innerHTML=`<div class="muted">Caricamento…</div>`;(PAGINE[PAG]||paginaOff)().catch(e=>{$("#main").innerHTML=`<div class="card">Errore: ${esc(e.code||e.message)}</div>`;});}
-async function paginaOff(){const m=MENU.find(x=>x[0]===SEZ);$("#main").innerHTML=hd(m[1],m[1])+`<div class="card"><b>${esc(m[1])}</b> non è attivo in Penelope.<div class="muted" style="margin-top:6px">Al Galleon questa funzione di Pienissimo non viene usata. Si può aggiungere in seguito se serve.</div></div>`;}
+async function paginaOff(){SEZ="oggi";PAG="oggi";return vai();const m=MENU.find(x=>x[0]===SEZ);$("#main").innerHTML=hd(m[1],m[1])+`<div class="card"><b>${esc(m[1])}</b> non è attivo in Penelope.<div class="muted" style="margin-top:6px">Al Galleon questa funzione di Pienissimo non viene usata. Si può aggiungere in seguito se serve.</div></div>`;}
 
 /* login */
 $("#lf").onsubmit=async e=>{e.preventDefault();$("#lerr").textContent="Accesso…";try{await signInWithEmailAndPassword(auth,$("#lem").value.trim(),$("#lpw").value);}catch(x){$("#lerr").textContent="Email o password non corretti.";}};
-$("#esci").onclick=()=>signOut(auth);
 onAuthStateChanged(auth,async u=>{
  if(!u){$("#login").classList.remove("hidden");$("#app").classList.add("hidden");return;}
  const sd=await getDoc(doc(db,"staff",u.uid)).catch(()=>null);if(!sd||!sd.exists()){$("#lerr").textContent="Account non abilitato.";signOut(auth);return;}
  S.me={uid:u.uid,...sd.data()};const c=await getDoc(doc(db,"impostazioni","locale")).catch(()=>null);const v=c&&c.exists()?c.data():{};
  S.cfg={...CFG_DEF,...v,msg:{...CFG_DEF.msg,...(v.msg||{})},marketing:{...CFG_DEF.marketing,...(v.marketing||{})}};
  const tv=await getDocs(collection(db,"tavoli")).catch(()=>null);S.tav=tv?tv.docs.map(d=>({id:d.id,...d.data()})):[];
- $("#who").textContent=`${S.cfg.nomeLocale} · ${S.me.nome||""}`;$("#login").classList.add("hidden");$("#app").classList.remove("hidden");
- const [s,p]=(location.hash.slice(1)||"dash/dashboard").split("/");if(MENU.find(x=>x[0]===s)){SEZ=s;PAG=p||"dashboard";}vai();
+ $("#login").classList.add("hidden");$("#app").classList.remove("hidden");
+ const [s,p]=(location.hash.slice(1)||"oggi/oggi").split("/");const mm=MENU.find(x=>x[0]===s);if(mm){SEZ=s;PAG=mm[3].some(x=>x[0]===p)?p:mm[3][0][0];}vai();
+ onSnapshot(query(collection(db,"prenotazioni"),where("stato","==","richiesta")),q=>{RICH=q.size;drawSide();if(PAG==="oggi"&&S.oggiRefresh)S.oggiRefresh();},()=>{});
 });
 
 /* ===== PAGINE ===== */
@@ -171,36 +183,6 @@ async function graficoAnno(sel){
 
 /* --- CLIENTI --- */
 let CL={ord:"dataRegistrazione",dir:"desc",pag:[],filtro:"tutti",q:""};
-PAGINE.clienti=async()=>{
- $("#main").innerHTML=hd("Elenco","Clienti",true)+`<div class="filters"><select class="pill" id="cO"><option value="dataRegistrazione">Ordinamento: Data registrazione</option><option value="ultimaPresenza">Ordinamento: Ultima interazione</option><option value="presenze">Ordinamento: Presenze</option><option value="puntiFidelity">Ordinamento: Punti</option><option value="cognome">Ordinamento: Cognome</option></select>
-  <select class="pill" id="cF"><option value="tutti">Filtrato per: Tutti</option><option value="attivi">Attivi</option><option value="inattivi">Inattivi</option><option value="lead">Leads</option><option value="marketing">Con consenso marketing</option><option value="fidelity">Iscritti fidelity</option></select>
-  <input class="srch" id="cQ" placeholder="Cerca nome, cognome, telefono" value="${esc(CL.q)}"><button class="btn" id="cGo">Cerca</button><select class="pill" id="cD"><option value="desc">Decrescente</option><option value="asc">Crescente</option></select><span class="sp" style="flex:1"></span><span class="muted" id="cTot"></span><button class="btn az" id="cCsv">Esporta CSV</button></div>
-  <div class="card" style="padding:0"><table><thead><tr><th>Nome</th><th>Cognome</th><th>Email</th><th>Telefono</th><th>Ultima interazione</th><th>Visite</th><th>Punti</th><th>Modifica</th></tr></thead><tbody id="cB"></tbody></table></div><div class="pager"><button class="btn g" id="cPrev">‹</button><span id="cPg"></span><button class="btn g" id="cNext">›</button></div>`;
- $("#cO").value=CL.ord;$("#cF").value=CL.filtro;$("#cD").value=CL.dir;
- const rel=()=>{CL.pag=[];carica();};
- $("#cO").onchange=e=>{CL.ord=e.target.value;rel();};$("#cF").onchange=e=>{CL.filtro=e.target.value;rel();};$("#cD").onchange=e=>{CL.dir=e.target.value;rel();};
- $("#cGo").onclick=()=>{CL.q=$("#cQ").value.trim();rel();};$("#cQ").onkeydown=e=>{if(e.key==="Enter")$("#cGo").click();};
- $("#plus").onclick=()=>schedaCliente(null);
- let last=null;
- const qb=()=>{const w=[];const g=dFa(S.cfg.marketing.inattiviGg);let o=CL.ord;
-  if(CL.filtro==="attivi"){w.push(where("ultimaPresenza",">=",g));o="ultimaPresenza";}if(CL.filtro==="inattivi"){w.push(where("ultimaPresenza","<",g));o="ultimaPresenza";}
-  if(CL.filtro==="lead")w.push(where("presenze","==",0));if(CL.filtro==="marketing")w.push(where("consensi.marketing","==",true));if(CL.filtro==="fidelity")w.push(where("iscrittoFidelity","==",true));
-  return [w,o];};
- async function carica(){try{await carica0();}catch(e){const u=(String(e.message).match(/https:\/\/console\.firebase\.google\.com\S+/)||[])[0];$("#cB").innerHTML=`<tr><td colspan="8">Questo filtro richiede un indice Firestore.${u?` <a href="${u}" target="_blank">Crea l'indice (1 clic)</a> e riprova tra qualche minuto.`:" "+esc(e.message)}</td></tr>`;}}
- async function carica0(){
-  const B=$("#cB");B.innerHTML=`<tr><td colspan="8" class="muted">Caricamento…</td></tr>`;let docs;
-  if(CL.q){const r=await cerca(CL.q);docs=(await Promise.all(r.slice(0,50).map(x=>getDoc(doc(db,"clienti",x.id))))).filter(d=>d.exists());$("#cTot").textContent=`Risultati: ${r.length}`;$("#cPrev").disabled=$("#cNext").disabled=true;}
-  else{const [w,o]=qb();const base=[...w,orderBy(o,CL.dir)];const qq=query(C(),...base,...(CL.pag.length?[startAfter(CL.pag[CL.pag.length-1])]:[]),limit(25));
-   const s=await getDocs(qq);docs=s.docs;last=s.docs[s.docs.length-1];cnt(query(C(),...w)).then(n=>$("#cTot").textContent=n===null?"":`Risultati: ${fmt(n)}`);
-   $("#cPg").textContent=`Pagina ${CL.pag.length+1}`;$("#cPrev").disabled=!CL.pag.length;$("#cNext").disabled=s.docs.length<25;}
-  B.innerHTML=docs.length?docs.map(d=>{const c=d.data(),k=c.consensi||{};return `<tr class="click" data-c="${d.id}"><td>${esc(c.nome)}</td><td>${esc(c.cognome)}</td><td>${esc(c.email||"")}</td><td>${esc(c.telefono||"")}</td><td>${itD(c.ultimaPresenza)}</td><td>${c.presenze||0}</td><td>${c.puntiFidelity||0}</td><td>✎</td></tr>
-   <tr><td colspan="8" style="padding:0"><div class="cons"><span>Consenso Marketing <b class="${k.marketing?"ok":"no"}">${k.marketing?"✔":"✕"}</b></span><span>Consenso Profilazione <b class="${k.profilazione?"ok":"no"}">${k.profilazione?"✔":"✕"}</b></span>${(c.tags||[]).slice(0,6).map(t=>`<span class="pill" style="padding:1px 8px">${esc(t)}</span>`).join("")}</div></td></tr>`;}).join(""):`<tr><td colspan="8" class="muted">Nessun cliente</td></tr>`;
-  $$("[data-c]").forEach(r=>r.onclick=()=>schedaCliente(r.dataset.c));
- }
- $("#cNext").onclick=()=>{if(last){CL.pag.push(last);carica();}};$("#cPrev").onclick=()=>{CL.pag.pop();CL.pag.pop();carica();};
- $("#cCsv").onclick=async()=>{const [w,o]=qb();toast("Preparo il file…");const s=await getDocs(query(C(),...w,orderBy(o,CL.dir),limit(5000)));csv("clienti-penelope.csv",[["Nome","Cognome","Email","Telefono","Ultima interazione","Visite","Punti","Marketing","Tag"],...s.docs.map(d=>{const c=d.data();return[c.nome,c.cognome,c.email,c.telefono,c.ultimaPresenza,c.presenze,c.puntiFidelity,c.consensi?.marketing?"si":"no",(c.tags||[]).join(", ")];})]);};
- carica();
-};
 let IDX=null;
 async function cerca(q){if(!IDX){const s=await getDocs(collection(db,"indice")).catch(()=>null);IDX=[];(s?s.docs:[]).forEach(d=>{const v=d.data();(v.r?v.r.split("\n"):(v.nuovi||[])).forEach(r=>{const [id,nome,tel]=r.split("|");if(id)IDX.push({id,nome,tel,k:norm(nome)+" "+(tel||"").replace(/\D/g,"")});});});}
  const p=norm(q).split(/\s+/).map(x=>/^\+?\d+$/.test(x)?x.replace(/\D/g,""):x);return IDX.filter(x=>p.every(y=>x.k.includes(y)));}
@@ -310,7 +292,7 @@ const STATO={confermata:["Confermata","#2F6BEB"],arrivato:["Arrivato","#28A745"]
 const chipS=s=>{const x=STATO[s]||[s,"#999"];return `<span class="chip" style="background:${x[1]}">${x[0]}</span>`;};
 function tabPren(l,cols=true){return `<table><thead><tr><th>Nome</th><th>Pax</th><th>${cols?"Ora":"Data"}</th><th>Tavolo</th><th>Sala</th><th>Note</th><th>Causale</th><th>Stato</th><th>Provenienza</th><th class="noprint">Modifica</th></tr></thead><tbody>${l.map(p=>`<tr class="click" data-pid="${p.id}"><td><b>${esc(p.nome)}</b><div class="muted">${esc(p.telefono||"")}</div></td><td>${p.persone}</td><td>${cols?esc(p.ora):itD(p.data)+" "+esc(p.ora)}</td><td>${esc(p.tavolo||"")}</td><td>${p.sala?`<span class="chip" style="background:${colSala(p.sala)}">${esc(p.sala)}</span>`:""}</td><td>${esc(p.note||"")}</td><td>${esc(p.causale||"")}</td><td>${chipS(p.stato)}</td><td>${esc(p.canale||"")}${p.provenienza?" · "+esc(p.provenienza):""}</td><td class="noprint">✎</td></tr>`).join("")||`<tr><td colspan="10" class="muted">Nessuna prenotazione</td></tr>`}</tbody></table>`;}
 function bindPren(l){$$("[data-pid]").forEach(r=>r.onclick=()=>modPren(l.find(x=>x.id===r.dataset.pid)));}
-function modPren(p){
+function modPren(p){if(p&&p._nuova){const pre=p;p=null;setTimeout(()=>{const ov=$$(".ov").pop();if(ov){ov.querySelector("#pN").value=pre.nome;ov.querySelector("#pT").value=pre.telefono||"";}},30);}
  const sale=[...new Set([...(S.cfg.sale||[]),...S.tav.map(t=>t.sala).filter(Boolean)])];
  modal(p?"Modifica prenotazione":"Nuova prenotazione",`<div class="grid g2"><div><label class="l">Nome e cognome</label><input class="f" id="pN" value="${esc(p?.nome)}"></div><div><label class="l">Telefono</label><input class="f" id="pT" value="${esc(p?.telefono)}"></div>
   <div><label class="l">Data</label><input class="f" id="pD" type="date" value="${esc(p?.data||PR.data)}"></div><div><label class="l">Ora</label><input class="f" id="pO" type="time" value="${esc(p?.ora||"20:00")}"></div>
@@ -470,15 +452,158 @@ PAGINE.importaPien=async()=>{
 };
 
 /* --- STATISTICHE --- */
-PAGINE.trend=async()=>{
- $("#main").innerHTML=hd("Trend","Statistiche")+`<div class="card" id="g1"></div><div class="card" id="g2"></div>`;graficoAnno("#g1");
- const y=new Date().getFullYear();const s=await getDocs(query(P(),where("data",">=",`${y}-01-01`),where("data","<=",`${y}-12-31`))).catch(()=>null);const m={};(s?s.docs:[]).forEach(d=>{const x=d.data();if(!["arrivato","confermata"].includes(x.stato))return;const k=x.causale||"(senza causale)";m[k]=(m[k]||0)+(+x.persone||0);});
- $("#g2").innerHTML=`<b>Presenze ${y} per causale</b><table style="margin-top:8px">${Object.entries(m).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<tr><td>${esc(k)}</td><td>${v}</td></tr>`).join("")||'<tr><td class="muted">Nessun dato</td></tr>'}</table>`;
-};
 PAGINE.statfid=async()=>{
  const da=addG(iso(new Date()),-365);const top=await getDocs(query(C(),where("puntiFidelity",">",0),orderBy("puntiFidelity","desc"),limit(20))).catch(()=>null);
  $("#main").innerHTML=hd("Fidelity","Statistiche")+`<div class="card"><b>Primi 20 clienti per punti</b><table style="margin-top:8px"><tr><th>Cliente</th><th>Punti</th><th>Visite</th></tr>${(top?top.docs:[]).map(d=>{const c=d.data();return `<tr><td>${esc(c.nome)} ${esc(c.cognome)}</td><td>${c.puntiFidelity}</td><td>${c.presenze||0}</td></tr>`;}).join("")}</table></div>`;
 };
+/* ===== NUOVE PAGINE (stile Galleon) ===== */
+const livelloC=c=>{if(!c)return 0;if(Number.isInteger(c.fiammelle))return c.fiammelle;const t=(c.tags||[]).map(x=>String(x).match(/^(\d) Fiammelle$/)).find(Boolean);if(t)return +t[1];const n=+c.presenze||0,k=+S.cfg.marketing.interazioni5||12;return n>=k?5:n>=k*.6?4:n>=k*.4?3:n>=k*.2?2:n>=2?1:0;};
+const fiamme=c=>{const l=livelloC(c);return `<span class="fl" title="${l} fiamme">${l?"🔥".repeat(l):'<span class="muted">—</span>'}</span>`;};
+const iniz=n=>String(n||"?").split(/\s+/).map(x=>x[0]).slice(0,2).join("").toUpperCase();
+const waLink=(tel,msg)=>{const t=telNorm(tel);if(!t){toast("Numero mancante");return;}window.open(`https://wa.me/${t}?text=${encodeURIComponent(msg||"")}`,"_blank");};
+const fillM=(t,o)=>String(t||"").replace(/\{(\w+)\}/g,(_,k)=>(k==="locale"?S.cfg.nomeLocale:o[k])??"");
+const belloG=s=>{const d=D(s);return `${GG[d.getDay()].toLowerCase()} ${d.getDate()} ${MM[d.getMonth()].toLowerCase()}`;};
+const CLI=new Map();async function cliente(id){if(!id)return null;if(CLI.has(id))return CLI.get(id);const d=await getDoc(doc(db,"clienti",id)).catch(()=>null);const c=d&&d.exists()?{id,...d.data()}:null;CLI.set(id,c);return c;}
+async function accetta(p,si){
+ const o={nome:(p.nome||"").split(" ")[0],giorno:belloG(p.data),ora:p.ora,persone:p.persone};
+ await updateDoc(doc(db,"prenotazioni",p.id),{stato:si?"confermata":"rifiutata",aggiornatoIl:serverTimestamp(),aggiornatoDa:S.me.nome||""});
+ const t=telNorm(p.telefono);
+ if(si&&p.clienteId&&t){const c=await cliente(p.clienteId);const tg=[p.provenienza,p.fonte&&("link "+p.fonte),"prenotazione web"].filter(Boolean).map(x=>String(x).toLowerCase());
+  const d={tags:arrayUnion(...tg)};if(!c)Object.assign(d,{nome:p.nomeSolo||(p.nome||"").split(" ")[0],cognome:p.cognomeSolo||(p.nome||"").split(" ").slice(1).join(" "),telefono:"+"+t,email:p.email||null,presenze:0,puntiFidelity:0,dataRegistrazione:iso(new Date()),provenienza:"prenotazione web",origine:"penelope",consensi:{privacy:true,marketing:!!p.consensi?.marketing,profilazione:false,fonte:"prenotazione web",dataConsenso:iso(new Date())}});
+  await setDoc(doc(db,"clienti",p.clienteId),d,{merge:true}).catch(()=>{});CLI.delete(p.clienteId);
+  if(!c)setDoc(doc(db,"indice","nuovi"),{nuovi:arrayUnion(`${p.clienteId}|${p.nome}|+${t}`)},{merge:true}).catch(()=>{});}
+ toast(si?"Prenotazione accettata":"Prenotazione rifiutata");if(t)waLink(t,fillM(si?S.cfg.msg.conferma:S.cfg.msg.rifiutata,o));
+}
+PAGINE.oggi=async()=>{
+ const d=D(PR.data),oggi=PR.data===iso(new Date()),h=new Date().getHours();
+ $("#main").innerHTML=`<div class="hd"><h1>${oggi?(h<17?"Buongiorno":"Buonasera")+", "+esc((S.me.nome||"").split(" ")[0]):"Agenda"}</h1><span class="sp"></span>
+  <div class="pill" style="display:flex;gap:8px;align-items:center;padding:5px 8px"><button class="btn g" id="oP" style="padding:4px 10px">‹</button><b>${GG[d.getDay()]} ${d.getDate()} ${MM[d.getMonth()].toLowerCase()}</b><button class="btn g" id="oN" style="padding:4px 10px">›</button>${oggi?"":`<button class="btn g" id="oO" style="padding:4px 10px">Oggi</button>`}</div>
+  <button class="btn g noprint" onclick="window.print()">🖨 Stampa</button><button class="btn o noprint" id="oNew">+ Nuova prenotazione</button></div>
+  <div class="grid g4" id="oK"></div><div class="grid" style="grid-template-columns:1.55fr 1fr;margin-top:16px"><div class="card" id="oA"></div><div class="card" id="oR"></div></div><div class="card" style="margin-top:16px" id="oL"></div>`;
+ $("#oP").onclick=()=>{PR.data=addG(PR.data,-1);PAGINE.oggi();};$("#oN").onclick=()=>{PR.data=addG(PR.data,1);PAGINE.oggi();};if($("#oO"))$("#oO").onclick=()=>{PR.data=iso(new Date());PAGINE.oggi();};$("#oNew").onclick=()=>modPren(null);
+ const [sP,sA,sR]=await Promise.all([getDocs(query(P(),where("data","==",addG(PR.data,-7)))).catch(()=>null),getDocs(query(P(),where("data","==",addG(PR.data,-364)))).catch(()=>null),getDocs(query(P(),where("stato","==","richiesta"))).catch(()=>null)]);
+ const okS=s=>(s?s.docs.map(x=>x.data()):[]).filter(p=>["confermata","arrivato"].includes(p.stato));
+ const prevW=okS(sP),prevY=okS(sA);
+ const vs=(x,y,t)=>y?`<i class="${x>=y?"up":"dn"}">${x>=y?"▲":"▼"} ${Math.abs(Math.round((x-y)/y*100))}% ${t}</i>`:`<i>${t}: nessun dato</i>`;
+ const drawR=async()=>{const s=await getDocs(query(P(),where("stato","==","richiesta"))).catch(()=>null);const l=(s?s.docs.map(x=>({id:x.id,...x.data()})):[]).sort((a,b)=>(a.data+a.ora).localeCompare(b.data+b.ora));
+  $("#oR").innerHTML=`<h3>Richieste dal web ${l.length?`<span class="chip" style="background:var(--red)">${l.length}</span>`:""}</h3>`+(l.length?l.map(p=>`<div class="ric"><div class="av">${iniz(p.nome)}</div><div class="t"><b>${esc(p.nome)}</b><span>${p.data===iso(new Date())?"oggi":belloG(p.data).split(" ").slice(0,2).join(" ")} · ${esc(p.ora)} · ${p.persone} pers.${p.provenienza?" · "+esc(p.provenienza):""}</span></div><button class="bok" data-ok="${p.id}">Accetta</button><button class="bno" data-no="${p.id}">✕</button></div>`).join(""):`<div class="muted">Nessuna richiesta da gestire.</div>`);
+  $$("[data-ok]").forEach(b=>b.onclick=()=>accetta(l.find(x=>x.id===b.dataset.ok),true).then(drawR));$$("[data-no]").forEach(b=>b.onclick=()=>{if(confirm("Rifiutare la richiesta?"))accetta(l.find(x=>x.id===b.dataset.no),false).then(drawR);});};
+ S.oggiRefresh=drawR;drawR();
+ if(S.unsubO)S.unsubO();
+ S.unsubO=onSnapshot(query(P(),where("data","==",PR.data)),async snap=>{if(PAG!=="oggi")return;
+  const all=snap.docs.map(x=>({id:x.id,...x.data()})),ok=all.filter(p=>["confermata","arrivato"].includes(p.stato)).sort((a,b)=>(a.ora||"").localeCompare(b.ora||""));
+  const pax=ok.reduce((t,p)=>t+(+p.persone||0),0),arr=ok.filter(p=>p.stato==="arrivato").reduce((t,p)=>t+(+p.persone||0),0);
+  const sale=[...new Set([...(S.cfg.sale||[]),...S.tav.map(t=>t.sala).filter(Boolean)])],capS=s=>+S.cfg.capSale?.[s]||S.tav.filter(t=>t.sala===s).reduce((a,t)=>a+(+t.posti||0),0),cap=sale.reduce((a,s)=>a+capS(s),0)||S.cfg.sedie||150;
+  const pw=prevW.reduce((t,p)=>t+(+p.persone||0),0),py=prevY.reduce((t,p)=>t+(+p.persone||0),0);
+  $("#oK").innerHTML=`<div class="card kpi"><small>Prenotazioni</small><b>${ok.length}</b>${vs(ok.length,prevW.length,"vs sett. scorsa")}</div><div class="card kpi"><small>Persone attese</small><b>${pax}</b>${vs(pax,py||pw,py?"vs anno scorso":"vs sett. scorsa")}</div>
+   <div class="card kpi"><small>Arrivati</small><b>${arr} <span style="font-size:16px;color:var(--mute)">/ ${pax}</span></b><div class="bar"><div style="width:${pax?100*arr/pax:0}%;background:var(--green)"></div></div></div><div class="card kpi"><small>Posti liberi</small><b>${Math.max(0,cap-pax)}</b><i>su ${cap} · ${Math.round(100*Math.max(0,cap-pax)/cap)}% libero</i></div>`;
+  const sl=[];for(let m=18*60;m<=22*60+30;m+=30){const ps=ok.filter(p=>{const x=+(p.ora||"0:0").slice(0,2)*60+ +(p.ora||"0:0").slice(3,5);return x>=m&&x<m+30;});sl.push({t:`${pad(Math.floor(m/60))}:${pad(m%60)}`,pax:ps.reduce((a,p)=>a+(+p.persone||0),0),arr:ps.length&&ps.every(p=>p.stato==="arrivato")});}
+  const mx=Math.max(1,...sl.map(x=>x.pax));
+  $("#oA").innerHTML=`<h3>Arrivi della serata</h3><div class="hist">${sl.map(x=>`<div>${x.pax?`<em>${x.pax}</em>`:""}<span class="${x.arr?"a":""}" style="height:${80*x.pax/mx}%"></span>${x.t}</div>`).join("")}</div>
+   <div style="display:flex;gap:18px;margin-top:14px">${sale.map(s=>{const p=ok.filter(x=>x.sala===s).reduce((a,x)=>a+(+x.persone||0),0),c=capS(s);return `<div style="flex:1"><b style="color:${colSala(s)};font-size:12px">● ${esc(s)}</b> ${p}/${c}<div class="bar"><div style="width:${c?Math.min(100,100*p/c):0}%;background:${colSala(s)}"></div></div></div>`;}).join("")}</div>`;
+  await Promise.all([...new Set(ok.map(p=>p.clienteId).filter(Boolean))].map(cliente));
+  const st={confermata:["Confermata","#EAF0FD","var(--blue)"],arrivato:["Arrivati","#E6F4EC","var(--green)"]};
+  $("#oL").innerHTML=`<h3>Prenotazioni ${oggi?"di stasera":"del giorno"} <span class="muted">${all.filter(p=>p.stato==="attesa").length?`· ${all.filter(p=>p.stato==="attesa").length} in lista d'attesa`:""}</span></h3>`+(ok.length?`<table><tr><th>Ora</th><th>Nome</th><th>Pers.</th><th>Sala · Tavolo</th><th>Cliente</th><th>Note</th><th>Stato</th></tr>${ok.map(p=>{const c=CLI.get(p.clienteId),s=st[p.stato];return `<tr class="click" data-pid="${p.id}"><td><b>${esc(p.ora)}</b></td><td><b>${esc(p.nome)}</b></td><td>${p.persone}</td><td>${p.sala?`<b style="color:${colSala(p.sala)};font-size:12px">${esc(p.sala)}</b>`:""}${p.tavolo?" · "+esc(p.tavolo):` <span style="color:var(--blue);font-weight:700">assegna</span>`}</td><td>${c?`${fiamme(c)} ${c.presenze||0} visite${c.puntiFidelity?` · ${c.puntiFidelity} pt`:""}${(c.tags||[]).includes("VIP")?" · VIP":""}`:'<span class="muted">nuovo</span>'}</td><td>${esc(p.note||"")}</td><td><span class="chip" style="background:${s[1]};color:${s[2]}">${s[0]}</span></td></tr>`;}).join("")}</table>`:`<div class="muted">Nessuna prenotazione.</div>`);
+  bindPren(ok);
+ },e=>$("#oL").textContent="Errore: "+e.code);
+};
+/* --- CLIENTI (nuovo) --- */
+let CF={f:"tutti",q:"",pag:[],sel:new Set(),cur:null};
+const MESI=["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","agosto","settembre","ottobre","novembre","dicembre"];
+PAGINE.clienti=async()=>{
+ const mese=MESI[new Date().getMonth()],FILT=[["tutti","Tutti"],["vip","⭐ VIP"],["fedeli","🔥 Fedeli (5 fiamme)"],["inattivi",`💤 Inattivi da ${S.cfg.marketing.inattiviGg} gg`],["compl",`🎂 Nati a ${mese}`],["premio","🎁 Premio da ritirare"],["insta","📸 Da Instagram"],["mkt","✉️ Consenso marketing"],["lead","🆕 Mai venuti"]];
+ $("#main").innerHTML=`<div class="hd"><h1>Clienti</h1><span class="muted" id="cTot" style="font-weight:600"></span><span class="sp"></span><button class="btn g" id="cCsv">⬇ Esporta</button><button class="btn o" id="cNew">+ Nuovo cliente</button></div>
+  <div style="display:flex;gap:12px;margin-bottom:12px"><input class="srch big" id="cQ" placeholder="🔎  Cerca per nome, cognome o telefono…" value="${esc(CF.q)}"></div>
+  <div class="filters">${FILT.map(([k,t])=>`<button class="chipf ${CF.f===k?"on":""}" data-f="${k}">${t}</button>`).join("")}</div>
+  <div style="display:grid;grid-template-columns:1.6fr 1fr;gap:16px;align-items:start"><div><div id="cM"></div><div class="card" style="padding:6px 8px"><table><thead><tr><th style="width:30px"><input type="checkbox" id="cAll"></th><th>Cliente</th><th>Telefono</th><th>Livello</th><th>Visite</th><th>Punti</th><th>Ultima visita</th></tr></thead><tbody id="cB"></tbody></table></div><div class="pager"><button class="btn g" id="cPrev">‹</button><span id="cPg" class="muted"></span><button class="btn g" id="cNext">›</button></div></div>
+  <div id="cS"><div class="card muted">Seleziona un cliente per vedere la sua scheda.</div></div></div>`;
+ const g=dFa(S.cfg.marketing.inattiviGg);
+ const W=()=>({tutti:[],vip:[where("tags","array-contains","VIP")],fedeli:[where("tags","array-contains","5 Fiammelle")],inattivi:[where("ultimaPresenza","<",g)],compl:[where("tags","array-contains",mese)],premio:[where("puntiFidelity",">=",100)],insta:[where("tags","array-contains","instagram")],mkt:[where("consensi.marketing","==",true)],lead:[where("presenze","==",0)]})[CF.f];
+ const O=()=>({tutti:[orderBy("dataRegistrazione","desc")],inattivi:[orderBy("ultimaPresenza","desc")],premio:[orderBy("puntiFidelity","desc")]})[CF.f]||[];
+ let last=null,docs=[];
+ const drawM=()=>{$("#cM").innerHTML=CF.sel.size?`<div class="mass">${CF.sel.size} selezionati<span style="flex:1"></span><button data-m="tag">🏷 Aggiungi tag</button><button data-m="msg">💬 Messaggio</button><button data-m="pt">⭐ Punti</button><button data-m="csv">⬇ Esporta</button><button data-m="x">✕</button></div>`:"";
+  $$("[data-m]").forEach(b=>b.onclick=()=>azione(b.dataset.m));};
+ const azione=async m=>{const ids=[...CF.sel],cl=docs.filter(d=>CF.sel.has(d.id)).map(d=>({id:d.id,...d.data()}));
+  if(m==="x"){CF.sel.clear();drawM();carica(true);return;}
+  if(m==="csv")return csv("clienti-selezionati.csv",[["Nome","Cognome","Telefono","Email","Visite","Punti"],...cl.map(c=>[c.nome,c.cognome,c.telefono,c.email,c.presenze,c.puntiFidelity])]);
+  if(m==="tag")return modal("Aggiungi tag a "+ids.length+" clienti",`<label class="l">Tag</label><input class="f" id="tg" placeholder="es. VIP, cena di classe">`,async ov=>{const t=ov.querySelector("#tg").value.split(",").map(x=>x.trim()).filter(Boolean);if(!t.length)return false;const b=writeBatch(db);ids.forEach(id=>b.update(doc(db,"clienti",id),{tags:arrayUnion(...t)}));await b.commit();toast("Tag aggiunto");carica(true);});
+  if(m==="pt")return modal("Punti a "+ids.length+" clienti",`<label class="l">Punti da aggiungere (negativo per togliere)</label><input class="f" id="pt" type="number"><label class="l">Motivo</label><input class="f" id="pm" value="Bonus">`,async ov=>{const v=parseInt(ov.querySelector("#pt").value);if(!v)return false;const mo=ov.querySelector("#pm").value;for(const c of cl){const n=Math.max(0,(c.puntiFidelity||0)+v);await updateDoc(doc(db,"clienti",c.id),{puntiFidelity:n,iscrittoFidelity:true});addDoc(collection(db,"clienti",c.id,"eventi"),{tipo:"fidelity",testo:`${mo} · saldo ${n}`,punti:v,quando:serverTimestamp(),da:S.me.nome||""}).catch(()=>{});}toast("Punti aggiornati");carica(true);});
+  if(m==="msg"){const ov=modal("Messaggio a "+ids.length+" clienti",`<label class="l">Testo ({nome} = nome del cliente)</label><textarea class="f" id="mt">Ciao {nome}! </textarea><div class="muted">Senza API WhatsApp si apre una chat alla volta. Con l'API partiranno tutti insieme.</div><div id="ml" style="margin-top:10px;max-height:260px;overflow:auto"></div>`,null);
+   const mt=ov.querySelector("#mt"),ml=ov.querySelector("#ml");const dr=()=>ml.innerHTML=cl.map((c,i)=>`<div class="ric"><div class="t"><b>${esc(c.nome)} ${esc(c.cognome)}</b><span>${esc(c.telefono||"")}</span></div><button class="bok" data-w="${i}">Apri WhatsApp</button></div>`).join("");dr();
+   ml.onclick=e=>{const i=e.target.dataset.w;if(i!==undefined){const c=cl[+i];waLink(c.telefono,mt.value.replace(/\{nome\}/g,c.nome||""));e.target.textContent="✓ Aperto";}};}
+ };
+ async function carica(stesso){
+  const B=$("#cB");if(!stesso)B.innerHTML=`<tr><td colspan="7" class="muted">Caricamento…</td></tr>`;
+  try{if(CF.q){const r=await cerca(CF.q);docs=(await Promise.all(r.slice(0,40).map(x=>getDoc(doc(db,"clienti",x.id))))).filter(d=>d.exists());$("#cTot").textContent=`${r.length} trovati`;$("#cPrev").disabled=$("#cNext").disabled=true;$("#cPg").textContent="";}
+   else{const qq=query(C(),...W(),...O(),...(CF.pag.length?[startAfter(CF.pag[CF.pag.length-1])]:[]),limit(25));const s=await getDocs(qq);docs=s.docs;last=s.docs[s.docs.length-1];
+    cnt(query(C(),...W())).then(n=>$("#cTot").textContent=n===null?"":`${fmt(n)} ${CF.f==="tutti"?"in archivio":"clienti"}`);$("#cPg").textContent=`Pagina ${CF.pag.length+1}`;$("#cPrev").disabled=!CF.pag.length;$("#cNext").disabled=s.docs.length<25;}
+   B.innerHTML=docs.length?docs.map(d=>{const c=d.data();return `<tr class="click ${CF.sel.has(d.id)?"sel":""}" data-c="${d.id}"><td><input type="checkbox" data-k="${d.id}" ${CF.sel.has(d.id)?"checked":""}></td><td><b>${esc(c.nome)} ${esc(c.cognome)}</b>${(c.tags||[]).includes("VIP")?' <span class="tag">VIP</span>':""}</td><td>${esc(c.telefono||"")}</td><td>${fiamme(c)}</td><td>${c.presenze||0}</td><td>${c.puntiFidelity||0}</td><td>${itD(c.ultimaPresenza)}</td></tr>`;}).join(""):`<tr><td colspan="7" class="muted">Nessun cliente</td></tr>`;
+   $$("[data-k]").forEach(x=>x.onclick=e=>{e.stopPropagation();x.checked?CF.sel.add(x.dataset.k):CF.sel.delete(x.dataset.k);x.closest("tr").classList.toggle("sel",x.checked);drawM();});
+   $$("[data-c]").forEach(r=>r.onclick=()=>{CF.cur=r.dataset.c;scheda(r.dataset.c);});
+  }catch(e){const u=(String(e.message).match(/https:\/\/console\.firebase\.google\.com\S+/)||[])[0];B.innerHTML=`<tr><td colspan="7">Questo filtro ha bisogno di un indice Firestore.${u?` <a href="${u}" target="_blank">Crealo con un clic</a> e riprova tra qualche minuto.`:" "+esc(e.message)}</td></tr>`;}}
+ async function scheda(id){
+  const d=await getDoc(doc(db,"clienti",id));const c={id,...d.data()};CLI.set(id,c);const k=c.consensi||{};
+  let ev=[],pr=[];try{ev=(await getDocs(query(collection(db,"clienti",id,"eventi"),orderBy("quando","desc"),limit(25)))).docs.map(x=>x.data());}catch(e){}try{pr=(await getDocs(query(P(),where("clienteId","==",id),limit(60)))).docs.map(x=>x.data());}catch(e){}
+  const ns=pr.filter(p=>p.stato==="noshow").length,ok=pr.filter(p=>p.stato==="arrivato"),med=ok.length?(ok.reduce((a,p)=>a+(+p.persone||0),0)/ok.length).toFixed(1):"—";
+  const premi=(S.cfg.premi||[]).slice().sort((a,b)=>a.punti-b.punti),nx=premi.find(p=>p.punti>(c.puntiFidelity||0)),disp=premi.filter(p=>p.punti<=(c.puntiFidelity||0)).pop();
+  $("#cS").innerHTML=`<div class="card"><div style="display:flex;gap:14px;align-items:center"><div class="av" style="width:56px;height:56px;font-size:18px;flex:0 0 56px">${iniz(c.nome+" "+c.cognome)}</div><div style="flex:1;min-width:0"><b style="font-size:18px">${esc(c.nome)} ${esc(c.cognome)}</b><div class="muted">${esc(c.telefono||"")}${c.email?" · "+esc(c.email):""}</div><div>${fiamme(c)}</div></div><button class="btn g" id="sEd">✎</button></div>
+   <div class="stats"><div><b>${c.presenze||0}</b><small>visite</small></div><div><b>${c.noShow||ns}</b><small>no show</small></div><div><b>${med}</b><small>pers. medie</small></div></div>
+   <div class="punti"><small style="color:#C9D2E0">Fidelity Principale</small><div><b>${fmt(c.puntiFidelity||0)}</b> punti</div><small style="color:#C9D2E0">${disp?`Premio disponibile: ${esc(disp.nome)} ✓`:nx?`Mancano ${nx.punti-(c.puntiFidelity||0)} punti per: ${esc(nx.nome)}`:""}</small><div style="display:flex;gap:8px;margin-top:10px"><button class="btn o" id="sPt">+ Carica punti</button><button class="btn g" id="sRi" ${disp?"":"disabled"}>🎁 Riscatta</button></div></div>
+   <div style="margin-top:12px">${(c.tags||[]).filter(t=>!/Fiammelle$|^Segno|^Nazionalit|^anno /.test(t)).slice(0,14).map(t=>`<span class="tag">${esc(t)}</span>`).join("")}</div>
+   <div class="muted" style="margin-top:6px">${k.privacy?"✔":"✕"} Privacy · ${k.marketing?"✔":"✕"} Marketing · ${k.profilazione?"✔":"✕"} Profilazione${c.ultimaPresenza?` · ultima visita ${itD(c.ultimaPresenza)}`:""}</div>
+   <div style="display:flex;gap:8px;margin-top:12px"><button class="btn" id="sPr">📅 Prenota</button><button class="btn g" id="sWa">💬 WhatsApp</button></div>
+   <h3 style="margin-top:16px">Storico</h3><div style="font-size:13px;line-height:1.85;max-height:260px;overflow:auto">${ev.map(e=>`${e.quando?.toDate?itD(iso(e.quando.toDate())).slice(0,5):""} · ${esc(e.testo)}`).join("<br>")||'<span class="muted">Nessun evento</span>'}</div></div>`;
+  $("#sEd").onclick=()=>schedaCliente(id);$("#sWa").onclick=()=>waLink(c.telefono,"");$("#sPr").onclick=()=>modPren({nome:`${c.nome} ${c.cognome}`,telefono:c.telefono,clienteId:id,_nuova:true});
+  const muovi=async(delta,testo)=>{const n=await runTransaction(db,async tx=>{const r=doc(db,"clienti",id),s=await tx.get(r),v=(s.data()?.puntiFidelity||0)+delta;if(v<0)throw new Error("Punti insufficienti");tx.update(r,{puntiFidelity:v,iscrittoFidelity:true});return v;});
+   await addDoc(collection(db,"clienti",id,"eventi"),{tipo:"fidelity",testo:`${testo} · saldo ${n}`,punti:delta,quando:serverTimestamp(),da:S.me.nome||""});toast("Nuovo saldo: "+n);scheda(id);
+   if(confirm("Inviare il saldo su WhatsApp?"))waLink(c.telefono,fillM(S.cfg.msg.saldo,{nome:c.nome,punti:n}));};
+  $("#sPt").onclick=()=>modal("Carica punti",`<label class="l">Importo dello scontrino (€)</label><input class="f" id="ip" type="number" step="0.5"><div class="muted">${S.cfg.punti_per_euro} punto per ogni euro</div>`,async ov=>{const n=Math.floor((parseFloat(ov.querySelector("#ip").value)||0)*(S.cfg.punti_per_euro||1));if(n<=0)return false;await muovi(n,`Carico ${n} punti`);});
+  $("#sRi").onclick=()=>modal("Riscatta premio",premi.filter(p=>p.punti<=(c.puntiFidelity||0)).map((p,i)=>`<label style="display:block;margin:8px 0"><input type="radio" name="pr" value="${p.punti}|${esc(p.nome)}" ${i===0?"checked":""}> ${esc(p.nome)} (${p.punti} punti)</label>`).join(""),async ov=>{const [pt,nm]=ov.querySelector("[name=pr]:checked").value.split("|");await muovi(-+pt,"Premio riscattato: "+nm);},"Riscatta");
+ }
+ $$("[data-f]").forEach(b=>b.onclick=()=>{CF.f=b.dataset.f;CF.q="";$("#cQ").value="";CF.pag=[];$$("[data-f]").forEach(x=>x.classList.toggle("on",x===b));carica();});
+ let tm;$("#cQ").oninput=e=>{clearTimeout(tm);tm=setTimeout(()=>{CF.q=e.target.value.trim();CF.pag=[];carica();},300);};
+ $("#cNext").onclick=()=>{if(last){CF.pag.push(last);carica();}};$("#cPrev").onclick=()=>{CF.pag.pop();carica();};
+ $("#cAll").onclick=e=>{docs.forEach(d=>e.target.checked?CF.sel.add(d.id):CF.sel.delete(d.id));drawM();carica(true);};
+ $("#cNew").onclick=()=>schedaCliente(null);
+ $("#cCsv").onclick=async()=>{toast("Preparo il file…");const s=await getDocs(query(C(),...W(),limit(5000)));csv("clienti.csv",[["Nome","Cognome","Email","Telefono","Ultima visita","Visite","Punti","Marketing","Tag"],...s.docs.map(d=>{const c=d.data();return[c.nome,c.cognome,c.email,c.telefono,c.ultimaPresenza,c.presenze,c.puntiFidelity,c.consensi?.marketing?"si":"no",(c.tags||[]).join(", ")];})]);};
+ drawM();carica();if(CF.cur)scheda(CF.cur);
+};
+/* --- PROMOZIONI --- */
+PAGINE.promo=async()=>{
+ const s=await getDocs(collection(db,"promo")).catch(()=>null);const l=(s?s.docs.map(d=>({id:d.id,...d.data()})):[]).sort((a,b)=>(b.creata||"").localeCompare(a.creata||""));
+ $("#main").innerHTML=hd("Promozioni","Messaggi",true)+`<div class="card muted" style="margin-bottom:16px">Crea una promozione, scegli a chi mandarla e vedi quanti clienti la riceveranno. L'invio automatico a tutti si attiva con l'API WhatsApp; nel frattempo puoi esportare l'elenco o aprire le chat una per una dal Clienti.</div>
+  ${l.length?`<div class="grid g3">${l.map(p=>`<div class="card" style="cursor:pointer" data-pr="${p.id}"><div style="display:flex;justify-content:space-between"><b style="font-size:16px">${esc(p.titolo)}</b><span class="chip" style="background:${p.scadenza&&p.scadenza<iso(new Date())?"#B4B9C2":"var(--green)"}">${p.scadenza&&p.scadenza<iso(new Date())?"scaduta":"attiva"}</span></div><div class="muted" style="margin:6px 0">${esc(p.gruppoNome||"")} · fino al ${itD(p.scadenza)}</div><div style="font-size:13px;white-space:pre-line">${esc((p.testo||"").slice(0,140))}</div>${p.codice?`<div class="tag" style="margin-top:8px">Codice ${esc(p.codice)}</div>`:""}</div>`).join("")}</div>`:`<div class="card">Nessuna promozione. Premi <b>+ Nuovo</b> per crearne una.</div>`}`;
+ const G=[["mkt","Tutti con consenso marketing",[]],["attivi","Clienti attivi",[where("ultimaPresenza",">=",dFa(S.cfg.marketing.inattiviGg))]],["inattivi","Clienti inattivi (da riconquistare)",[where("ultimaPresenza","<",dFa(S.cfg.marketing.inattiviGg))]],["fedeli","Fedeli (5 fiamme)",[where("tags","array-contains","5 Fiammelle")]],["vip","VIP",[where("tags","array-contains","VIP")]],["compl","Compleanno questo mese",[where("tags","array-contains",MESI[new Date().getMonth()])]],["tag","Clienti con un tag…",null]];
+ const ed=p=>{p=p||{titolo:"",testo:"Ciao {nome}! 🎉 ",scadenza:addG(iso(new Date()),14),gruppo:"mkt",codice:""};
+  const ov=modal(p.id?"Modifica promozione":"Nuova promozione",`<label class="l">Titolo (interno)</label><input class="f" id="pT" value="${esc(p.titolo)}" placeholder="es. Black Friday 2x1 hamburger">
+   <label class="l">Messaggio ({nome} = nome del cliente)</label><textarea class="f" id="pX">${esc(p.testo)}</textarea>
+   <div class="grid g3"><div><label class="l">Valida fino al</label><input class="f" id="pS" type="date" value="${esc(p.scadenza)}"></div><div><label class="l">Codice promo (facoltativo)</label><input class="f" id="pC" value="${esc(p.codice||"")}" placeholder="es. BF2026"></div><div><label class="l">Destinatari</label><select class="f" id="pG">${G.map(([k,t])=>`<option value="${k}" ${k===p.gruppo?"selected":""}>${t}</option>`).join("")}</select></div></div>
+   <div id="pTgW" class="${p.gruppo==="tag"?"":"hidden"}"><label class="l">Tag</label><input class="f" id="pTg" value="${esc(p.tag||"")}"></div>
+   <div class="card" style="margin-top:14px;background:#F7F5F0"><b id="pN">Calcolo destinatari…</b><div class="muted">Solo clienti con consenso marketing.</div></div>
+   <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn g" id="pCsv">⬇ Esporta elenco</button><button class="btn v" disabled title="Serve l'API WhatsApp">📤 Invia a tutti (con API WhatsApp)</button>${p.id?`<button class="btn r" id="pDel">Elimina</button>`:""}</div>`,
+   async ov=>{const g=s=>ov.querySelector(s).value;const gr=G.find(x=>x[0]===g("#pG"));const d={titolo:g("#pT").trim(),testo:g("#pX"),scadenza:g("#pS"),codice:g("#pC").trim(),gruppo:gr[0],gruppoNome:gr[0]==="tag"?"Tag: "+g("#pTg"):gr[1],tag:g("#pTg").trim(),creata:p.creata||iso(new Date())};
+    if(!d.titolo){toast("Inserisci il titolo");return false;}if(p.id)await setDoc(doc(db,"promo",p.id),d);else await addDoc(collection(db,"promo"),d);toast("Promozione salvata");PAGINE.promo();});
+  const qG=()=>{const k=ov.querySelector("#pG").value,gr=G.find(x=>x[0]===k);const w=gr[2]||[where("tags","array-contains",ov.querySelector("#pTg").value.trim()||"-")];return query(C(),where("consensi.marketing","==",true),...w);};
+  const conta=async()=>{ov.querySelector("#pTgW").classList.toggle("hidden",ov.querySelector("#pG").value!=="tag");const n=await cnt(qG());ov.querySelector("#pN").textContent=n===null?"Per questo gruppo serve un indice Firestore (si crea al primo uso).":`${fmt(n)} clienti riceveranno la promozione`;};
+  ov.querySelector("#pG").onchange=conta;ov.querySelector("#pTg").onchange=conta;conta();
+  ov.querySelector("#pCsv").onclick=async()=>{const s=await getDocs(query(qG(),limit(5000)));const t=ov.querySelector("#pX").value;csv("promozione.csv",[["Nome","Cognome","Telefono","Messaggio"],...s.docs.map(d=>{const c=d.data();return[c.nome,c.cognome,c.telefono,t.replace(/\{nome\}/g,c.nome||"")];})]);};
+  if(p.id)ov.querySelector("#pDel").onclick=async()=>{if(!confirm("Eliminare la promozione?"))return;await deleteDoc(doc(db,"promo",p.id));ov.remove();PAGINE.promo();};};
+ $("#plus").onclick=()=>ed(null);$$("[data-pr]").forEach(x=>x.onclick=()=>ed(l.find(p=>p.id===x.dataset.pr)));
+};
+/* --- STATISTICHE (nuovo) --- */
+PAGINE.trend=async()=>{
+ const y=new Date().getFullYear();
+ $("#main").innerHTML=hd("Statistiche","Statistiche")+`<div class="grid g4" id="tK"></div><div class="card" id="t1" style="margin-top:16px"></div><div class="grid g3"><div class="card" id="t2"></div><div class="card" id="t3"></div><div class="card" id="t4"></div></div><div class="muted" style="margin-top:10px">I dati comprendono le prenotazioni registrate in Penelope. Lo storico di Pienissimo comparirà dopo l'importazione.</div>`;
+ const s=await getDocs(query(P(),where("data",">=",`${y-1}-01-01`),where("data","<=",`${y}-12-31`))).catch(()=>null);const all=s?s.docs.map(d=>d.data()):[];
+ const anno=all.filter(p=>p.data.startsWith(y+"")),ok=anno.filter(p=>["arrivato","confermata"].includes(p.stato)),pax=ok.reduce((a,p)=>a+(+p.persone||0),0),ns=anno.filter(p=>p.stato==="noshow").length;
+ const [tot,mkt]=await Promise.all([cnt(C()),cnt(query(C(),where("consensi.marketing","==",true)))]);
+ $("#tK").innerHTML=[["Persone "+y,fmt(pax)],["Prenotazioni "+y,fmt(ok.length)],["No show",ok.length+ns?Math.round(100*ns/(ok.length+ns))+"%":"—"],["Clienti con consenso marketing",tot?Math.round(100*(mkt||0)/tot)+"%":"—"]].map(([t,v])=>`<div class="card kpi"><small>${t}</small><b>${v}</b></div>`).join("");
+ graficoAnno("#t1");
+ const hb=(sel,tit,m)=>{const e=Object.entries(m).sort((a,b)=>b[1]-a[1]).slice(0,8),mx=Math.max(1,...e.map(x=>x[1]));$(sel).innerHTML=`<h3>${tit}</h3>`+(e.length?e.map(([k,v])=>`<div class="hbar"><span>${esc(k)}</span><div><i style="width:${100*v/mx}%"></i></div><b>${v}</b></div>`).join(""):`<div class="muted">Nessun dato</div>`);};
+ const by=f=>{const m={};ok.forEach(p=>{const k=f(p);if(k)m[k]=(m[k]||0)+(+p.persone||0);});return m;};
+ hb("#t2","Persone per giorno della settimana",by(p=>GG[D(p.data).getDay()]));hb("#t3","Persone per causale",by(p=>p.causale||"senza causale"));hb("#t4","Da dove prenotano",by(p=>p.provenienza||({web:"Sito / link",mobile:"App staff",backoffice:"Back office",staff:"App staff"})[p.canale]||p.canale||"—"));
+};
+
 PAGINE.guida=async()=>{$("#main").innerHTML=hd("Guida Penelope","Assistenza")+`<div class="card"><p>Le note complete su come funziona Penelope e su cosa replica di Pienissimo sono nel vault Obsidian (cartella Claude, note "Penelope - …").</p><ul><li><b>App telefono</b>: prenotazioni della serata, arrivi, piantina, filafast, clienti e punti.</li><li><b>Prenotazione online</b>: le richieste arrivano nella campanella dell'app e in Prenotazioni Web.</li><li><b>Back office</b>: clienti, fidelity, messaggi, sale, tavoli, causali e statistiche.</li></ul></div>`;};
 </script>
 </body>
