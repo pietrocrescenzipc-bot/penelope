@@ -173,7 +173,7 @@ onAuthStateChanged(auth,async u=>{
     if(QP.get("nuova")){ if(QP.get("data")) S.data=QP.get("data"); return formPrenotazione(); }
     return parent.postMessage({penelope:"chiudi"},"*"); }
   ["#app","#tabs"].forEach(s=>$(s).classList.remove("hidden"));
-  history.replaceState({tab:"agenda"},""); show("agenda"); caricaIndice();
+  const T0=["agenda","clienti","fidelity","altro"].includes(QP.get("tab"))?QP.get("tab"):"agenda"; history.replaceState({tab:T0},""); show(T0); caricaIndice();
 });
 document.querySelectorAll("#tabs button").forEach(b=>b.onclick=()=>{ if(b.dataset.t!==S.tab) go(b.dataset.t); });
 $("#fab").onclick=()=>formPrenotazione();
