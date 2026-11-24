@@ -126,7 +126,7 @@ const MENU=[["oggi","🏠","Oggi",[["oggi","Oggi"]]],["pren","📅","Prenotazion
  ["cli","👥","Clienti",[["clienti","Elenco"],["tags","Tag"],["impFid","Importa fidelity"],["importa","Importa clienti"]]],["fid","⭐","Fidelity",[["fidelity","Programma e premi"],["statfid","Classifica"]]],
  ["stat","📊","Statistiche",[["trend","Andamento"]]],["msg","💬","Messaggi",[["promo","Promozioni"],["invio","Invio a gruppi"],["messaggi","Messaggi automatici"],["waapi","WhatsApp"]]],
  ["menu","🍕","Menu",[["menuEl","Piatti e prezzi"],["menuLink","Link e QR code"],["menuImp","Importa da Pienissimo"]]],
- ["imp","⚙️","Impostazioni",[["locale","Locale e orari"],["sale","Sale"],["tavoli","Tavoli"],["causali","Causali"],["mktimp","Fiammelle e inattivi"],["forms","Prenotazione online"],["links","Link utili"],["utenti","Utenti"],["importaPien","Importa da Pienissimo"]]]];
+ ["imp","⚙️","Impostazioni",[["locale","Locale e orari"],["sale","Sale"],["tavoli","Tavoli"],["causali","Causali"],["mktimp","Fiammelle e inattivi"],["forms","Prenotazione online"],["links","Link utili"],["utenti","Utenti"],["importaPien","Importa da Pienissimo"],["impStor","Importa storico"]]]];
 let SEZ="oggi",PAG="oggi",RICH=0;
 function drawSide(){
  $("#side").innerHTML=`<div class="logo"><span>G</span><b>PENELOPE</b></div>`+MENU.map(([k,ic,t])=>`<button data-s="${k}" class="${k===SEZ?"on":""}">${ic} ${t}${k==="pren"&&RICH?`<span class="bdg">${RICH}</span>`:""}</button>`).join("")+`<div class="foot">${esc(S.cfg.nomeLocale||"")}<br>${esc(S.me?.nome||"")}<br><button id="esci" style="padding:6px 0">Esci</button></div>`;
@@ -602,6 +602,26 @@ PAGINE.trend=async()=>{
  const hb=(sel,tit,m)=>{const e=Object.entries(m).sort((a,b)=>b[1]-a[1]).slice(0,8),mx=Math.max(1,...e.map(x=>x[1]));$(sel).innerHTML=`<h3>${tit}</h3>`+(e.length?e.map(([k,v])=>`<div class="hbar"><span>${esc(k)}</span><div><i style="width:${100*v/mx}%"></i></div><b>${v}</b></div>`).join(""):`<div class="muted">Nessun dato</div>`);};
  const by=f=>{const m={};ok.forEach(p=>{const k=f(p);if(k)m[k]=(m[k]||0)+(+p.persone||0);});return m;};
  hb("#t2","Persone per giorno della settimana",by(p=>GG[D(p.data).getDay()]));hb("#t3","Persone per causale",by(p=>p.causale||"senza causale"));hb("#t4","Da dove prenotano",by(p=>p.provenienza||({web:"Sito / link",mobile:"App staff",backoffice:"Back office",staff:"App staff"})[p.canale]||p.canale||"—"));
+};
+
+/* --- IMPORTA STORICO PRENOTAZIONI (dal connettore Pienissimo) --- */
+PAGINE.impStor=async()=>{
+ $("#main").innerHTML=hd("Importa storico Pienissimo","Impostazioni")+`<div class="card"><p>Carica il file <b>storico-pienissimo.json</b> preparato da Claude con il connettore Pienissimo: 24.815 prenotazioni dal 2020 a oggi.</p>
+  <p class="muted">Per ogni cliente aggiorna visite, prima e ultima visita, no show, persone medie, fiammelle (interazioni ultimi 12 mesi) e lo storico prenotazioni. Crea i clienti che mancano. Salva anche i totali per le statistiche. Si può rilanciare senza duplicare.</p>
+  <input type="file" id="sF" accept=".json"><button class="btn v" id="sGo" disabled style="margin-left:10px">Importa</button><div id="sR" style="margin-top:12px;white-space:pre-line"></div></div>`;
+ let J=null;$("#sF").onchange=async e=>{try{J=JSON.parse(await e.target.files[0].text());$("#sR").textContent=`File letto: ${Object.keys(J.clienti).length} clienti, ${Object.values(J.clienti).reduce((a,c)=>a+c.s.length,0)} prenotazioni.`;$("#sGo").disabled=false;}catch(x){$("#sR").textContent="File non valido";}};
+ $("#sGo").onclick=async()=>{if(!isAdmin())return toast("Solo l'amministratore");$("#sGo").disabled=true;const R=$("#sR"),k=+S.cfg.marketing.interazioni5||12,fa=dFa(365);
+  try{await setDoc(doc(db,"statistiche","storico"),{...J.stat,aggiornato:iso(new Date()),fonte:"Pienissimo"});
+   const ids=Object.keys(J.clienti);let b=writeBatch(db),n=0,nuovi=0,agg=0;
+   for(let i=0;i<ids.length;i++){const t=ids[i],c=J.clienti[t],id="t"+t,ex=await getDoc(doc(db,"clienti",id)).catch(()=>null);
+    const ok=c.s.filter(x=>x[6]==="A"),ns=c.s.length-ok.length,i12=ok.filter(x=>x[0]>=fa).length,fi=i12>=k?5:i12>=k*.6?4:i12>=k*.4?3:i12>=k*.2?2:i12>=2?1:0;
+    const d={presenze:ok.length,noShow:ns,ultimaPresenza:ok.length?ok[ok.length-1][0]:null,primaPresenza:ok.length?ok[0][0]:null,persMedie:ok.length?Math.round(10*ok.reduce((a,x)=>a+x[2],0)/ok.length)/10:0,interazioni12:i12,fiammelle:fi,
+     storico:c.s.slice(-80).map(x=>({d:x[0],o:x[1],p:x[2],sa:x[3],t:x[4],ca:x[5],st:x[6]}))};
+    if(!ex||!ex.exists()){Object.assign(d,{nome:c.n||"",cognome:c.c||"",telefono:"+"+t,email:c.e||null,genere:c.g||null,provincia:c.pr||null,citta:c.ci||null,dataNascita:c.dn||null,dataRegistrazione:c.reg||null,puntiFidelity:0,origine:"pienissimo",consensi:{privacy:true,marketing:!!c.mk,profilazione:false}});nuovi++;
+     setDoc(doc(db,"indice","nuovi"),{nuovi:arrayUnion(`${id}|${c.n||""} ${c.c||""}|+${t}`)},{merge:true}).catch(()=>{});}else agg++;
+    b.set(doc(db,"clienti",id),d,{merge:true});if(++n%300===0){await b.commit();b=writeBatch(db);R.textContent=`Clienti: ${i+1}/${ids.length}…`;}}
+   await b.commit();R.textContent=`Fatto ✓\nClienti aggiornati: ${agg}\nClienti nuovi: ${nuovi}\nTotali per le statistiche salvati.`;toast("Storico importato");
+  }catch(e){R.textContent="Errore: "+(e.code||e.message)+(e.code==="resource-exhausted"?"\nRaggiunto il limite giornaliero gratuito di Firebase: rilancia domani, riparte senza duplicare.":"\nPuoi rilanciare.");$("#sGo").disabled=false;}};
 };
 
 PAGINE.guida=async()=>{$("#main").innerHTML=hd("Guida Penelope","Assistenza")+`<div class="card"><p>Le note complete su come funziona Penelope e su cosa replica di Pienissimo sono nel vault Obsidian (cartella Claude, note "Penelope - …").</p><ul><li><b>App telefono</b>: prenotazioni della serata, arrivi, piantina, filafast, clienti e punti.</li><li><b>Prenotazione online</b>: le richieste arrivano nella campanella dell'app e in Prenotazioni Web.</li><li><b>Back office</b>: clienti, fidelity, messaggi, sale, tavoli, causali e statistiche.</li></ul></div>`;};
