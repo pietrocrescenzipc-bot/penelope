@@ -174,12 +174,14 @@ PAGINE.dashboard=async()=>{
   <div class="sez">Andamento locale <span class="muted">(prenotazioni registrate in Penelope)</span></div><div class="card" id="dG"><div class="muted">…</div></div>`;
  graficoAnno("#dG");
 };
-async function graficoAnno(sel){
- const y=new Date().getFullYear();const s=await getDocs(query(P(),where("data",">=",`${y-1}-01-01`),where("data","<=",`${y}-12-31`))).catch(()=>null);
- const m={};(s?s.docs:[]).forEach(d=>{const x=d.data();if(!["arrivato","confermata"].includes(x.stato))return;const k=x.data.slice(0,7);m[k]=m[k]||{n:0,p:0};m[k].n++;m[k].p+=+x.persone||0;});
+let STOR;async function storico(){if(STOR!==undefined)return STOR;const d=await getDoc(doc(db,"statistiche","storico")).catch(()=>null);STOR=d&&d.exists()?d.data():null;return STOR;}
+async function datiMesi(y0,y1){const st=await storico(),m={};if(st)Object.entries(st.mesi||{}).forEach(([k,v])=>{m[k]={n:v[0],p:v[1]};});
+ const da=st?.aggiornato||"0000";const s=await getDocs(query(P(),where("data",">",da),where("data","<=",`${y1}-12-31`))).catch(()=>null);
+ (s?s.docs:[]).forEach(d=>{const x=d.data();if(!["arrivato","confermata"].includes(x.stato))return;const k=x.data.slice(0,7);m[k]=m[k]||{n:0,p:0};m[k].n++;m[k].p+=+x.persone||0;});return m;}
+async function graficoAnno(sel,y){y=y||new Date().getFullYear();const m=await datiMesi(y-1,y);
  const v=MM.map((_,i)=>({c:m[`${y}-${pad(i+1)}`]?.p||0,pr:m[`${y-1}-${pad(i+1)}`]?.p||0}));const mx=Math.max(1,...v.flatMap(x=>[x.c,x.pr]));
- $(sel).innerHTML=`<b>Persone per mese</b><div class="bars">${v.map((x,i)=>`<div title="${MM[i]}: ${x.c} (${y}) · ${x.pr} (${y-1})"><span style="height:${100*x.pr/mx}%;background:#C9D6F5"></span><span style="height:${100*x.c/mx}%;background:var(--blu2)"></span><em>${MM[i].slice(0,3)}</em></div>`).join("")}</div><div class="leg"><span><i style="background:var(--blu2)"></i>${y}</span><span><i style="background:#C9D6F5"></i>${y-1}</span></div>`;
-}
+ $(sel).innerHTML=`<h3>Persone per mese · ${y} contro ${y-1}</h3><div class="bars">${v.map((x,i)=>`<div title="${MM[i]}: ${x.c} (${y}) · ${x.pr} (${y-1})"><span style="height:${100*x.pr/mx}%;background:#D8D2C4"></span><span style="height:${100*x.c/mx}%;background:var(--navy)"></span><em>${MM[i].slice(0,3)}</em></div>`).join("")}</div><div class="leg"><span><i style="background:var(--navy)"></i>${y}: ${fmt(v.reduce((a,x)=>a+x.c,0))} persone</span><span><i style="background:#D8D2C4"></i>${y-1}: ${fmt(v.reduce((a,x)=>a+x.pr,0))} persone</span></div>`;}
+
 
 /* --- CLIENTI --- */
 let CL={ord:"dataRegistrazione",dir:"desc",pag:[],filtro:"tutti",q:""};
@@ -483,7 +485,8 @@ PAGINE.oggi=async()=>{
  $("#oP").onclick=()=>{PR.data=addG(PR.data,-1);PAGINE.oggi();};$("#oN").onclick=()=>{PR.data=addG(PR.data,1);PAGINE.oggi();};if($("#oO"))$("#oO").onclick=()=>{PR.data=iso(new Date());PAGINE.oggi();};$("#oNew").onclick=()=>modPren(null);
  const [sP,sA,sR]=await Promise.all([getDocs(query(P(),where("data","==",addG(PR.data,-7)))).catch(()=>null),getDocs(query(P(),where("data","==",addG(PR.data,-364)))).catch(()=>null),getDocs(query(P(),where("stato","==","richiesta"))).catch(()=>null)]);
  const okS=s=>(s?s.docs.map(x=>x.data()):[]).filter(p=>["confermata","arrivato"].includes(p.stato));
- const prevW=okS(sP),prevY=okS(sA);
+ const st=await storico(),gW=st?.giorni?.[addG(PR.data,-7)],gY=st?.giorni?.[addG(PR.data,-364)];
+ const prevW=gW?Array.from({length:gW[0]},(_,i)=>({persone:i===0?gW[1]:0})):okS(sP),prevY=gY?Array.from({length:gY[0]},(_,i)=>({persone:i===0?gY[1]:0})):okS(sA);
  const vs=(x,y,t)=>y?`<i class="${x>=y?"up":"dn"}">${x>=y?"▲":"▼"} ${Math.abs(Math.round((x-y)/y*100))}% ${t}</i>`:`<i>${t}: nessun dato</i>`;
  const drawR=async()=>{const s=await getDocs(query(P(),where("stato","==","richiesta"))).catch(()=>null);const l=(s?s.docs.map(x=>({id:x.id,...x.data()})):[]).sort((a,b)=>(a.data+a.ora).localeCompare(b.data+b.ora));
   $("#oR").innerHTML=`<h3>Richieste dal web ${l.length?`<span class="chip" style="background:var(--red)">${l.length}</span>`:""}</h3>`+(l.length?l.map(p=>`<div class="ric"><div class="av">${iniz(p.nome)}</div><div class="t"><b>${esc(p.nome)}</b><span>${p.data===iso(new Date())?"oggi":belloG(p.data).split(" ").slice(0,2).join(" ")} · ${esc(p.ora)} · ${p.persone} pers.${p.provenienza?" · "+esc(p.provenienza):""}</span></div><button class="bok" data-ok="${p.id}">Accetta</button><button class="bno" data-no="${p.id}">✕</button></div>`).join(""):`<div class="muted">Nessuna richiesta da gestire.</div>`);
@@ -592,16 +595,20 @@ PAGINE.promo=async()=>{
 };
 /* --- STATISTICHE (nuovo) --- */
 PAGINE.trend=async()=>{
- const y=new Date().getFullYear();
- $("#main").innerHTML=hd("Statistiche","Statistiche")+`<div class="grid g4" id="tK"></div><div class="card" id="t1" style="margin-top:16px"></div><div class="grid g3"><div class="card" id="t2"></div><div class="card" id="t3"></div><div class="card" id="t4"></div></div><div class="muted" style="margin-top:10px">I dati comprendono le prenotazioni registrate in Penelope. Lo storico di Pienissimo comparirà dopo l'importazione.</div>`;
- const s=await getDocs(query(P(),where("data",">=",`${y-1}-01-01`),where("data","<=",`${y}-12-31`))).catch(()=>null);const all=s?s.docs.map(d=>d.data()):[];
- const anno=all.filter(p=>p.data.startsWith(y+"")),ok=anno.filter(p=>["arrivato","confermata"].includes(p.stato)),pax=ok.reduce((a,p)=>a+(+p.persone||0),0),ns=anno.filter(p=>p.stato==="noshow").length;
- const [tot,mkt]=await Promise.all([cnt(C()),cnt(query(C(),where("consensi.marketing","==",true)))]);
- $("#tK").innerHTML=[["Persone "+y,fmt(pax)],["Prenotazioni "+y,fmt(ok.length)],["No show",ok.length+ns?Math.round(100*ns/(ok.length+ns))+"%":"—"],["Clienti con consenso marketing",tot?Math.round(100*(mkt||0)/tot)+"%":"—"]].map(([t,v])=>`<div class="card kpi"><small>${t}</small><b>${v}</b></div>`).join("");
- graficoAnno("#t1");
- const hb=(sel,tit,m)=>{const e=Object.entries(m).sort((a,b)=>b[1]-a[1]).slice(0,8),mx=Math.max(1,...e.map(x=>x[1]));$(sel).innerHTML=`<h3>${tit}</h3>`+(e.length?e.map(([k,v])=>`<div class="hbar"><span>${esc(k)}</span><div><i style="width:${100*v/mx}%"></i></div><b>${v}</b></div>`).join(""):`<div class="muted">Nessun dato</div>`);};
- const by=f=>{const m={};ok.forEach(p=>{const k=f(p);if(k)m[k]=(m[k]||0)+(+p.persone||0);});return m;};
- hb("#t2","Persone per giorno della settimana",by(p=>GG[D(p.data).getDay()]));hb("#t3","Persone per causale",by(p=>p.causale||"senza causale"));hb("#t4","Da dove prenotano",by(p=>p.provenienza||({web:"Sito / link",mobile:"App staff",backoffice:"Back office",staff:"App staff"})[p.canale]||p.canale||"—"));
+ const st=await storico(),anni=[...new Set(Object.keys(st?.mesi||{}).map(k=>k.slice(0,4)))].sort().reverse();let y=String(new Date().getFullYear());if(!anni.includes(y))anni.unshift(y);
+ const draw=async()=>{
+  $("#main").innerHTML=`<div class="hd"><h1>Statistiche</h1><span class="sp"></span><select class="pill" id="tY">${anni.map(a=>`<option ${a===y?"selected":""}>${a}</option>`).join("")}</select></div><div class="grid g4" id="tK"></div><div class="card" id="t1" style="margin-top:16px"></div><div class="grid g3"><div class="card" id="t2"></div><div class="card" id="t3"></div><div class="card" id="t4"></div></div>${st?`<div class="muted" style="margin-top:10px">Storico Pienissimo fino al ${itD(st.aggiornato)}, poi prenotazioni di Penelope.</div>`:`<div class="muted" style="margin-top:10px">Importa lo storico da Impostazioni → Importa storico per vedere gli anni passati.</div>`}`;
+  $("#tY").onchange=e=>{y=e.target.value;draw();};
+  const m=await datiMesi(+y-1,+y),sum=(yy,f)=>Object.entries(m).filter(([k])=>k.startsWith(yy)).reduce((a,[,v])=>a+v[f],0);
+  const pax=sum(y,"p"),pr=sum(y,"n"),paxP=sum(String(+y-1),"p"),prP=sum(String(+y-1),"n"),vs=(a,b)=>b?`<i class="${a>=b?"up":"dn"}">${a>=b?"▲":"▼"} ${Math.abs(Math.round((a-b)/b*100))}% vs ${+y-1}</i>`:"";
+  const [tot,mkt]=await Promise.all([cnt(C()),cnt(query(C(),where("consensi.marketing","==",true)))]);
+  $("#tK").innerHTML=`<div class="card kpi"><small>Persone ${y}</small><b>${fmt(pax)}</b>${vs(pax,paxP)}</div><div class="card kpi"><small>Prenotazioni ${y}</small><b>${fmt(pr)}</b>${vs(pr,prP)}</div><div class="card kpi"><small>Persone per prenotazione</small><b>${pr?(pax/pr).toFixed(1):"—"}</b></div><div class="card kpi"><small>Clienti con consenso marketing</small><b>${tot?Math.round(100*(mkt||0)/tot)+"%":"—"}</b><i>${fmt(mkt)} su ${fmt(tot)}</i></div>`;
+  graficoAnno("#t1",+y);
+  const hb=(sel,tit,m)=>{const e=Object.entries(m).sort((a,b)=>b[1]-a[1]).slice(0,8),mx=Math.max(1,...e.map(x=>x[1]));$(sel).innerHTML=`<h3>${tit}</h3>`+(e.length?e.map(([k,v])=>`<div class="hbar"><span title="${esc(k)}">${esc(k)}</span><div><i style="width:${100*v/mx}%"></i></div><b>${fmt(v)}</b></div>`).join(""):`<div class="muted">Nessun dato</div>`);};
+  const agg=a=>{const o={};(st?.[a]||[]).filter(x=>x[0]===y).forEach(x=>{o[x[1]]=(o[x[1]]||0)+x[2];});return o;};
+  const GS=["Lunedì","Martedì","Mercoledì","Giovedì","Venerdì","Sabato","Domenica"],wd={};Object.entries(agg("settimana")).forEach(([k,v])=>wd[GS[+k]]=v);
+  hb("#t2","Persone per giorno della settimana",wd);hb("#t3","Persone per causale",agg("causali"));hb("#t4","Da dove prenotano",agg("canali"));};
+ draw();
 };
 
 /* --- IMPORTA STORICO PRENOTAZIONI (dal connettore Pienissimo) --- */
