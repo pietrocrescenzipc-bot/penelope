@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Menu · The Galleon Pub & Pizzeria</title><meta name="theme-color" content="#14233A"><link rel="icon" href="icona-192.png">
+<meta name="description" content="Il menu del The Galleon Pub & Pizzeria di Marsciano: pizze, hamburger, piadine, fritti, dolci, birre.">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#14233A;--red:#9B1B1B;--gold:#D9C08A;--line:#ECEDEF;--txt:#1F2430;--mute:#6B7280}
+*{box-sizing:border-box}html,body{margin:0;background:#F6F4EF;color:var(--txt);font-family:Nunito,system-ui,sans-serif;font-size:15px}
+button,input{font-family:inherit;font-size:15px;color:inherit}button{cursor:pointer;border:0;background:none}
+header{background:var(--navy);text-align:center;padding:16px 14px 14px;position:relative}
+header img{width:100%;max-width:280px;background:#fff;border-radius:14px;padding:6px;display:block;margin:0 auto}
+.lang{position:absolute;top:12px;right:12px;display:flex;gap:4px}.lang button{background:rgba(255,255,255,.15);color:#fff;border-radius:8px;padding:5px 9px;font-weight:800;font-size:12px}.lang button.on{background:var(--gold);color:var(--navy)}
+nav{position:sticky;top:0;z-index:5;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.06)}
+.cats{display:flex;gap:8px;overflow-x:auto;padding:10px 12px;scrollbar-width:none}.cats::-webkit-scrollbar{display:none}
+.cats button{flex:0 0 auto;padding:8px 14px;border-radius:18px;background:#F1F2F4;font-weight:700;font-size:13px;white-space:nowrap}.cats button.on{background:var(--red);color:#fff}
+.srch{padding:0 12px 10px}.srch input{width:100%;border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:#FAFAFA}
+main{max-width:720px;margin:0 auto;padding:6px 12px 60px}
+h2{font-size:20px;margin:22px 4px 10px;color:var(--red);scroll-margin-top:120px}
+.p{display:flex;gap:12px;background:#fff;border-radius:14px;padding:12px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.p img{width:86px;height:86px;object-fit:cover;border-radius:10px;flex:0 0 86px;background:#eee}
+.p .t{flex:1;min-width:0}.p b{font-size:16px;display:block}.p .d{color:var(--mute);font-size:13.5px;white-space:pre-line;margin-top:3px}
+.p .pr{font-weight:800;font-size:16px;white-space:nowrap;color:var(--navy)}
+.tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}.tags span{font-size:11px;border-radius:8px;padding:2px 7px;background:#F1F2F4;color:#4B5160}.tags .nv{background:#FFF1C2;color:#7A5B00}.tags .vg{background:#E5F6E9;color:#1E7B36}
+.vuoto{text-align:center;color:var(--mute);padding:60px 10px}
+footer{text-align:center;color:var(--mute);font-size:12px;padding:20px}
+footer a{color:var(--red);font-weight:800}
+.big{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:20;display:flex;align-items:center;justify-content:center;padding:20px}.big img{max-width:100%;max-height:90vh;border-radius:12px}
+</style>
+</head>
+<body>
+<header><img src="logo-galleon.jpg" alt="The Galleon Pub & Pizzeria"><div class="lang"><button data-l="it" class="on">IT</button><button data-l="en">EN</button></div></header>
+<nav><div class="cats" id="cats"></div><div class="srch"><input id="q" placeholder="Cerca nel menu…" aria-label="Cerca nel menu"></div></nav>
+<main id="m"><div class="vuoto">Caricamento del menu…</div></main>
+<footer><a href="prenota.html?fonte=menu">📅 Prenota un tavolo</a><br><br>The Galleon Pub &amp; Pizzeria · Via Tuderte 47, Marsciano · 075 874 2304<br><span id="al"></span></footer>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const db=getFirestore(initializeApp({apiKey:"AIzaSyBzpnM1H7Nk99bGqiKoFvJfZfUEhxYt1yI",authDomain:"galleon-club.firebaseapp.com",projectId:"galleon-club",storageBucket:"galleon-club.firebasestorage.app",messagingSenderId:"256580919264",appId:"1:256580919264:web:1639030e273fae781fd585"}));
+const $=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const norm=s=>String(s||"").toLowerCase().normalize("NFKD").replace(/[̀-ͯ]/g,"");
+const T={it:{cerca:"Cerca nel menu…",vuoto:"Nessun prodotto trovato",nv:"Novità",vg:"Vegetariano",sg:"Senza glutine",al:"Allergeni: chiedi al personale per informazioni complete.",pren:"📅 Prenota un tavolo"},
+ en:{cerca:"Search the menu…",vuoto:"No items found",nv:"New",vg:"Vegetarian",sg:"Gluten free",al:"Allergens: ask our staff for full information.",pren:"📅 Book a table"}};
+const AL={glutine:["Glutine","Gluten"],latticini:["Latte","Milk"],uova:["Uova","Eggs"],pesce:["Pesce","Fish"],crostacei:["Crostacei","Crustaceans"],frutta_guscio:["Frutta a guscio","Nuts"],arachidi:["Arachidi","Peanuts"],soia:["Soia","Soy"],sedano:["Sedano","Celery"],senape:["Senape","Mustard"],sesamo:["Sesamo","Sesame"],solfiti:["Solfiti","Sulphites"],lupini:["Lupini","Lupin"],molluschi:["Molluschi","Molluscs"]};
+let L=(navigator.language||"it").startsWith("it")?"it":"en",M=null,cat=null;
+const nm=o=>(o&&(o[L]||o.it))||"";
+function draw(){
+ const t=T[L],q=norm($("#q").value);$("#q").placeholder=t.cerca;$("#al").textContent=t.al;document.querySelector("footer a").textContent=t.pren;
+ document.querySelectorAll("[data-l]").forEach(b=>b.classList.toggle("on",b.dataset.l===L));document.documentElement.lang=L;
+ const cats=M.categorie.filter(c=>c.attivo!==false).map(c=>({...c,prodotti:c.prodotti.filter(p=>p.attivo!==false)})).filter(c=>c.prodotti.length);
+ $("#cats").innerHTML=cats.map(c=>`<button data-c="${c.id}" class="${c.id===cat?"on":""}">${esc(nm(c.nome))}</button>`).join("");
+ const vis=cats.map(c=>({...c,prodotti:c.prodotti.filter(p=>!q||norm(nm(p.nome)+" "+nm(p.desc)).includes(q))})).filter(c=>c.prodotti.length);
+ $("#m").innerHTML=vis.length?vis.map(c=>`<h2 id="${c.id}">${esc(nm(c.nome))}</h2>${c.prodotti.map(p=>`<div class="p">${p.img?`<img src="${esc(p.img)}" alt="" loading="lazy" data-big="${esc(p.img)}">`:""}<div class="t"><b>${esc(nm(p.nome))}</b>${nm(p.desc)&&norm(nm(p.desc))!==norm(nm(p.nome))?`<div class="d">${esc(nm(p.desc))}</div>`:""}
+  <div class="tags">${p.novita?`<span class="nv">${t.nv}</span>`:""}${p.vegetariano?`<span class="vg">${t.vg}</span>`:""}${p.senzaGlutine?`<span class="vg">${t.sg}</span>`:""}${(p.allergeni||[]).map(a=>`<span>${esc((AL[a]||[a,a])[L==="it"?0:1])}</span>`).join("")}</div></div>${p.prezzo?`<div class="pr">€ ${Number(p.prezzo).toFixed(2).replace(".",",")}</div>`:""}</div>`).join("")}`).join(""):`<div class="vuoto">${t.vuoto}</div>`;
+ document.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>{cat=b.dataset.c;$("#q").value="";draw();document.getElementById(cat)?.scrollIntoView({behavior:"smooth"});});
+ document.querySelectorAll("[data-big]").forEach(i=>i.onclick=()=>{const o=document.createElement("div");o.className="big";o.innerHTML=`<img src="${i.dataset.big}" alt="">`;o.onclick=()=>o.remove();document.body.appendChild(o);});
+}
+document.querySelectorAll("[data-l]").forEach(b=>b.onclick=()=>{L=b.dataset.l;draw();});
+$("#q").oninput=draw;
+try{const d=await getDoc(doc(db,"menu","principale"));M=d.exists()?d.data():{categorie:[]};draw();}catch(e){$("#m").innerHTML=`<div class="vuoto">Il menu non è disponibile in questo momento.</div>`;}
+</script>
+</body>
+</html>

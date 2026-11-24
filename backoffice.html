@@ -111,7 +111,7 @@ async function salvaCfg(d){await setDoc(doc(db,"impostazioni","locale"),d,{merge
 /* menu (come Pienissimo) */
 const IC={dash:'<path d="M3 4h18v12H3zM8 20h8M12 16v4M6 12l3-3 3 2 5-5"/>',ass:'<path d="M12 3a8 7 0 1 0 0 14l4 4v-5a8 7 0 0 0-4-13z"/>',cli:'<circle cx="8" cy="8" r="3"/><circle cx="16" cy="8" r="3"/><path d="M2 20c0-4 3-6 6-6s6 2 6 6M14 14c4 0 8 2 8 6"/>',mkt:'<path d="M3 5h18v12H3zM7 21h10M8 13l3-3 2 2 4-4"/>',ai:'<path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5zM18 15l.8 2.2L21 18l-2.2.8L18 21l-.8-2.2L15 18l2.2-.8z"/>',form:'<path d="M6 3h12v18H6zM9 7h6M9 11h6M9 15h4"/>',app:'<rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/>',menu:'<path d="M4 4h7v16H4zM13 4h7v16h-7zM6 8h3M15 8h3"/>',ord:'<path d="M5 7h14l-1 13H6zM9 7a3 3 0 0 1 6 0"/>',pren:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',gift:'<path d="M3 9h18v4H3zM5 13h14v8H5zM12 9v12M12 9c-2-4-6-4-6-1s6 1 6 1 6 2 6-1-4-3-6 1"/>',wa:'<path d="M4 20l1.5-4A8 8 0 1 1 9 19z"/>',sond:'<path d="M4 4h16v12H8l-4 4zM8 9h8M8 12h5"/>',timb:'<circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/>',team:'<circle cx="12" cy="7" r="3"/><path d="M5 21c0-4 3-7 7-7s7 3 7 7"/>',bi:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',imp:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/>',stat:'<path d="M3 3v18h18M7 15l4-4 3 3 5-6"/>',rend:'<path d="M4 18l6-6 4 4 6-8M14 8h6v6"/>'};
 const MENU=[["dash","Dashboard",[["dashboard","Dashboard"]]],["ass","Assistenza",[["guida","Guida Penelope"]]],["cli","Clienti",[["clienti","Elenco"],["importa","Importazione"]]],
- ["mkt","Marketing",[["fidelity","Fidelity"],["tags","Tags"],["invio","Invio Messaggi"],["mktimp","Impostazioni"]]],["ai","AI",null],["form","Forms",[["forms","Forms Prenotazioni"],["links","Links generali"]]],["app","APP",null],["menu","Menu",null],["ord","Ordini",null],
+ ["mkt","Marketing",[["fidelity","Fidelity"],["tags","Tags"],["invio","Invio Messaggi"],["mktimp","Impostazioni"]]],["ai","AI",null],["form","Forms",[["forms","Forms Prenotazioni"],["links","Links generali"]]],["app","APP",null],["menu","Menu",[["menuEl","Elenco Menu"],["menuImp","Importa da Pienissimo"],["menuLink","Link e QR code"]]],["ord","Ordini",null],
  ["pren","Prenotazioni",[["prenotazioni","Prenotazioni"],["web","Prenotazioni Web"],["storico","Storico"],["mese","Vista Mese"]]],["gift","Giftcard",null],["wa","WhatsApp",[["wamsg","Template Messaggi"],["waapi","WhatsApp Api Meta"]]],["sond","Sondaggi",null],["timb","Timbrature",null],["team","Gestione Team",[["utenti","Collaboratori"]]],["bi","B.I.",null],
  ["imp","Impostazioni",[["locale","Imp. generali"],["messaggi","Messaggi"],["causali","Causali"],["sale","Sale"],["tavoli","Tavoli"],["utenti","Utenti"],["importaPien","Importa da Pienissimo"]]],["stat","Statistiche",[["trend","Trend"],["statfid","Fidelity"]]],["rend","Rendimenti",null]];
 let SEZ="dash",PAG="dashboard";
@@ -329,6 +329,55 @@ PAGINE.mese=async()=>{
   $$("[data-g]").forEach(c=>c.onclick=()=>{PR.data=c.dataset.g;SEZ="pren";PAG="prenotazioni";vai();});};
  $("#mS").onchange=draw;draw();
 };
+
+
+/* --- MENU DIGITALE --- */
+const S3MENU="https://pienissimo.s3.eu-central-1.amazonaws.com/menu/ecf6b172f2fcad2fa98f097bc4389d56/8-menudati.json";
+const lng=(a,l)=>Array.isArray(a)?((a.find(x=>x.lingua===l)||{}).nome||""):(typeof a==="string"?a:"");
+const pulisci=t=>String(t||"").normalize("NFKC").replace(/\s+\n/g,"\n").trim();
+let MENUDOC=null;
+async function caricaMenu(){if(MENUDOC)return MENUDOC;const d=await getDoc(doc(db,"menu","principale")).catch(()=>null);MENUDOC=d&&d.exists()?d.data():{categorie:[]};return MENUDOC;}
+async function salvaMenu(){MENUDOC.aggiornatoIl=iso(new Date());await setDoc(doc(db,"menu","principale"),MENUDOC);toast("Menu salvato");}
+PAGINE.menuEl=async()=>{
+ const m=await caricaMenu();
+ const draw=()=>{$("#main").innerHTML=hd("Elenco Menu","Menu")+`<div class="filters"><span class="muted">${m.categorie.length} categorie · ${m.categorie.reduce((a,c)=>a+c.prodotti.length,0)} prodotti${m.aggiornatoIl?" · aggiornato "+itD(m.aggiornatoIl):""}</span><span style="flex:1"></span><a class="btn az" href="menu.html" target="_blank" style="text-decoration:none">Vedi il menu pubblico</a><button class="btn" id="mNC">+ Categoria</button></div>`+
+  (m.categorie.length?m.categorie.map((c,ci)=>`<div class="card"><div style="display:flex;align-items:center;gap:10px"><b style="flex:1;font-size:15px">${esc(c.nome.it)}</b><label class="muted"><input type="checkbox" data-ca="${ci}" ${c.attivo!==false?"checked":""}> visibile</label><button class="btn g" data-cu="${ci}" ${ci?"":"disabled"}>↑</button><button class="btn g" data-ce="${ci}">✎</button><button class="btn" data-np="${ci}">+ Prodotto</button></div>
+   <table style="margin-top:8px"><tbody>${c.prodotti.map((p,pi)=>`<tr class="click" data-p="${ci}.${pi}" style="${p.attivo===false?"opacity:.45":""}"><td style="width:56px">${p.img?`<img src="${esc(p.img)}" style="width:48px;height:48px;object-fit:cover;border-radius:6px" loading="lazy">`:""}</td><td><b>${esc(p.nome.it)}</b><div class="muted" style="white-space:pre-line">${esc(p.desc.it).slice(0,140)}</div></td><td style="width:90px;text-align:right"><b>${p.prezzo!=null?Number(p.prezzo).toFixed(2)+" €":""}</b></td><td style="width:90px">${p.attivo===false?'<span class="chip" style="background:#999">nascosto</span>':""}</td></tr>`).join("")}</tbody></table></div>`).join("")
+  :`<div class="card">Il menu è vuoto. Usa <b>Menu → Importa da Pienissimo</b> per copiarlo.</div>`);
+  $$("[data-ca]").forEach(x=>x.onchange=()=>{m.categorie[+x.dataset.ca].attivo=x.checked;salvaMenu();});
+  $$("[data-cu]").forEach(x=>x.onclick=()=>{const i=+x.dataset.cu;[m.categorie[i-1],m.categorie[i]]=[m.categorie[i],m.categorie[i-1]];salvaMenu().then(draw);});
+  $$("[data-ce]").forEach(x=>x.onclick=()=>{const c=m.categorie[+x.dataset.ce];modal("Categoria",`<label class="l">Nome (italiano)</label><input class="f" id="cI" value="${esc(c.nome.it)}"><label class="l">Nome (inglese)</label><input class="f" id="cE" value="${esc(c.nome.en)}"><button class="btn r" id="cDel" style="margin-top:12px">Elimina categoria</button>`,async ov=>{c.nome={it:ov.querySelector("#cI").value,en:ov.querySelector("#cE").value};await salvaMenu();draw();});
+   $("#cDel").onclick=async()=>{if(!confirm("Eliminare la categoria e i suoi prodotti?"))return;m.categorie.splice(+x.dataset.ce,1);$$(".ov").forEach(o=>o.remove());await salvaMenu();draw();};});
+  $("#mNC").onclick=()=>{const n=prompt("Nome della nuova categoria");if(n){m.categorie.unshift({id:"c"+Date.now(),nome:{it:n,en:n},attivo:true,prodotti:[]});salvaMenu().then(draw);}};
+  $$("[data-np]").forEach(x=>x.onclick=()=>edProd(+x.dataset.np,null));
+  $$("[data-p]").forEach(r=>r.onclick=()=>{const [ci,pi]=r.dataset.p.split(".").map(Number);edProd(ci,pi);});};
+ const AL=["glutine","latticini","uova","pesce","crostacei","frutta_guscio","arachidi","soia","sedano","senape","sesamo","solfiti","lupini","molluschi"];
+ const edProd=(ci,pi)=>{const c=m.categorie[ci],p=pi===null?{id:"p"+Date.now(),nome:{it:"",en:""},desc:{it:"",en:""},prezzo:null,attivo:true,img:"",allergeni:[]}:c.prodotti[pi];
+  const ov=modal(pi===null?"Nuovo prodotto":"Modifica prodotto",`<div class="grid g2"><div><label class="l">Nome (italiano)</label><input class="f" id="pI" value="${esc(p.nome.it)}"></div><div><label class="l">Nome (inglese)</label><input class="f" id="pE" value="${esc(p.nome.en)}"></div></div>
+   <label class="l">Descrizione / ingredienti (italiano)</label><textarea class="f" id="dI" style="min-height:80px">${esc(p.desc.it)}</textarea><label class="l">Descrizione (inglese)</label><textarea class="f" id="dE" style="min-height:60px">${esc(p.desc.en)}</textarea>
+   <div class="grid g2"><div><label class="l">Prezzo €</label><input class="f" id="pP" type="number" step="0.5" value="${p.prezzo??""}"></div><div><label class="l">Foto (indirizzo immagine)</label><input class="f" id="pF" value="${esc(p.img||"")}"></div></div>
+   <label class="l">Allergeni</label><div style="display:flex;flex-wrap:wrap;gap:10px">${AL.map(a=>`<label><input type="checkbox" data-al="${a}" ${p.allergeni?.includes(a)?"checked":""}> ${a.replace("_"," ")}</label>`).join("")}</div>
+   <div style="display:flex;gap:16px;margin-top:10px"><label><input type="checkbox" id="pA" ${p.attivo!==false?"checked":""}> Visibile nel menu</label><label><input type="checkbox" id="pV" ${p.vegetariano?"checked":""}> Vegetariano</label><label><input type="checkbox" id="pG" ${p.senzaGlutine?"checked":""}> Senza glutine</label><label><input type="checkbox" id="pN" ${p.novita?"checked":""}> Novità</label></div>
+   ${pi!==null?`<button class="btn r" id="pDel" style="margin-top:12px">Elimina prodotto</button>`:""}`,
+   async ov=>{const g=s=>ov.querySelector(s);Object.assign(p,{nome:{it:g("#pI").value.trim(),en:g("#pE").value.trim()||g("#pI").value.trim()},desc:{it:g("#dI").value.trim(),en:g("#dE").value.trim()},prezzo:g("#pP").value===""?null:+g("#pP").value,img:g("#pF").value.trim(),
+    allergeni:[...ov.querySelectorAll("[data-al]")].filter(x=>x.checked).map(x=>x.dataset.al),attivo:g("#pA").checked,vegetariano:g("#pV").checked,senzaGlutine:g("#pG").checked,novita:g("#pN").checked});
+    if(!p.nome.it){toast("Inserisci il nome");return false;}if(pi===null)c.prodotti.push(p);await salvaMenu();draw();});
+  if(pi!==null)ov.querySelector("#pDel").onclick=async()=>{if(!confirm("Eliminare il prodotto?"))return;c.prodotti.splice(pi,1);ov.remove();await salvaMenu();draw();};};
+ draw();
+};
+PAGINE.menuImp=async()=>{
+ $("#main").innerHTML=hd("Importa da Pienissimo","Menu")+`<div class="card"><p>Copia in Penelope il menu digitale pubblico di Pienissimo (quello del link "senza registrazione"): categorie in ordine, prodotti, prezzi, ingredienti in italiano e inglese, allergeni, foto e prodotti nascosti.</p><p class="muted">Il menu attuale di Penelope verrà sostituito.</p><button class="btn v" id="mGo">Importa il menu</button><div id="mR" class="muted" style="margin-top:10px"></div></div>`;
+ $("#mGo").onclick=async()=>{if(!isAdmin())return toast("Solo l'amministratore");$("#mGo").disabled=true;$("#mR").textContent="Scarico il menu…";
+  try{const j=await (await fetch(S3MENU)).json();
+   const cat=j.map(x=>x.categorie).filter(Boolean).map(c=>({id:"c"+c.id_categoria,nome:{it:pulisci(lng(c.categoria?.nome,"it")),en:pulisci(lng(c.categoria?.nome,"en"))},attivo:c.categoria?.attivo!==false,
+    prodotti:(c.righe||[]).map(r=>r.prodotto).filter(Boolean).map(p=>({id:"p"+p.id_prodotto,nome:{it:pulisci(lng(p.titolo,"it")||p.nome),en:pulisci(lng(p.titolo,"en")||p.nome)},desc:{it:pulisci(lng(p.desc,"it")),en:pulisci(lng(p.desc,"en"))},
+     prezzo:p.prezzo??null,attivo:p.attivo!==false,img:(p.immagini||[])[0]?.urlS3||"",allergeni:p.allergeni||[],vegetariano:!!(p.vegetarian||p.vegan),senzaGlutine:!!p.gluten,novita:!!p.new}))}));
+   MENUDOC={categorie:cat,fonte:"Pienissimo",importatoIl:iso(new Date())};await salvaMenu();
+   $("#mR").textContent=`Fatto: ${cat.length} categorie e ${cat.reduce((a,c)=>a+c.prodotti.length,0)} prodotti importati.`;}catch(e){$("#mR").textContent="Errore: "+(e.code||e.message);$("#mGo").disabled=false;}};
+};
+PAGINE.menuLink=async()=>{const u=BASE+"menu.html";
+ $("#main").innerHTML=hd("Link e QR code","Menu")+`<div class="card" style="display:flex;gap:24px;align-items:center"><img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(u)}" width="220" height="220" alt="QR code del menu"><div><b>Menu pubblico</b><p><a href="${u}" target="_blank">${u}</a></p><p class="muted">Funziona dentro e fuori dal locale, senza registrazione. Per stampare il QR: tasto destro sull'immagine → Salva immagine.</p><button class="btn g" id="cpM">Copia link</button></div></div>`;
+ $("#cpM").onclick=()=>{navigator.clipboard.writeText(u);toast("Link copiato");};};
 
 /* --- WHATSAPP --- */
 PAGINE.wamsg=async()=>{SEZ="imp";PAG="messaggi";vai();};
