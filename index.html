@@ -60,6 +60,12 @@ button,input,textarea{font-family:inherit;font-size:15px;color:inherit}button{cu
 .vuoto{text-align:center;color:#4B5160;padding:120px 20px}
 .win{display:flex;gap:10px;justify-content:center;padding:8px}
 .pill{padding:8px 14px;border-radius:8px;background:var(--gr);font-weight:700;font-size:13px}.pill.on{background:var(--blu);color:#fff}
+.tl{padding:6px 10px 2px}.tlb{display:flex;align-items:flex-end;gap:3px;height:110px;border-bottom:1px solid var(--line);position:relative}
+.tlb button{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;padding:0;position:relative}
+.tlb i{display:block;width:100%;border-radius:4px 4px 0 0;background:#C9D6F5;min-height:2px}.tlb button.ok i{background:var(--verde)}.tlb button.sel i{background:var(--blu)}
+.tlb b{font-size:11px;color:#3A4050;margin-bottom:2px}.tlx{display:flex;gap:3px}.tlx span{flex:1;text-align:center;font-size:9.5px;color:var(--mute);overflow:hidden;white-space:nowrap}
+.now{position:absolute;top:0;bottom:0;width:2px;background:var(--rosso)}.tll{display:flex;justify-content:space-between;font-size:12px;color:#4B5160;padding:6px 2px 0}
+.slotH{background:var(--gr);padding:6px 14px;font-weight:800;font-size:13px;display:flex;justify-content:space-between}
 /* piantina */
 .salaH{padding:10px 14px 0;font-weight:800;display:flex;gap:8px;align-items:center}
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;padding:12px 16px}
@@ -269,7 +275,7 @@ function agenda(){
  $$("[data-g]").forEach(b=>b.onclick=()=>{S.data=b.dataset.g;agenda();});
  $$("[data-s]").forEach(b=>b.onclick=()=>{S.sub=b.dataset.s;agenda();});
  $$("[data-t]").forEach(b=>b.onclick=()=>{S.turno=b.dataset.t;$$("[data-t]").forEach(x=>x.classList.toggle("on",x===b));disegna();});
- $$("[data-w]").forEach(b=>b.onclick=()=>{S.win=+b.dataset.w;agenda();});
+ $$("[data-w]").forEach(b=>b.onclick=()=>{S.win=+b.dataset.w;S.slotSel=null;agenda();});
  $("#filt").oninput=e=>{S.filtro=e.target.value;disegna();};
  $("#bSort").onclick=()=>{S.ordine=S.ordine==="ora"?"nome":"ora";toast(S.ordine==="ora"?"Ordinate per orario":"Ordinate per nome");disegna();};
  $("#bQr").onclick=()=>toast("Scansione QR fidelity: in arrivo");
@@ -296,7 +302,7 @@ function disegna(){
  else if(S.modo==="chiuse")l=turno.filter(p=>S.sub==="fila"?p.fila&&["arrivato","noshow"].includes(p.stato):!p.fila&&["arrivato","noshow"].includes(p.stato));
  else if(S.sub==="pren")l=turno.filter(p=>p.stato==="confermata"&&!p.fila);
  else if(S.sub==="fila")l=turno.filter(p=>p.stato==="attesa"||(p.fila&&p.stato==="confermata"));
- else if(S.sub==="arrivi"){const ora=new Date(),oggi=S.data===iso(ora),now=ora.getHours()*60+ora.getMinutes();l=turno.filter(p=>p.stato==="confermata"&&(!oggi||(min(p.ora)>=now-15&&min(p.ora)<=now+S.win)));}
+ else if(S.sub==="arrivi")return arrivi(turno);
  else return piantina(aperte);
  if(q)l=l.filter(p=>norm([p.nome,p.telefono,p.note,p.tavolo].join(" ")).includes(q));
  l=[...l].sort(S.ordine==="ora"?(a,b)=>min(a.ora)-min(b.ora)||(a.nome||"").localeCompare(b.nome||""):(a,b)=>(a.nome||"").localeCompare(b.nome||"","it"));
@@ -372,6 +378,26 @@ function richiesta(p){
    if(p.telefono)wa(p.telefono,fill(S.cfg.msg.conferma,o));}
   if(k==="no"){await aggiorna(p,{stato:"rifiutata"},"Prenotazione rifiutata");if(p.telefono)wa(p.telefono,fill(S.cfg.msg.rifiutata,o));}
   if(k==="mod")formPren(p);};
+}
+/* arrivi: schema temporale */
+function arrivi(turno){
+ const w=S.win,att=turno.filter(p=>["confermata","arrivato"].includes(p.stato)&&p.ora);
+ const ore=att.map(p=>min(p.ora)),now=new Date(),oggi=S.data===iso(now),nm=now.getHours()*60+now.getMinutes();
+ let ini=Math.min(S.turno==="cena"?18*60:11*60,...ore),fin=Math.max(S.turno==="cena"?23*60:15*60,...ore.map(x=>x+1));ini=Math.floor(ini/w)*w;fin=Math.ceil(fin/w)*w;
+ const sl=[];for(let t=ini;t<fin;t+=w){const ps=att.filter(p=>min(p.ora)>=t&&min(p.ora)<t+w);sl.push({t,ps,pax:ps.reduce((a,p)=>a+(+p.persone||0),0),arr:ps.filter(p=>p.stato==="arrivato").length});}
+ const mx=Math.max(1,...sl.map(x=>x.pax)),q=norm(S.filtro);
+ const sel=S.slotSel!=null&&sl.find(x=>x.t===S.slotSel)?S.slotSel:null;
+ const nowPos=oggi&&nm>=ini&&nm<fin?(nm-ini)/(fin-ini)*100:null;
+ const lista=sl.filter(x=>x.ps.length&&(sel===null||x.t===sel));
+ const tot=att.reduce((a,p)=>a+(+p.persone||0),0),arr=att.filter(p=>p.stato==="arrivato").reduce((a,p)=>a+(+p.persone||0),0);
+ $("#main").innerHTML=`<div class="tl"><div class="tlb">${sl.map(x=>`<button data-sl="${x.t}" class="${x.t===sel?"sel":x.ps.length&&x.arr===x.ps.length?"ok":""}" aria-label="${hm(x.t)}: ${x.pax} persone">${x.pax?`<b>${x.pax}</b>`:""}<i style="height:${Math.round(85*x.pax/mx)}%"></i></button>`).join("")}${nowPos!==null?`<div class="now" style="left:${nowPos}%"></div>`:""}</div>
+  <div class="tlx">${sl.map((x,i)=>`<span>${w>=30||i%2===0?hm(x.t):""}</span>`).join("")}</div>
+  <div class="tll"><span>👥 ${tot} attese · <b style="color:var(--verde)">${arr} arrivate</b></span>${sel!==null?`<button class="pill" id="slAll">Tutti gli orari ✕</button>`:`<span>Tocca una barra per filtrare</span>`}</div></div>
+  ${lista.length?lista.map(x=>{const ps=x.ps.filter(p=>!q||norm([p.nome,p.telefono,p.note,p.tavolo].join(" ")).includes(q)).sort((a,b)=>min(a.ora)-min(b.ora));return ps.length?`<div class="slotH"><span>${hm(x.t)} – ${hm(x.t+w)}</span><span>${x.ps.length} pren. · ${x.pax} pers.</span></div><div class="lista">${ps.map(card).join("")}</div>`:"";}).join(""):`<div class="vuoto" style="padding:60px 20px">Nessuna prenotazione disponibile</div>`}`;
+ $$("[data-sl]").forEach(b=>b.onclick=()=>{const t=+b.dataset.sl;S.slotSel=S.slotSel===t?null:t;arrivi(turno);});
+ if($("#slAll"))$("#slAll").onclick=()=>{S.slotSel=null;arrivi(turno);};
+ $$(".sw").forEach(attivaCard);
+ const manca=[...new Set(att.map(p=>p.clienteId).filter(id=>id&&!S.cli.has(id)))];if(manca.length)Promise.all(manca.map(getCliente)).then(disegna);
 }
 /* piantina */
 function piantina(aperte){
