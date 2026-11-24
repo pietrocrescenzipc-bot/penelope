@@ -1,0 +1,487 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<link rel="manifest" href="telefono.webmanifest"><link rel="icon" href="icona-192.png"><meta name="mobile-web-app-capable" content="yes">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#14233A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Penelope</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#14233A;--navy2:#0B1522;--gold:#D9C08A;--bg:#F3F4F6;--card:#fff;--txt:#14233A;--mute:#4B5563;--line:#E5E7EB;--blue:#1F5FBF;--orange:#9A4A00;--red:#B42318;--green:#166534;--greenbg:#E7F3EC}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--txt);font-family:Barlow,system-ui,sans-serif;font-size:17px;-webkit-tap-highlight-color:transparent}
+button,input,select,textarea{font-family:inherit;font-size:17px;color:inherit}
+button{cursor:pointer}
+.hidden{display:none!important}
+#app{max-width:820px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;padding-bottom:100px}
+header{background:var(--navy);color:#fff;padding:14px 16px;position:sticky;top:0;z-index:5}
+.brand{color:var(--gold);font-weight:700;letter-spacing:1px;font-size:12px}
+.h1{font-family:'Barlow Condensed',sans-serif;font-size:27px;font-weight:700;margin:2px 0 0}
+main{padding:12px 14px 0;display:flex;flex-direction:column;gap:10px}
+nav.tabs{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding-bottom:env(safe-area-inset-bottom);z-index:6}
+nav.tabs button{background:none;border:0;padding:10px 0 12px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:13px;color:#6B7280;min-height:64px}
+nav.tabs button.on{color:var(--navy);font-weight:700}
+nav.tabs svg{width:26px;height:26px}
+.card{background:var(--card);border-radius:16px;padding:14px}
+.row{display:flex;gap:10px;align-items:center}
+.between{justify-content:space-between}
+.btn{min-height:52px;border:0;border-radius:14px;padding:0 16px;font-weight:700;background:var(--navy);color:#fff}
+.btn.gold{background:var(--gold);color:var(--navy)}
+.btn.light{background:#fff;color:var(--navy);border:2px solid var(--navy)}
+.btn.wa{background:#1E8E4E;color:#fff}
+.btn.red{background:#fff;color:var(--red);border:2px solid var(--red)}
+.btn.block{width:100%}
+.btn:disabled{opacity:.5}
+.iconbtn{width:48px;height:48px;border-radius:12px;border:1px solid #3A4B66;background:transparent;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+label.l{font-size:14px;font-weight:600;color:#374151;display:block;margin-bottom:6px}
+.f{color:var(--txt);width:100%;min-height:52px;border:1.5px solid #C9CED6;border-radius:12px;padding:10px 14px;background:#fff}
+textarea.f{min-height:90px}
+.f:focus{outline:3px solid #BFD3F2;border-color:var(--blue)}
+.search{color:var(--txt);caret-color:var(--navy);width:100%;min-height:54px;border:0;border-radius:14px;padding:0 16px 0 46px;font-size:18px;background:#fff url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2722%27 height=%2722%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%234B5563%27 stroke-width=%272.2%27%3E%3Ccircle cx=%2711%27 cy=%2711%27 r=%277%27/%3E%3Cpath d=%27M20 20l-4-4%27/%3E%3C/svg%3E") no-repeat 14px center}
+.lens{padding-left:44px!important;background:#fff url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2720%27 height=%2720%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%234B5563%27 stroke-width=%272.2%27%3E%3Ccircle cx=%2711%27 cy=%2711%27 r=%277%27/%3E%3Cpath d=%27M20 20l-4-4%27/%3E%3C/svg%3E") no-repeat 13px center!important}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 4px}
+.chips button{flex-shrink:0;min-height:44px;border-radius:22px;border:1.5px solid #C9CED6;background:#fff;padding:0 14px;font-weight:600;font-size:15px}
+.chips button.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.chip{font-size:13px;font-weight:700;padding:5px 10px;border-radius:20px;white-space:nowrap}
+.c-conf{background:#E3E8F0;color:var(--navy)}.c-arr{background:var(--blue);color:#fff}.c-att{background:#FFE8C7;color:#7A3A00}.c-ann{background:#F3D6D3;color:var(--red)}.c-ns{background:#EEE;color:#555}.c-rif{background:#2B2B2B;color:#fff}
+.warn{background:#FFF1DF;border:1px solid #F0C98A;color:#7A3A00;border-radius:14px;padding:12px 14px;font-weight:600}
+.ok{background:var(--greenbg);color:var(--green);border-radius:14px;padding:12px 14px;font-weight:600}
+.bar{height:10px;background:#2A3A54;border-radius:5px;overflow:hidden}.bar>div{height:10px;background:var(--gold)}
+.pren{display:flex;gap:12px;align-items:center;border:0;width:100%;text-align:left;background:#fff;border-radius:16px;padding:13px}
+.pren .ora{width:68px;text-align:center;font-weight:700;font-size:20px;flex-shrink:0}
+.pren .ora small{display:block;font-size:13px;color:var(--mute);font-weight:500}
+.tavb{display:inline-flex;align-items:center;gap:3px;margin-top:5px;background:#E8EDF5;color:var(--navy);border-radius:8px;padding:3px 6px;font-size:16px;font-weight:700;line-height:1.1;max-width:100%;word-break:break-word}
+.tavb svg{flex-shrink:0}
+.pren .nome{font-weight:700;font-size:18px}
+.pren .sub{font-size:14px;color:var(--mute)}
+.badge{font-size:15px;margin-left:4px}
+.nota{margin-top:6px;background:#FFF3C4;border-left:4px solid #E0A800;border-radius:8px;padding:6px 10px;font-weight:700;font-size:15px;color:#4A3500}
+.fab{position:fixed;right:18px;bottom:92px;z-index:7;min-height:60px;border-radius:30px;padding:0 24px;box-shadow:0 8px 18px rgba(20,35,58,.3);display:flex;align-items:center;gap:8px}
+.sheet-bg{position:fixed;inset:0;background:rgba(11,21,34,.5);z-index:20;display:flex;align-items:flex-end;justify-content:center}
+html.embed .sheet-bg{background:transparent;align-items:stretch}html.embed .sheet{max-height:100vh;border-radius:0}html.embed .sheet header{border-radius:0}
+.sheet{background:var(--bg);width:100%;max-width:820px;max-height:94vh;overflow:auto;border-radius:20px 20px 0 0;padding-bottom:24px}
+.sheet header{border-radius:20px 20px 0 0;display:flex;align-items:center;gap:10px}
+.sheet .in{padding:14px;display:flex;flex-direction:column;gap:14px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.slots{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.slot{min-height:56px;border:1.5px solid #C9CED6;border-radius:12px;background:#fff;font-weight:700;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.slot small{font-size:12px;font-weight:500;color:var(--mute)}
+.slot.on{background:var(--navy);color:#fff;border-color:var(--navy)}.slot.on small{color:var(--gold)}
+.stepper{display:flex;align-items:center;justify-content:space-between;border:1.5px solid #C9CED6;border-radius:12px;background:#fff;min-height:52px}
+.stepper button{width:56px;height:52px;border:0;background:none;font-size:26px;font-weight:700}
+.big{font-size:20px;font-weight:700}
+.cond{font-family:'Barlow Condensed',sans-serif}
+.muted{color:var(--mute);font-size:14px}
+.list>*+*{border-top:1px solid var(--line)}
+.li{display:flex;justify-content:space-between;align-items:center;padding:12px 4px;gap:10px;background:none;border-left:0;border-right:0;border-bottom:0;width:100%;text-align:left}
+.tl{border-left:3px solid var(--gold);padding-left:12px;display:flex;flex-direction:column;gap:10px}
+.toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%);background:var(--navy);color:#fff;padding:14px 18px;border-radius:14px;z-index:40;font-weight:600;max-width:90%}
+.pts{font-family:'Barlow Condensed',sans-serif;font-size:56px;font-weight:700;line-height:1}
+.tag{display:inline-block;background:#EEF1F6;border-radius:10px;padding:3px 8px;font-size:13px;margin:2px}
+.tavrow{display:flex;justify-content:space-between;gap:10px;padding:10px 4px;border-top:1px solid var(--line)}
+.tavrow b{min-width:90px}
+#login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:var(--navy)}
+#login form{background:#fff;border-radius:16px;width:100%;max-width:400px;display:flex;flex-direction:column;gap:14px;padding:22px}
+</style>
+</head>
+<body>
+<div id="login" class="hidden">
+  <form id="loginForm">
+    <div class="brand" style="color:var(--navy)">THE GALLEON</div><div class="h1">Penelope</div>
+    <div><label class="l" for="lem">Email</label><input class="f" id="lem" type="email" autocomplete="username" required></div>
+    <div><label class="l" for="lpw">Password</label><input class="f" id="lpw" type="password" autocomplete="current-password" required></div>
+    <button class="btn gold block" type="submit">Entra</button><div id="lerr" class="muted"></div>
+  </form>
+</div>
+<div id="app" class="hidden"><header id="hdr"></header><main id="main"></main></div>
+<button id="fab" class="btn gold fab hidden" aria-label="Nuova prenotazione"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Prenota</button>
+<nav class="tabs hidden" id="tabs">
+  <button data-t="agenda" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Agenda</button>
+  <button data-t="clienti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg>Clienti</button>
+  <button data-t="fidelity"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3l2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9z"/></svg>Fidelity</button>
+  <button data-t="altro"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Elenchi</button>
+</nav>
+<div id="sheetRoot"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, addDoc, collection, query, where, orderBy, limit, getDocs, onSnapshot, serverTimestamp, increment, runTransaction, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const app = initializeApp({apiKey:"AIzaSyBzpnM1H7Nk99bGqiKoFvJfZfUEhxYt1yI",authDomain:"galleon-club.firebaseapp.com",projectId:"galleon-club",storageBucket:"galleon-club.firebasestorage.app",messagingSenderId:"256580919264",appId:"1:256580919264:web:1639030e273fae781fd585"});
+const auth=getAuth(app), db=getFirestore(app);
+
+/* ---------- utilità ---------- */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pad=n=>String(n).padStart(2,"0"), iso=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const GG=["Domenica","Lunedì","Martedì","Mercoledì","Giovedì","Venerdì","Sabato"], MM=["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","agosto","settembre","ottobre","novembre","dicembre"];
+const bello=s=>{const d=new Date(s+"T12:00:00");return `${GG[d.getDay()]} ${d.getDate()} ${MM[d.getMonth()]}`;};
+const corto=s=>{if(!s)return "—";const d=new Date(s+"T12:00:00");return `${d.getDate()} ${MM[d.getMonth()].slice(0,3)} ${d.getFullYear()}`;};
+const telNorm=t=>{let x=String(t||"").replace(/\D/g,"");if(x.startsWith("00"))x=x.slice(2);if(x.length===10&&x.startsWith("3"))x="39"+x;return x.length>=8?x:"";};
+const norm=s=>String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
+const toast=m=>{const t=document.createElement("div");t.className="toast";t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2800);};
+const giorniFa=s=>s?Math.round((Date.now()-new Date(s+"T12:00:00"))/864e5):null;
+const wa=(tel,msg)=>{const x=telNorm(tel);if(!x){toast("Numero di telefono mancante");return;}window.open(`https://wa.me/${x}?text=${encodeURIComponent(msg)}`,"_blank");};
+
+const QP=new URLSearchParams(location.search), EMBED=QP.get("embed")==="1";
+if(EMBED) document.documentElement.classList.add("embed"); if(EMBED) document.documentElement.style.background=document.body.style.background="transparent";
+/* ---------- stato e impostazioni ---------- */
+const S={tab:"agenda",data:iso(new Date()),turno:"cena",me:null,cfg:null,unsub:null,pren:[],filtro:"attese",ordine:"ora",cli:new Map(),idx:null,tav:[]};
+const CFG_DEF={nomeLocale:"The Galleon Pub & Pizzeria",coperti:{cena:0},sale:["Sala principale"],orari:{cena:["18:00","18:30","19:00","19:30","20:00","20:30","21:00","21:30","22:00"]},punti_per_euro:1,
+ premi:[{punti:100,nome:"Buono asporto 10 €"},{punti:200,nome:"Buono asporto 20 €"},{punti:300,nome:"Buono asporto 30 €"},{punti:400,nome:"Buono asporto 40 €"},{punti:500,nome:"Buono asporto 60 €"}],
+ msg:{conferma:"Ciao {nome}! 👋 La tua prenotazione al {locale} è confermata: {giorno} alle {ora}, {persone} persone. Ti aspettiamo! Per modifiche rispondi a questo messaggio.",
+      benvenuto:"Ciao {nome}, benvenuto al {locale}! 🍕 Buona serata!",
+      annullata:"Ciao {nome}, la tua prenotazione al {locale} di {giorno} alle {ora} è stata annullata. Speriamo di vederti presto! Per una nuova prenotazione rispondi a questo messaggio.",
+      rifiutata:"Ciao {nome}, ci dispiace ma per {giorno} alle {ora} al {locale} siamo al completo. Se vuoi ti proponiamo un altro orario: rispondi a questo messaggio.",
+      saldo:"Ciao {nome}! ⭐ Il tuo saldo punti al {locale} è {punti} punti. Grazie e a presto!"}};
+const MSG_NOMI={conferma:"Conferma prenotazione",benvenuto:"Benvenuto all'arrivo",annullata:"Prenotazione annullata",rifiutata:"Prenotazione rifiutata",saldo:"Saldo punti fidelity"};
+const fill=(t,o)=>t.replace(/\{(\w+)\}/g,(_,k)=>(k==="locale"?S.cfg.nomeLocale:o[k])??"");
+
+/* ---------- navigazione con il tasto Indietro del telefono ---------- */
+let sheetOpen=false;
+window.addEventListener("popstate",e=>{ const st=e.state||{tab:"agenda"};
+  if(sheetOpen){ sheetOpen=false; $("#sheetRoot").innerHTML=""; if(st.sheet) history.back(); return; }
+  if(S.sub){ S.sub=null; if(st.tab) return show(st.tab,false); }
+  show(st.tab||"agenda",false); });
+function go(t){ history.pushState({tab:t},""); show(t,false); }
+function show(t){ S.tab=t; $("#hdr").style.padding=""; S.sub=null; document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on",b.dataset.t===t));
+  $("#fab").classList.toggle("hidden",t!=="agenda"); if(S.unsub&&t!=="agenda"){S.unsub();S.unsub=null;}
+  ({agenda:viewAgenda,clienti:viewClienti,fidelity:viewFidelity,altro:viewAltro})[t](); window.scrollTo(0,0); }
+function sheet(titolo,html){ if(!sheetOpen){ if(!EMBED) history.pushState({tab:S.tab,sheet:true},""); sheetOpen=true; }
+  $("#sheetRoot").innerHTML=`<div class="sheet-bg" id="sbg"><div class="sheet" role="dialog" aria-label="${esc(titolo)}"><header><button class="iconbtn" id="sClose" aria-label="Indietro"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><span class="h1" style="margin:0">${esc(titolo)}</span></header><div class="in">${html}</div></div></div>`;
+  $("#sClose").onclick=closeSheet; $("#sbg").onclick=e=>{if(e.target.id==="sbg")closeSheet();}; }
+function closeSheet(){ if(EMBED){ sheetOpen=false; $("#sheetRoot").innerHTML=""; parent.postMessage({penelope:"chiudi"},"*"); return; } if(sheetOpen){ history.back(); } }
+
+/* ---------- login ---------- */
+$("#loginForm").onsubmit=async e=>{e.preventDefault();$("#lerr").textContent="Accesso in corso…";try{await signInWithEmailAndPassword(auth,$("#lem").value.trim(),$("#lpw").value);$("#lpw").value="";}catch(x){$("#lerr").textContent="Email o password non corretti.";}};
+onAuthStateChanged(auth,async u=>{
+  if(!u){$("#login").classList.remove("hidden");["#app","#tabs","#fab"].forEach(s=>$(s).classList.add("hidden"));return;}
+  try{ const sd=await getDoc(doc(db,"staff",u.uid)); if(!sd.exists()){$("#lerr").textContent="Account non abilitato. Chiedi all'amministratore.";await signOut(auth);return;}
+    S.me={uid:u.uid,...sd.data()};
+    const [cd,tv]=await Promise.all([getDoc(doc(db,"impostazioni","locale")).catch(()=>null),getDocs(collection(db,"tavoli")).catch(()=>null)]); const c=cd&&cd.exists()?cd.data():{};
+    S.cfg={...CFG_DEF,...c,msg:{...CFG_DEF.msg,...(c.msg||{})}};
+    S.tav=tv?tv.docs.map(d=>({id:d.id,...d.data()})):[];
+    if(!S.cfg.coperti?.cena) S.cfg.coperti={cena:S.tav.reduce((t,x)=>t+(+x.posti||0),0)||80};
+  }catch(e){$("#lerr").textContent="Errore di collegamento. Riprova.";return;}
+  $("#login").classList.add("hidden");
+  if(EMBED){ setTimeout(caricaIndice,800); const pid=QP.get("pren"), cid=QP.get("cli");
+    if(pid){ const d=await getDoc(doc(db,"prenotazioni",pid)).catch(()=>null); if(d&&d.exists()) return dettaglioPren({id:d.id,...d.data()}); }
+    if(cid) return schedaCliente(cid);
+    if(QP.get("nuova")){ if(QP.get("data")) S.data=QP.get("data"); return formPrenotazione(); }
+    return parent.postMessage({penelope:"chiudi"},"*"); }
+  ["#app","#tabs"].forEach(s=>$(s).classList.remove("hidden"));
+  history.replaceState({tab:"agenda"},""); show("agenda"); caricaIndice();
+});
+document.querySelectorAll("#tabs button").forEach(b=>b.onclick=()=>{ if(b.dataset.t!==S.tab) go(b.dataset.t); });
+$("#fab").onclick=()=>formPrenotazione();
+
+/* ---------- indice di ricerca veloce (nome, cognome, telefono) ---------- */
+async function caricaIndice(){
+  try{ const s=await getDocs(collection(db,"indice")); const out=[];
+    s.docs.forEach(d=>{ const v=d.data(); const righe=v.r?v.r.split("\n"):(v.nuovi||[]); righe.forEach(r=>{ const [id,nome,tel]=r.split("|"); if(id) out.push({id,nome,tel,k:norm(nome)+" "+(tel||"").replace(/\D/g,"")}); }); });
+    const seen=new Set(); S.idx=out.filter(x=>!seen.has(x.id)&&seen.add(x.id));
+  }catch(e){ S.idx=[]; }
+}
+function cercaIdx(q){ q=norm(q).trim(); if(q.length<2||!S.idx) return [];
+  const parti=q.split(/\s+/).map(p=>/^\+?\d+$/.test(p)?p.replace(/\D/g,""):p);
+  const res=S.idx.filter(x=>parti.every(p=>x.k.includes(p)));
+  const inizia=x=>parti.some(p=>x.k.startsWith(p)||x.k.includes(" "+p))?0:1;
+  res.sort((a,b)=>inizia(a)-inizia(b)||a.k.localeCompare(b.k,"it")); return res; }
+async function cercaRemota(q){ q=q.trim(); const out=[], add=d=>{ if(!out.find(x=>x.id===d.id)){ const v=d.data(); out.push({id:d.id,nome:[v.nome,v.cognome].filter(Boolean).join(" "),tel:v.telefono||""}); } };
+  try{ const t=telNorm(q); if(/^[\d\s+]+$/.test(q)){ if(t){ const d=await getDoc(doc(db,"clienti","t"+t)); if(d.exists()) add(d); } return out; }
+    const w=q.split(/\s+/)[0], forme=[...new Set([w.charAt(0).toUpperCase()+w.slice(1).toLowerCase(),w.toUpperCase(),w.toLowerCase()])];
+    for(const campo of ["cognome","nome"]) for(const f of forme){ const s2=await getDocs(query(collection(db,"clienti"),where(campo,">=",f),where(campo,"<=",f+"\uf8ff"),limit(15))); s2.docs.forEach(add); }
+  }catch(e){} return out.slice(0,40); }
+async function trova(q){ return (S.idx&&S.idx.length)? cercaIdx(q) : await cercaRemota(q); }
+function boxRicerca(onPick,placeholder){
+  return {html:`<input class="search" id="qBox" placeholder="${esc(placeholder)}" autocomplete="off" aria-label="Cerca cliente">`,
+    bind(){ const draw=async()=>{ const q=$("#qBox").value; if(q.trim().length<2){ $("#main").innerHTML=`<div class="muted">Scrivi almeno 2 lettere del nome, del cognome o del telefono.</div>`; return; }
+        const r=await trova(q); if($("#qBox").value!==q) return;
+        const tot=r.length; const vis=r.slice(0,300);
+        $("#main").innerHTML=tot?`<div class="muted">${tot} clienti trovati${tot>300?" (ne vedi 300: aggiungi il cognome per restringere)":""}</div><div class="card list">${vis.map(x=>`<button class="li" data-c="${x.id}"><div><div style="font-weight:700">${esc(x.nome||"Senza nome")}</div><div class="muted">${esc(x.tel||"")}</div></div><span aria-hidden="true">›</span></button>`).join("")}</div>`:`<div class="card">Nessun cliente trovato.</div>`;
+        document.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>onPick(b.dataset.c)); };
+      let tmr; $("#qBox").addEventListener("input",()=>{clearTimeout(tmr);tmr=setTimeout(draw,S.idx&&S.idx.length?0:350);}); draw(); setTimeout(()=>$("#qBox").focus(),100); } };
+}
+async function getCliente(id){ if(!id) return null; if(S.cli.has(id)) return S.cli.get(id);
+  const d=await getDoc(doc(db,"clienti",id)).catch(()=>null); const c=d&&d.exists()?{id,...d.data()}:null; S.cli.set(id,c); return c; }
+function pianta(st,secca,vip){ const L=secca?"#B08A4A":"#2E8B3E", L2=secca?"#9A7638":"#3FA34D", V=vip?"#D9A93A":"#B5653A", stem=[0,5,8,9,9][st];
+  let g=`<path d="M6 17h12l-1.6 6H7.6z" fill="${V}"/><rect x="5" y="15.5" width="14" height="2.2" rx="1" fill="${V}"/>`;
+  if(st===0) g+=`<ellipse cx="12" cy="14.6" rx="2.2" ry="1.4" fill="#7A5230"/>`;
+  else g+=`<path d="M12 15.5V${15.5-stem}" stroke="${L}" stroke-width="1.6" stroke-linecap="round"/>`;
+  if(st===1) g+=`<path d="M12 12c-2.5 0-3.5-1.5-3.5-3 2 0 3.5 1 3.5 3zM12 11.5c2.5 0 3.5-1.5 3.5-3-2 0-3.5 1-3.5 3z" fill="${L2}"/>`;
+  if(st===2) g+=`<path d="M12 12c-3 0-4.5-1.8-4.5-3.6 2.4 0 4.5 1.2 4.5 3.6zM12 10c3 0 4.5-1.8 4.5-3.6-2.4 0-4.5 1.2-4.5 3.6zM12 8.5c-2.2 0-3.2-1.3-3.2-2.6 1.7 0 3.2.9 3.2 2.6z" fill="${L2}"/>`;
+  if(st===3) g+=`<circle cx="12" cy="7" r="5" fill="${L2}"/><circle cx="9.5" cy="8.5" r="3" fill="${L}"/>`;
+  if(st===4) g+=`<circle cx="12" cy="6.5" r="6" fill="${L2}"/><circle cx="8.5" cy="8" r="3.4" fill="${L}"/><circle cx="15.5" cy="8" r="3.4" fill="${L}"/>${secca?"":`<circle cx="10" cy="5" r="1.1" fill="#E0463A"/><circle cx="14.5" cy="6.5" r="1.1" fill="#E0463A"/>`}`;
+  return `<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" style="vertical-align:-4px">${g}</svg>`; }
+function badge(c){ const n=c?(+c.presenze||0):0, gg=c?giorniFa(c.ultimaPresenza):null, vip=c&&(c.tags||[]).includes("VIP");
+  const st=!c||n===0?0:n===1?1:n<5?2:n<10?3:4, secca=n>0&&gg!==null&&gg>90;
+  const t=(!c?"Cliente nuovo":`${n} visite`)+(secca?`, non viene da ${gg} giorni`:"")+(vip?", VIP":"");
+  return `<span class="badge" title="${esc(t)}">${pianta(st,secca,vip)}</span>`; }
+
+/* ---------- AGENDA ---------- */
+const STATI={confermata:["c-conf","Confermata"],arrivato:["c-arr","Arrivato"],attesa:["c-att","In attesa"],annullata:["c-ann","Annullata"],noshow:["c-ns","Non venuto"],rifiutata:["c-rif","Rifiutata"]};
+const FILTRI=[["attese","Da arrivare",p=>p.stato==="confermata"],["arrivati","Arrivati",p=>p.stato==="arrivato"],["attesa","Lista d'attesa",p=>p.stato==="attesa"],["annullate","Annullate / non venuti",p=>["annullata","noshow"].includes(p.stato)],["rifiutate","Rifiutate",p=>p.stato==="rifiutata"]];
+function viewAgenda(){
+  const ib=(id,lab,d)=>`<button class="iconbtn" id="${id}" aria-label="${lab}" style="width:42px;height:42px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="${d}"/></svg></button>`;
+  $("#hdr").style.padding="10px 12px";
+  $("#hdr").innerHTML=`<div class="row" style="gap:6px">${ib("dPrev","Giorno prima","M15 5l-7 7 7 7")}<div style="flex:1;min-width:0;text-align:center"><div class="brand" style="font-size:11px">PENELOPE · THE GALLEON</div><div class="h1" style="font-size:22px;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(bello(S.data))}</div></div>${ib("dNext","Giorno dopo","M9 5l7 7-7 7")}</div>
+    <div class="row" style="margin-top:8px;gap:8px">${S.data!==iso(new Date())?`<button class="btn gold" id="dOggi" style="min-height:40px;padding:0 12px">Oggi</button>`:""}<div style="flex:1"><div class="row between" style="font-size:13px"><span>Coperti</span><b id="capTxt">…</b></div><div class="bar" style="margin-top:4px;height:8px"><div id="capBar" style="width:0;height:8px"></div></div></div><button class="btn light" id="dSala" style="min-height:40px;padding:0 12px">🍽 Sala</button></div>
+    <div style="margin-top:6px;font-size:12px;color:#C7D0DD;display:flex;flex-wrap:wrap;justify-content:center;gap:2px 10px;align-items:center"><span>${pianta(0)} nuovo</span><span>${pianta(1)} 1 visita</span><span>${pianta(2)} 2–4</span><span>${pianta(3)} 5–9</span><span>${pianta(4)} 10+</span><span>${pianta(3,true)} secca: assente da 3 mesi</span><span>${pianta(3,false,true)} vaso oro: VIP</span></div>`;
+  const shift=n=>{const d=new Date(S.data+"T12:00:00");d.setDate(d.getDate()+n);S.data=iso(d);S.filtro="attese";viewAgenda();};
+  $("#dPrev").onclick=()=>shift(-1); $("#dNext").onclick=()=>shift(1); if($("#dOggi"))$("#dOggi").onclick=()=>{S.data=iso(new Date());viewAgenda();};
+  $("#dSala").onclick=vediSala;
+  $("#main").innerHTML=`<div class="muted">Caricamento…</div>`;
+  if(S.unsub)S.unsub();
+  S.unsub=onSnapshot(query(collection(db,"prenotazioni"),where("data","==",S.data)),snap=>{ S.pren=snap.docs.map(d=>({id:d.id,...d.data()})); drawAgenda(); },
+    err=>{$("#main").innerHTML=`<div class="warn">Non riesco a leggere le prenotazioni (${esc(err.code)}).</div>`;});
+}
+function drawAgenda(){
+  const cap=S.cfg.coperti.cena||80, pax=S.pren.filter(p=>["confermata","arrivato"].includes(p.stato)).reduce((s,p)=>s+(+p.persone||0),0);
+  $("#capTxt").textContent=`${pax} / ${cap}`; $("#capBar").style.width=Math.min(100,100*pax/cap)+"%";
+  const f=FILTRI.find(x=>x[0]===S.filtro); let lista=S.pren.filter(f[2]);
+  lista.sort(S.ordine==="ora"?(a,b)=>(a.ora||"").localeCompare(b.ora||"")||(a.nome||"").localeCompare(b.nome||""):(a,b)=>(a.nome||"").localeCompare(b.nome||"","it"));
+  let h="";
+  if(pax>cap) h+=`<div class="warn">⚠️ Overbooking: ${pax-cap} coperti oltre la capienza.</div>`;
+  h+=`<div class="chips">${FILTRI.map(([k,t,fn])=>`<button data-f="${k}" class="${k===S.filtro?"on":""}">${t} (${S.pren.filter(fn).length})</button>`).join("")}</div>`;
+  h+=`<div class="row between"><span class="muted">${lista.reduce((s,p)=>s+(+p.persone||0),0)} persone</span><div class="chips" style="padding:0"><button data-o="ora" class="${S.ordine==="ora"?"on":""}">Per orario</button><button data-o="nome" class="${S.ordine==="nome"?"on":""}">A–Z</button></div></div>`;
+  h+=lista.length?lista.map(p=>{const c=S.cli.get(p.clienteId); const ch=STATI[p.stato]||["c-conf",p.stato];
+    return `<button class="pren" data-p="${p.id}"><div class="ora">${esc(p.ora||"--")}${p.tavolo?`<div class="tavb" title="Tavolo"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M3 9h18M5 9v10M19 9v10M8 9v5h8V9"/></svg>${esc(String(p.tavolo).replace(/Pedana /g,"P").replace(/Veranda /g,"V"))}</div>`:""}</div><div style="flex:1;min-width:0"><div class="nome">${esc(p.nome||"Senza nome")}${p.clienteId&&S.cli.has(p.clienteId)?badge(c):""}</div><div class="sub">${esc(p.persone)} persone${p.sala?" · "+esc(p.sala):""}</div>${p.note?`<div class="nota">📝 ${esc(p.note)}</div>`:""}</div>${S.filtro==="annullate"?`<span class="chip ${ch[0]}">${ch[1]}</span>`:""}</button>`;}).join("")
+    :`<div class="card muted">${S.filtro==="attese"?"Nessuna prenotazione da arrivare. Premi <b>Prenota</b> per aggiungerne una.":"Nessuna prenotazione qui."}</div>`;
+  $("#main").innerHTML=h;
+  document.querySelectorAll("[data-f]").forEach(b=>b.onclick=()=>{S.filtro=b.dataset.f;drawAgenda();});
+  document.querySelectorAll("[data-o]").forEach(b=>b.onclick=()=>{S.ordine=b.dataset.o;drawAgenda();});
+  document.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>dettaglioPren(S.pren.find(p=>p.id===b.dataset.p)));
+  const manca=[...new Set(S.pren.map(p=>p.clienteId).filter(id=>id&&!S.cli.has(id)))];
+  if(manca.length) Promise.all(manca.map(getCliente)).then(()=>{ if(S.tab==="agenda") drawAgenda(); });
+}
+function vediSala(){
+  const tavDi=p=>p.tavoli&&p.tavoli.length?p.tavoli:(p.tavolo?String(p.tavolo).split(" + "):[]);
+  const att=S.pren.filter(p=>["confermata","arrivato"].includes(p.stato));
+  const sale=S.cfg.sale;
+  const ord=(a,b)=>String(a.nome).localeCompare(String(b.nome),undefined,{numeric:true});
+  let h=S.tav.length?"":`<div class="warn">La piantina non è ancora stata creata. Aprila dal tablet (sala.html) e premi "Crea i tavoli del Galleon".</div>`;
+  for(const s of sale){ const tv=S.tav.filter(t=>(sale.includes(t.sala)?t.sala:sale[0])===s).sort(ord); if(!tv.length) continue;
+    const occ=tv.filter(t=>att.some(p=>tavDi(p).includes(t.nome)));
+    h+=`<div class="card"><div class="row between"><span class="cond big">${esc(s)}</span><span class="muted">${occ.length} occupati · ${tv.length-occ.length} liberi</span></div>`+
+      tv.map(t=>{const ps=att.filter(p=>tavDi(p).includes(t.nome)); return `<div class="tavrow"><b>${esc(t.nome)}</b><div style="flex:1;text-align:right">${ps.length?ps.map(p=>`${esc(p.ora)} · ${esc(p.nome)} (${esc(p.persone)})${p.stato==="arrivato"?" ✓":""}`).join("<br>"):`<span class="muted">libero · ${esc(t.posti||"")} posti</span>`}</div></div>`;}).join("")+`</div>`; }
+  const senza=att.filter(p=>!tavDi(p).length);
+  if(senza.length) h+=`<div class="card"><div class="cond big">Senza tavolo (${senza.length})</div>${senza.map(p=>`<div class="tavrow"><b>${esc(p.ora)}</b><div style="flex:1;text-align:right">${esc(p.nome)} (${esc(p.persone)})</div></div>`).join("")}</div>`;
+  h+=`<div class="muted">✓ = già arrivati. I tavoli si assegnano dal tablet trascinando i nomi.</div>`;
+  sheet("Sala · "+bello(S.data),h);
+}
+
+/* ---------- dettaglio prenotazione ---------- */
+async function dettaglioPren(p){
+  const c=S.cli.get(p.clienteId); const nome1=(p.nome||"").split(" ")[0];
+  const vars={nome:nome1,giorno:bello(p.data),ora:p.ora,persone:p.persone};
+  const msg=k=>{ wa(p.telefono,fill(S.cfg.msg[k],vars)); evento(p.clienteId,"whatsapp",`Messaggio WhatsApp: ${MSG_NOMI[k]}`); };
+  sheet(p.nome||"Prenotazione",`
+    <div class="card"><div class="big">${esc(bello(p.data))} · ${esc(p.ora)}</div><div class="muted" style="margin-top:4px">${esc(p.persone)} persone${p.sala?" · "+esc(p.sala):""}${p.tavolo?" · tavolo "+esc(p.tavolo):""} · <span class="chip ${(STATI[p.stato]||[""])[0]}">${(STATI[p.stato]||["",p.stato])[1]}</span></div>
+      ${p.telefono?`<div style="margin-top:8px"><a href="tel:+${telNorm(p.telefono)}" style="font-size:18px;font-weight:700">${esc(p.telefono)}</a></div>`:""}</div>
+    <div class="card" style="display:flex;flex-direction:column;gap:8px"><label class="l" for="dNote" style="margin:0">📝 Note della prenotazione</label>
+      <textarea class="f" id="dNote" placeholder="compleanno, bambini, allergie, seggiolone…" style="background:#FFFBEA;font-weight:700">${esc(p.note||"")}</textarea>
+      <button class="btn gold hidden" id="dNoteSave">Salva note</button></div>
+    <button class="card" id="dCli" style="border:0;text-align:left;display:flex;align-items:center;gap:12px;width:100%">
+<span id="dCliIn" style="display:contents">${cliCard(c,p)}</span><span style="font-size:24px" aria-hidden="true">›</span></button>
+    ${["confermata","attesa"].includes(p.stato)?`<button class="btn block" id="bArr" style="min-height:64px;font-size:20px">✓ È arrivato</button>`:""}
+    <div class="grid2"><button class="btn wa" id="bConf">WhatsApp conferma</button><button class="btn wa" id="bBenv">WhatsApp benvenuto</button></div>
+    <button class="btn light block" id="bMod">Modifica prenotazione</button>
+    ${p.stato==="attesa"?`<button class="btn light block" id="bConfm">Conferma il posto</button>`:p.stato==="confermata"?`<button class="btn light block" id="bAtt">Metti in lista d'attesa</button>`:`<button class="btn light block" id="bRip">Rimetti tra le prenotazioni</button>`}
+    ${["confermata","attesa","arrivato"].includes(p.stato)?`<div class="grid2"><button class="btn light" id="bNs">Non è venuto</button><button class="btn red" id="bRif">Rifiuta</button></div><button class="btn red block" id="bAnn">Annulla prenotazione</button>`:""}`);
+  if(p.clienteId&&!S.cli.has(p.clienteId)) getCliente(p.clienteId).then(cc=>{ const el=document.getElementById("dCliIn"); if(el) el.innerHTML=cliCard(cc,p); });
+  $("#bConf").onclick=()=>msg("conferma"); $("#bBenv").onclick=()=>msg("benvenuto");
+  $("#bMod").onclick=()=>formPrenotazione(p);
+  $("#dCli").onclick=()=>{ if(p.clienteId) schedaCliente(p.clienteId); else toast("Cliente senza telefono: non è nell'elenco"); };
+  $("#dNote").addEventListener("input",()=>$("#dNoteSave").classList.toggle("hidden",$("#dNote").value.trim()===(p.note||"").trim()));
+  $("#dNoteSave").onclick=async()=>{ const n=$("#dNote").value.trim(); try{ await updateDoc(doc(db,"prenotazioni",p.id),{note:n,aggiornatoIl:serverTimestamp(),aggiornatoDa:S.me.nome||""}); p.note=n; $("#dNoteSave").classList.add("hidden"); toast("Note salvate ✓"); }catch(e){ toast("Errore: "+e.code); } };
+  const cambia=async(s,testo,k)=>{ await stato(p,s); if(testo) evento(p.clienteId,s,testo); if(k&&confirm("Vuoi avvisare il cliente su WhatsApp?")) msg(k); closeSheet(); };
+  if($("#bArr")) $("#bArr").onclick=async()=>{ await stato(p,"arrivato"); if(p.clienteId){ await setDoc(doc(db,"clienti",p.clienteId),{presenze:increment(1),ultimaPresenza:iso(new Date())},{merge:true}); S.cli.delete(p.clienteId); }
+    evento(p.clienteId,"arrivo",`Arrivato · ${p.persone} persone`); if(confirm("Mandare il benvenuto su WhatsApp?")) msg("benvenuto"); closeSheet(); };
+  if($("#bAtt")) $("#bAtt").onclick=()=>cambia("attesa","Messo in lista d'attesa");
+  if($("#bConfm")) $("#bConfm").onclick=()=>cambia("confermata","Posto confermato","conferma");
+  if($("#bRip")) $("#bRip").onclick=()=>cambia("confermata","Prenotazione ripristinata");
+  if($("#bNs")) $("#bNs").onclick=()=>{ if(confirm("Segnare che non è venuto?")) cambia("noshow","Non si è presentato"); };
+  if($("#bRif")) $("#bRif").onclick=()=>{ if(confirm("Rifiutare questa prenotazione?")) cambia("rifiutata","Prenotazione rifiutata","rifiutata"); };
+  if($("#bAnn")) $("#bAnn").onclick=()=>{ if(confirm("Annullare questa prenotazione?")) cambia("annullata","Prenotazione annullata","annullata"); };
+}
+function cliCard(c,p){ return `<span>${p.clienteId&&!S.cli.has(p.clienteId)?'<span class="muted">…</span>':badge(c)}</span><span style="flex:1"><span style="font-weight:700;display:block">${esc(c?[c.nome,c.cognome].filter(Boolean).join(" "):p.nome||"")}</span><span class="muted">${c?`${c.presenze||0} visite · ${c.puntiFidelity||0} punti${c.ultimaPresenza?" · ultima "+corto(c.ultimaPresenza):""}`:(p.clienteId&&!S.cli.has(p.clienteId)?"caricamento…":"Cliente nuovo")} · apri anagrafica</span></span>`; }
+async function stato(p,s){ try{ await updateDoc(doc(db,"prenotazioni",p.id),{stato:s,aggiornatoIl:serverTimestamp(),aggiornatoDa:S.me.nome||""}); toast("Fatto ✓"); }catch(e){ toast("Errore: "+e.code); } }
+async function evento(clienteId,tipo,testo,extra={}){ if(!clienteId) return; try{ await addDoc(collection(db,"clienti",clienteId,"eventi"),{tipo,testo,quando:serverTimestamp(),da:S.me.nome||"",...extra}); }catch(e){} }
+
+/* ---------- nuova / modifica prenotazione ---------- */
+async function formPrenotazione(p=null,cli=null){
+  const e=p||{data:S.data,turno:"cena",ora:"",persone:2,sala:"",tavolo:"",note:"",telefono:cli?.telefono||"",nome:cli?[cli.nome,cli.cognome].filter(Boolean).join(" "):"",nomeSolo:cli?.nome,cognomeSolo:cli?.cognome,email:cli?.email||"",stato:"confermata"};
+  const tavoli=S.tav.map(t=>t.nome).sort((a,b)=>String(a).localeCompare(String(b),undefined,{numeric:true}));
+  sheet(p?"Modifica prenotazione":"Nuova prenotazione",`
+    <div class="muted">Scrivi in uno dei campi con la lente: compaiono i clienti già presenti. Se non c'è, compila i campi e verrà aggiunto.</div>
+    <div class="grid2"><div><label class="l" for="fN">Nome</label><input class="f lens" id="fN" value="${esc(e.nomeSolo??e.nome.split(" ")[0]??"")}" autocomplete="off"></div>
+      <div><label class="l" for="fC">Cognome</label><input class="f lens" id="fC" value="${esc(e.cognomeSolo??e.nome.split(" ").slice(1).join(" "))}" autocomplete="off"></div></div>
+    <div><label class="l" for="fTel">Telefono</label><input class="f lens" id="fTel" type="tel" inputmode="tel" value="${esc(e.telefono)}" placeholder="333 123 4567" autocomplete="off"></div>
+    <div id="fRis"></div><div id="fCliInfo" class="muted"></div>
+    <div><label class="l" for="fMail">Email (facoltativa)</label><input class="f" id="fMail" type="email" inputmode="email" value="${esc(e.email||"")}" autocomplete="off"></div>
+    <div class="grid2"><div><label class="l" for="fData">Giorno</label><input class="f" id="fData" type="date" value="${esc(e.data)}"></div>
+      <div><span class="l">Persone</span><div class="stepper"><button type="button" id="pMeno" aria-label="Meno">−</button><input id="pN" type="number" inputmode="numeric" min="1" max="200" value="${esc(e.persone)}" aria-label="Numero di persone" style="width:70px;border:0;text-align:center;font-size:22px;font-weight:700;background:transparent;color:var(--txt)"><button type="button" id="pPiu" aria-label="Più">+</button></div></div></div>
+    <div><span class="l">Orario</span><div class="slots" id="fSlots"></div><input class="f" id="fOraAltro" placeholder="Altro orario (es. 20:15)" style="margin-top:8px"></div>
+    <div class="grid2"><div><label class="l" for="fSala">Sala</label><select class="f" id="fSala"><option value="">— nessuna —</option>${S.cfg.sale.map(s=>`<option ${s===e.sala?"selected":""}>${esc(s)}</option>`).join("")}</select></div>
+      <div><label class="l" for="fTav">Tavolo</label><select class="f" id="fTav"><option value="">dal tablet</option>${tavoli.map(t=>`<option ${t===e.tavolo?"selected":""}>${esc(t)}</option>`).join("")}</select></div></div>
+    <div><label class="l" for="fNote">Note (compleanno, bambini, allergie…)</label><textarea class="f" id="fNote">${esc(e.note)}</textarea></div>
+    <label class="row" style="gap:12px;font-weight:600"><input type="checkbox" id="fAtt" ${e.stato==="attesa"?"checked":""} style="width:26px;height:26px"> Metti in lista d'attesa</label>
+    ${!p?`<div class="card" style="display:flex;flex-direction:column;gap:10px"><label class="row" style="gap:12px;font-weight:700"><input type="checkbox" id="fWa" checked style="width:26px;height:26px"> Manda conferma su WhatsApp</label><div id="fPrev" style="background:var(--greenbg);border-radius:4px 14px 14px 14px;padding:10px 12px;font-size:15px"></div></div>`:""}
+    <button class="btn gold block" id="fSave" style="min-height:60px;font-size:19px">${p?"Salva modifiche":"Salva prenotazione"}</button>`);
+  let ora=e.ora, persone=+e.persone||2, cliente=null; let lastR=[];
+  const occ=async()=>{const s=await getDocs(query(collection(db,"prenotazioni"),where("data","==",$("#fData").value)));const m={};s.docs.forEach(d=>{const x=d.data();if(["confermata","arrivato"].includes(x.stato)&&d.id!==p?.id)m[x.ora]=(m[x.ora]||0)+(+x.persone||0);});return m;};
+  const drawSlots=async()=>{const m=await occ().catch(()=>({}));const tot=Object.values(m).reduce((a,b)=>a+b,0);const cap=S.cfg.coperti.cena||80;
+    $("#fSlots").innerHTML=S.cfg.orari.cena.map(o=>`<button type="button" class="slot ${o===ora?"on":""}" data-or="${o}">${o}<small>${m[o]?m[o]+" pers.":"libero"}</small></button>`).join("");
+    document.querySelectorAll("[data-or]").forEach(b=>b.onclick=()=>{ora=b.dataset.or;$("#fOraAltro").value="";drawSlots();prev();});
+    $("#fFull")?.remove(); if(tot>=cap)$("#fSlots").insertAdjacentHTML("afterend",`<div class="warn" style="margin-top:8px" id="fFull">Serata piena (${tot}/${cap}): valuta la lista d'attesa.</div>`);};
+  const prev=()=>{if($("#fPrev"))$("#fPrev").textContent=fill(S.cfg.msg.conferma,{nome:$("#fN").value.trim(),giorno:bello($("#fData").value),ora:$("#fOraAltro").value||ora||"--:--",persone});};
+  const info=async()=>{const t=telNorm($("#fTel").value);$("#fCliInfo").innerHTML="";cliente=null;if(t.length<10)return;
+    const c=await getCliente("t"+t); if(c){cliente=c;const gg=giorniFa(c.ultimaPresenza);$("#fCliInfo").innerHTML=`${badge(c)} <span style="color:var(--blue);font-weight:700">Cliente già presente</span> · ${c.presenze||0} visite · ${c.puntiFidelity||0} punti${gg!==null?` · ultima visita ${gg} giorni fa`:""}`;if(!$("#fN").value)$("#fN").value=c.nome||"";if(!$("#fC").value)$("#fC").value=c.cognome||"";if(!$("#fMail").value&&c.email)$("#fMail").value=c.email;prev();}
+    else $("#fCliInfo").textContent="Cliente nuovo: verrà aggiunto all'elenco clienti.";};
+  const cerca=async()=>{const q=[$("#fN").value,$("#fC").value,$("#fTel").value.replace(/\D/g,"").replace(/^(00)?39(?=3)/,"")].filter(x=>x.trim()).join(" ");if(q.trim().length<2||cliente){$("#fRis").innerHTML="";return;}const tutti=await trova(q); const r=tutti.slice(0,50); lastR=r;
+    $("#fRis").innerHTML=r.length?`<div class="muted" style="margin-bottom:4px">${tutti.length} clienti trovati: tocca per sceglierlo${tutti.length>50?" (scrivi anche il cognome per restringere)":""}</div><div class="card list" style="max-height:320px;overflow-y:auto;-webkit-overflow-scrolling:touch">${r.map(x=>`<button type="button" class="li" data-pick="${x.id}"><span><b>${esc(x.nome)}</b> <span class="muted">${esc(x.tel)}</span></span><span>›</span></button>`).join("")}</div>`:"";
+    document.querySelectorAll("[data-pick]").forEach(b=>b.onclick=async()=>{const x=lastR.find(y=>y.id===b.dataset.pick);const c=await getCliente(x.id);$("#fTel").value=x.tel||"";$("#fN").value=c?.nome||(x.nome||"").split(" ")[0];$("#fC").value=c?.cognome||(x.nome||"").split(" ").slice(1).join(" ");if(c?.email)$("#fMail").value=c.email;$("#fRis").innerHTML="";info();});};
+  ["#fN","#fC"].forEach(s=>$(s).addEventListener("input",()=>{cliente=null;$("#fCliInfo").innerHTML="";cerca();prev();}));
+  $("#fTel").addEventListener("input",()=>{info();cerca();});$("#fData").addEventListener("change",()=>{drawSlots();prev();});
+  $("#fOraAltro").addEventListener("input",()=>{ora="";drawSlots();prev();});
+  $("#pMeno").onclick=()=>{persone=Math.max(1,persone-1);$("#pN").value=persone;prev();};
+  $("#pPiu").onclick=()=>{persone++;$("#pN").value=persone;prev();};
+  $("#pN").addEventListener("input",()=>{const v=parseInt($("#pN").value,10);if(v>0){persone=v;prev();}});
+  $("#pN").addEventListener("focus",()=>$("#pN").select());
+  $("#pN").addEventListener("blur",()=>{if(!(parseInt($("#pN").value,10)>0))$("#pN").value=persone;});
+  $("#fTav").onchange=()=>{const t=S.tav.find(x=>x.nome===$("#fTav").value);if(t&&t.sala)$("#fSala").value=t.sala;};
+  drawSlots();prev();if(e.telefono)info();
+  $("#fSave").onclick=async()=>{
+    const nN=$("#fN").value.trim(),nC=$("#fC").value.trim(),mail=$("#fMail").value.trim().toLowerCase(),nome=[nN,nC].filter(Boolean).join(" "),tel=$("#fTel").value.trim(),oraF=$("#fOraAltro").value.trim()||ora;
+    if(!nN){toast("Scrivi il nome");return;} if(!telNorm(tel)&&!p){ if(!confirm("Manca il telefono: il cliente non riceverà WhatsApp e non verrà salvato nell'elenco. Continuare?")) return; } if(!oraF){toast("Scegli l'orario");return;}
+    const t=telNorm(tel), clienteId=t?"t"+t:(p?.clienteId||null), tav=$("#fTav").value;
+    const dati={nome,email:mail,telefono:t?"+"+t:tel,clienteId,data:$("#fData").value,turno:"cena",ora:oraF,persone,sala:$("#fSala").value,tavolo:tav,tavoli:tav?[tav]:(p?.tavoli||[]),note:$("#fNote").value.trim(),
+      stato:$("#fAtt").checked?"attesa":(p&&p.stato!=="attesa"?p.stato:"confermata"),aggiornatoIl:serverTimestamp(),aggiornatoDa:S.me.nome||""};
+    if(!tav&&p) dati.tavoli=p.tavoli||[];
+    $("#fSave").disabled=true;
+    try{
+      if(p){ await updateDoc(doc(db,"prenotazioni",p.id),dati); evento(clienteId,"prenotazione",`Prenotazione modificata: ${bello(dati.data)} ${dati.ora}`); }
+      else{ await addDoc(collection(db,"prenotazioni"),{...dati,creatoIl:serverTimestamp(),creatoDa:S.me.nome||"",canale:"staff"});
+        if(clienteId&&cliente&&mail&&!cliente.email) setDoc(doc(db,"clienti",clienteId),{email:mail},{merge:true}).catch(()=>{});
+        if(clienteId&&!cliente){ await setDoc(doc(db,"clienti",clienteId),{nome:nN,cognome:nC,email:mail||null,telefono:"+"+t,presenze:0,puntiFidelity:0,dataRegistrazione:iso(new Date()),provenienza:"prenotazione",origine:"penelope",consensi:{privacy:true,marketing:false,profilazione:false,fonte:"prenotazione staff",dataConsenso:iso(new Date())}},{merge:true});
+          const riga=`${clienteId}|${nome}|+${t}`; setDoc(doc(db,"indice","nuovi"),{nuovi:arrayUnion(riga)},{merge:true}).catch(()=>{}); S.idx?.push({id:clienteId,nome,tel:"+"+t,k:norm(nome)+" "+t}); }
+        evento(clienteId,"prenotazione",`Prenotazione per ${bello(dati.data)} alle ${dati.ora}, ${persone} persone`);
+        if($("#fWa")?.checked){ wa(t,$("#fPrev").textContent); evento(clienteId,"whatsapp","Messaggio WhatsApp: Conferma prenotazione"); } }
+      S.data=dati.data; S.filtro=dati.stato==="attesa"?"attesa":"attese"; S.cli.delete(clienteId);
+      toast("Prenotazione salvata ✓"); closeSheet(); if(!EMBED) setTimeout(()=>{ if(S.tab==="agenda") viewAgenda(); else go("agenda"); },150);
+    }catch(err){ toast("Errore: "+err.code); $("#fSave").disabled=false; }
+  };
+}
+
+/* ---------- CLIENTI ---------- */
+function viewClienti(){ const b=boxRicerca(id=>schedaCliente(id),"Cerca nome, cognome o telefono");
+  $("#hdr").innerHTML=`<div class="brand">PENELOPE · THE GALLEON</div><div class="h1">Clienti</div><div style="margin-top:10px">${b.html}</div>`; b.bind(); }
+async function schedaCliente(id){
+  const c=await getCliente(id); if(!c){toast("Cliente non ancora disponibile (import in corso?)");return;}
+  const nome=[c.nome,c.cognome].filter(Boolean).join(" ")||"Cliente", gg=giorniFa(c.ultimaPresenza);
+  sheet(nome,`
+    <div class="card" style="background:var(--navy);color:#fff"><div class="row between"><span style="color:#AEB8C8">${esc(c.telefono||"")}${c.email?" · "+esc(c.email):""}</span><span>${badge(c)}</span></div>
+      <div class="row" style="align-items:baseline;gap:8px;margin-top:8px"><span class="pts">${c.puntiFidelity||0}</span><span style="color:var(--gold);font-weight:700">punti</span></div>
+      <div style="margin-top:6px;color:#D5DBE5">${c.presenze||0} visite · ultima ${c.ultimaPresenza?corto(c.ultimaPresenza)+(gg!==null?` (${gg} gg fa)`:""):"—"}${c.dataNascita?" · nato/a il "+corto(c.dataNascita):""}</div></div>
+    <div class="grid2"><button class="btn gold" id="sPunti">Carica punti</button><button class="btn" id="sPren">Nuova prenotazione</button></div>
+    <div class="grid2"><a class="btn wa" style="display:flex;align-items:center;justify-content:center;text-decoration:none" href="https://wa.me/${telNorm(c.telefono)}" target="_blank" rel="noopener">WhatsApp</a><a class="btn light" style="display:flex;align-items:center;justify-content:center;text-decoration:none" href="tel:+${telNorm(c.telefono)}">Chiama</a></div>
+    <button class="btn light block" id="sEdit">✎ Modifica dati del cliente</button>
+    <div class="card"><div class="cond big">Consensi</div><div class="muted" style="margin-top:4px">Marketing: <b>${c.consensi?.marketing?"sì":"no"}</b> · Profilazione: <b>${c.consensi?.profilazione?"sì":"no"}</b> · Fonte: ${esc(c.consensi?.fonte||"—")}</div></div>
+    ${(c.tags||[]).length?`<div class="card"><div class="cond big">Tag</div><div style="margin-top:6px">${c.tags.slice(0,40).map(t=>`<span class="tag">${esc(t)}</span>`).join("")}</div></div>`:""}
+    ${c.note?`<div class="card">📝 ${esc(c.note)}</div>`:""}
+    <div class="card"><div class="cond big">Storico</div><div class="tl" id="sTl" style="margin-top:10px"><div class="muted">Caricamento…</div></div></div>`);
+  $("#sPunti").onclick=()=>caricaPunti(c); $("#sPren").onclick=()=>formPrenotazione(null,c); $("#sEdit").onclick=()=>modificaCliente(c);
+  try{ const ev=await getDocs(query(collection(db,"clienti",id,"eventi"),orderBy("quando","desc"),limit(40)));
+    const it=ev.docs.map(x=>{const v=x.data();return{t:v.quando?.toDate?.()||new Date(),txt:v.testo,da:v.da};});
+    $("#sTl").innerHTML=it.length?it.map(i=>`<div><div style="font-weight:600">${esc(i.txt)}</div><div class="muted">${i.t.toLocaleDateString("it-IT")} ${i.t.toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"})}${i.da?" · "+esc(i.da):""}</div></div>`).join("")
+      :`<div class="muted">Nessuna azione ancora registrata in Penelope. Da Pienissimo: ${c.presenze||0} visite, registrato il ${corto(c.dataRegistrazione)}, provenienza ${esc(c.provenienza||"—")}.</div>`;
+  }catch(e){ $("#sTl").innerHTML=`<div class="muted">Storico non disponibile.</div>`; }
+}
+
+function modificaCliente(c){
+  sheet("Modifica cliente",`<div class="grid2"><div><label class="l" for="mN">Nome</label><input class="f" id="mN" value="${esc(c.nome||"")}"></div><div><label class="l" for="mC">Cognome</label><input class="f" id="mC" value="${esc(c.cognome||"")}"></div></div>
+    <div><label class="l">Telefono</label><input class="f" value="${esc(c.telefono||"")}" disabled><div class="muted" style="margin-top:4px">Il telefono identifica il cliente e non si cambia da qui.</div></div>
+    <div><label class="l" for="mE">Email</label><input class="f" id="mE" type="email" value="${esc(c.email||"")}"></div>
+    <div><label class="l" for="mD">Data di nascita</label><input class="f" id="mD" type="date" value="${esc(c.dataNascita||"")}"></div>
+    <div><label class="l" for="mNo">Note sul cliente (valgono per tutte le visite)</label><textarea class="f" id="mNo" placeholder="allergie, preferenze, tavolo preferito…">${esc(c.note||"")}</textarea></div>
+    <label class="row" style="gap:12px;font-weight:600"><input type="checkbox" id="mVip" ${(c.tags||[]).includes("VIP")?"checked":""} style="width:26px;height:26px"> Cliente VIP</label>
+    <button class="btn gold block" id="mSave">Salva</button>`);
+  $("#mSave").onclick=async()=>{ let tags=(c.tags||[]).filter(t=>t!=="VIP"); if($("#mVip").checked) tags.push("VIP");
+    const d={nome:$("#mN").value.trim(),cognome:$("#mC").value.trim(),email:$("#mE").value.trim().toLowerCase()||null,dataNascita:$("#mD").value||null,note:$("#mNo").value.trim(),tags};
+    try{ await setDoc(doc(db,"clienti",c.id),d,{merge:true}); evento(c.id,"anagrafica","Dati del cliente modificati"); S.cli.delete(c.id); toast("Salvato ✓"); closeSheet(); }catch(e){ toast("Errore: "+e.code); } };
+}
+
+/* ---------- FIDELITY ---------- */
+function viewFidelity(){ const b=boxRicerca(async id=>{const c=await getCliente(id); if(c) caricaPunti(c); else toast("Cliente non ancora disponibile");},"Cerca il cliente: nome, cognome o telefono");
+  $("#hdr").innerHTML=`<div class="brand">PENELOPE · THE GALLEON</div><div class="h1">Fidelity</div><div style="margin-top:10px">${b.html}</div>`; b.bind(); }
+function caricaPunti(c){
+  const nome=[c.nome,c.cognome].filter(Boolean).join(" ")||"Cliente", ppe=S.cfg.punti_per_euro||1, premi=(S.cfg.premi||[]).slice().sort((a,b)=>a.punti-b.punti);
+  sheet("Fidelity · "+nome,`
+    <div class="card" style="background:var(--navy);color:#fff"><div class="row" style="align-items:baseline;gap:8px"><span class="pts" id="kPts">${c.puntiFidelity||0}</span><span style="color:var(--gold);font-weight:700">punti</span></div><div id="kNext" style="color:#D5DBE5;margin-top:6px"></div></div>
+    <div class="card" style="display:flex;flex-direction:column;gap:12px"><label class="l" for="kImp" style="margin:0;font-size:16px">Importo dello scontrino (€)</label>
+      <div class="row"><input class="f" id="kImp" type="number" inputmode="decimal" min="0" step="0.5" placeholder="0" style="font-size:26px;font-weight:700"><div style="text-align:right;min-width:80px"><div class="big" style="color:var(--blue)" id="kPiu">+0</div><div class="muted">punti</div></div></div>
+      <label class="row" style="gap:12px;font-weight:600"><input type="checkbox" id="kWa" checked style="width:26px;height:26px"> Manda il saldo su WhatsApp</label>
+      <button class="btn gold block" id="kGo" style="min-height:60px;font-size:19px" disabled>Carica punti</button></div>
+    <div class="card"><div class="cond big">Premi</div><div class="list" id="kPremi" style="margin-top:6px"></div></div>`);
+  let saldo=c.puntiFidelity||0;
+  const drawP=()=>{$("#kPts").textContent=saldo;const nx=premi.find(p=>p.punti>saldo);$("#kNext").textContent=nx?`Mancano ${nx.punti-saldo} punti per: ${nx.nome}`:"Ha raggiunto tutti i premi!";
+    $("#kPremi").innerHTML=premi.map((p,i)=>`<div class="li"><span><b>${p.punti} pt</b> · ${esc(p.nome)}</span>${saldo>=p.punti?`<button class="btn" style="min-height:44px" data-r="${i}">Riscatta</button>`:`<span class="muted">−${p.punti-saldo}</span>`}</div>`).join("");
+    document.querySelectorAll("[data-r]").forEach(b=>b.onclick=()=>muovi(-premi[+b.dataset.r].punti,`Premio riscattato: ${premi[+b.dataset.r].nome}`));};
+  drawP();
+  $("#kImp").addEventListener("input",()=>{const n=Math.floor((parseFloat($("#kImp").value)||0)*ppe);$("#kPiu").textContent="+"+n;$("#kGo").disabled=n<=0;$("#kGo").textContent=n>0?`Carica ${n} punti`:"Carica punti";});
+  const muovi=async(delta,testo)=>{ if(delta<0&&!confirm(testo+"?"))return;
+    try{ const nuovo=await runTransaction(db,async tx=>{const r=doc(db,"clienti",c.id);const s=await tx.get(r);const v=(s.data()?.puntiFidelity||0)+delta;if(v<0)throw new Error("Punti insufficienti");tx.update(r,{puntiFidelity:v,iscrittoFidelity:true});return v;});
+      saldo=nuovo; S.cli.delete(c.id); drawP(); evento(c.id,"fidelity",`${testo} · saldo ${nuovo}`,{punti:delta}); toast("Fatto ✓ Nuovo saldo: "+nuovo);
+      if(delta>0){$("#kImp").value="";$("#kImp").dispatchEvent(new Event("input"));if($("#kWa").checked)wa(c.telefono,fill(S.cfg.msg.saldo,{nome:c.nome||"",punti:nuovo}));}
+    }catch(e){toast("Errore: "+(e.code||e.message));} };
+  $("#kGo").onclick=()=>{const imp=parseFloat($("#kImp").value)||0,n=Math.floor(imp*ppe);if(n>0)muovi(n,`Caricati ${n} punti (scontrino ${imp.toFixed(2)} €)`);};
+  setTimeout(()=>$("#kImp").focus(),200);
+}
+
+/* ---------- ELENCHI e IMPOSTAZIONI ---------- */
+function viewAltro(){
+  $("#hdr").innerHTML=`<div class="brand">PENELOPE · THE GALLEON</div><div class="h1">Elenchi</div>`;
+  const E=[["inattivi60","Non vengono da più di 60 giorni"],["inattivi90","Non vengono da più di 90 giorni"],["assidui","I clienti più assidui"],["punti","Più punti fidelity"]];
+  $("#main").innerHTML=`<div class="card list">${E.map(([k,t])=>`<button class="li" data-e="${k}"><span style="font-weight:700">${t}</span><span aria-hidden="true">›</span></button>`).join("")}</div>
+    ${S.me.ruolo==="admin"?`<div class="cond big" style="margin-top:6px">Impostazioni</div><div class="card list"><button class="li" id="iMsg"><span style="font-weight:700">Messaggi WhatsApp</span><span>›</span></button><button class="li" id="iLoc"><span style="font-weight:700">Nome del locale e coperti</span><span>›</span></button></div>`:""}
+    <button class="btn light block" id="eOut">Esci dall'account</button>`;
+  document.querySelectorAll("[data-e]").forEach(b=>b.onclick=()=>elenco(b.dataset.e,b.textContent.replace("›","").trim()));
+  if($("#iMsg")) $("#iMsg").onclick=editMessaggi; if($("#iLoc")) $("#iLoc").onclick=editLocale;
+  $("#eOut").onclick=()=>{if(confirm("Vuoi uscire?"))signOut(auth);};
+}
+async function elenco(k,titolo){
+  const d=n=>{const x=new Date();x.setDate(x.getDate()-n);return iso(x);};
+  sheet(titolo,`<div class="muted" id="elT">Caricamento…</div>`);
+  try{ let q;
+    if(k==="inattivi60")q=query(collection(db,"clienti"),where("ultimaPresenza","<=",d(60)),where("ultimaPresenza",">=",d(365)),orderBy("ultimaPresenza","desc"),limit(100));
+    if(k==="inattivi90")q=query(collection(db,"clienti"),where("ultimaPresenza","<=",d(90)),where("ultimaPresenza",">=",d(365)),orderBy("ultimaPresenza","desc"),limit(100));
+    if(k==="assidui")q=query(collection(db,"clienti"),orderBy("presenze","desc"),limit(100));
+    if(k==="punti")q=query(collection(db,"clienti"),orderBy("puntiFidelity","desc"),limit(100));
+    const list=(await getDocs(q)).docs.map(x=>({id:x.id,...x.data()}));
+    $("#elT").outerHTML=list.length?`<div class="card list">${list.map(c=>`<button class="li" data-c="${c.id}"><div><div style="font-weight:700">${esc([c.nome,c.cognome].filter(Boolean).join(" ")||"—")} ${badge(c)}</div><div class="muted">${esc(c.telefono||"")}</div></div><div style="text-align:right"><div style="font-weight:700">${k==="punti"?(c.puntiFidelity||0)+" pt":(c.presenze||0)+" visite"}</div><div class="muted">${c.ultimaPresenza?corto(c.ultimaPresenza):""}</div></div></button>`).join("")}</div>`:`<div class="card muted">Nessun cliente.</div>`;
+    document.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>schedaCliente(b.dataset.c));
+  }catch(e){ $("#elT").outerHTML=`<div class="warn">Elenco non disponibile (${esc(e.code)}).</div>`; }
+}
+function editMessaggi(){
+  sheet("Messaggi WhatsApp",`<div class="muted">Puoi usare: <b>{nome}</b> <b>{locale}</b> <b>{giorno}</b> <b>{ora}</b> <b>{persone}</b> <b>{punti}</b>. Vengono sostituiti in automatico.</div>
+    ${Object.keys(MSG_NOMI).map(k=>`<div><label class="l" for="m_${k}">${MSG_NOMI[k]}</label><textarea class="f" id="m_${k}">${esc(S.cfg.msg[k])}</textarea></div>`).join("")}
+    <button class="btn gold block" id="mSave">Salva messaggi</button><button class="btn light block" id="mReset">Ripristina i testi iniziali</button>`);
+  $("#mSave").onclick=async()=>{const m={};Object.keys(MSG_NOMI).forEach(k=>m[k]=$("#m_"+k).value.trim()||CFG_DEF.msg[k]);
+    try{await setDoc(doc(db,"impostazioni","locale"),{msg:m},{merge:true});S.cfg.msg=m;toast("Messaggi salvati ✓");closeSheet();}catch(e){toast("Errore: "+e.code);}};
+  $("#mReset").onclick=()=>{Object.keys(MSG_NOMI).forEach(k=>$("#m_"+k).value=CFG_DEF.msg[k]);};
+}
+function editLocale(){
+  sheet("Nome e coperti",`<div><label class="l" for="lNome">Nome del locale (usato nei messaggi)</label><input class="f" id="lNome" value="${esc(S.cfg.nomeLocale)}"></div>
+    <div><label class="l" for="lCop">Coperti massimi della serata (0 = somma dei posti dei tavoli)</label><input class="f" id="lCop" type="number" min="0" value="${esc(S.cfg.coperti.cena||0)}"></div>
+    <div><label class="l" for="lOr">Orari proposti (separati da virgola)</label><input class="f" id="lOr" value="${esc(S.cfg.orari.cena.join(", "))}"></div>
+    <button class="btn gold block" id="lSave">Salva</button>`);
+  $("#lSave").onclick=async()=>{const nome=$("#lNome").value.trim()||CFG_DEF.nomeLocale,cop=+$("#lCop").value||0,or=$("#lOr").value.split(",").map(x=>x.trim()).filter(x=>/^\d{1,2}:\d{2}$/.test(x));
+    try{await setDoc(doc(db,"impostazioni","locale"),{nomeLocale:nome,coperti:{cena:cop},orari:{cena:or.length?or:CFG_DEF.orari.cena}},{merge:true});
+      S.cfg.nomeLocale=nome;S.cfg.orari={cena:or.length?or:CFG_DEF.orari.cena};S.cfg.coperti={cena:cop||S.tav.reduce((t,x)=>t+(+x.posti||0),0)||80};toast("Salvato ✓");closeSheet();}catch(e){toast("Errore: "+e.code);}};
+}
+</script>
+</body>
+</html>

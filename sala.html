@@ -148,7 +148,7 @@ onAuthStateChanged(auth,async u=>{
 });
 function ascolta(){ if(S.u2)S.u2(); S.u2=onSnapshot(query(collection(db,"prenotazioni"),where("data","==",S.data)),s=>{S.pren=s.docs.map(d=>({id:d.id,...d.data()})).filter(p=>["confermata","arrivato","attesa"].includes(p.stato)).sort((a,b)=>(a.ora||"").localeCompare(b.ora||""));draw();},e=>toast("Errore prenotazioni: "+e.code)); }
 const shift=n=>{const d=new Date(S.data+"T12:00:00");d.setDate(d.getDate()+n);S.data=iso(d);ascolta();draw();};
-$("#nuova").onclick=()=>apri(`index.html?embed=1&nuova=1&data=${S.data}`);
+$("#nuova").onclick=()=>apri(`classica.html?embed=1&nuova=1&data=${S.data}`);
 $("#prev").onclick=()=>shift(-1); $("#next").onclick=()=>shift(1); $("#oggi").onclick=()=>{S.data=iso(new Date());ascolta();draw();};
 $("#edit").onclick=()=>{S.edit=!S.edit; $("#edit").textContent=S.edit?"✓ Fine modifica":"✎ Modifica sala";draw();};
 const fsOn=()=>{ const d=document.documentElement; if(!document.fullscreenElement&&d.requestFullscreen) d.requestFullscreen({navigationUI:"hide"}).catch(()=>{}); };
@@ -216,7 +216,7 @@ function dragBooking(el,p){ if(!p) return;
 async function setTav(p,arr,sala){ try{ await updateDoc(doc(db,"prenotazioni",p.id),{tavoli:arr,tavolo:arr.join(" + "),sala:sala??p.sala??"",aggiornatoIl:serverTimestamp(),aggiornatoDa:S.me.nome||""}); }catch(e){toast("Errore: "+e.code);} }
 
 /* ---- scheda completa (la stessa dell'app del telefono) ---- */
-function apriScheda(p){ apri(`index.html?embed=1&pren=${encodeURIComponent(p.id)}`); }
+function apriScheda(p){ apri(`classica.html?embed=1&pren=${encodeURIComponent(p.id)}`); }
 function apri(url){ $("#embed")?.remove(); const w=document.createElement("div"); w.id="embed";
   w.innerHTML=`<iframe src="${url}" title="Penelope"></iframe>`; w.onclick=e=>{ if(e.target===w) w.remove(); }; document.body.appendChild(w); }
 
