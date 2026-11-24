@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Prenota un tavolo · The Galleon Pub & Pizzeria</title><meta name="theme-color" content="#14233A"><link rel="icon" href="icona-192.png">
+<meta name="description" content="Prenota il tuo tavolo al The Galleon Pub & Pizzeria di Marsciano.">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--blu:#2F6BEB;--navy:#14233A;--gold:#D9C08A;--line:#E6E8EC;--txt:#1F2430;--mute:#6B7280;--verde:#2EAD4B;--rosso:#E5484D}
+*{box-sizing:border-box}html,body{margin:0;background:#F4F5F7;color:var(--txt);font-family:Nunito,system-ui,sans-serif;font-size:16px}
+button,input,textarea{font-family:inherit;font-size:16px;color:inherit}button{cursor:pointer;border:0;background:none}
+header{background:var(--navy);color:#fff;text-align:center;padding:26px 16px 22px}
+header small{color:var(--gold);letter-spacing:2px;font-weight:800;font-size:12px}header h1{margin:4px 0 2px;font-size:26px}header p{margin:0;color:#C7D0DD}
+main{max-width:560px;margin:-12px auto 0;padding:0 12px 40px}
+.card{background:#fff;border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+h2{font-size:17px;margin:0 0 12px}
+.chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}.chips::-webkit-scrollbar{display:none}
+.wrap{flex-wrap:wrap;overflow:visible}
+.ch{flex:0 0 auto;min-width:46px;padding:10px 14px;border-radius:12px;background:#EEF0F4;font-weight:700;text-align:center}
+.ch.on{background:var(--blu);color:#fff}
+.dc{flex:0 0 58px;height:66px;border-radius:12px;background:#EEF0F4;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.15;font-size:12px}
+.dc b{font-size:21px}.dc.on{background:var(--blu);color:#fff}
+label.l{display:block;font-weight:700;font-size:14px;margin:12px 0 6px}
+input.f,textarea.f{width:100%;border:1px solid var(--line);border-radius:10px;padding:13px;background:#fff}
+textarea.f{min-height:80px;resize:vertical}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tel{display:flex;gap:8px}.tel span{display:flex;align-items:center;padding:0 12px;border:1px solid var(--line);border-radius:10px;white-space:nowrap}
+.chk{display:flex;gap:10px;align-items:flex-start;margin:12px 0;font-size:14px}.chk input{width:22px;height:22px;flex:0 0 22px;margin:0}
+.go{width:100%;background:var(--verde);color:#fff;font-weight:800;font-size:18px;border-radius:14px;padding:16px;margin-top:6px}
+.go:disabled{opacity:.5}
+.err{color:var(--rosso);font-weight:700;margin-top:10px;text-align:center}
+.ok{text-align:center;padding:30px 16px}.ok .big{font-size:54px}
+.riep{background:#F4F7FF;border-radius:12px;padding:12px;margin-top:12px;font-weight:700;text-align:center}
+.muted{color:var(--mute);font-size:13px}
+</style>
+</head>
+<body>
+<header><small>THE GALLEON</small><h1>Prenota il tuo tavolo</h1><p>Pub &amp; Pizzeria · Marsciano</p></header>
+<main id="m">
+ <div class="card"><h2>Quante persone?</h2><div class="chips wrap" id="pax"></div></div>
+ <div class="card"><h2>Che giorno?</h2><div class="chips" id="giorni"></div></div>
+ <div class="card"><h2>A che ora?</h2><div class="chips wrap" id="ore"></div><div class="muted" style="margin-top:8px">Siamo aperti solo a cena.</div></div>
+ <div class="card"><h2>I tuoi dati</h2>
+  <div class="g2"><div><label class="l" for="nome">Nome *</label><input class="f" id="nome" autocomplete="given-name"></div><div><label class="l" for="cogn">Cognome *</label><input class="f" id="cogn" autocomplete="family-name"></div></div>
+  <label class="l" for="tel">Cellulare *</label><div class="tel"><span>🇮🇹 +39</span><input class="f" id="tel" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="333 123 4567"></div>
+  <label class="l" for="mail">Email</label><input class="f" id="mail" type="email" inputmode="email" autocomplete="email">
+  <label class="l" for="note">Note (compleanno, bambini, allergie…)</label><textarea class="f" id="note" maxlength="400"></textarea>
+  <label class="chk"><input type="checkbox" id="priv"><span>Ho letto l'informativa e acconsento al trattamento dei miei dati per gestire la prenotazione. *</span></label>
+  <label class="chk"><input type="checkbox" id="mkt"><span>Voglio ricevere offerte e novità del The Galleon (facoltativo).</span></label>
+  <div class="riep" id="riep">Scegli persone, giorno e orario</div>
+  <button class="go" id="go">Invia la richiesta</button><div class="err" id="err"></div>
+  <div class="muted" style="text-align:center;margin-top:10px">Riceverai la conferma su WhatsApp appena il locale accetta la richiesta.</div>
+ </div>
+</main>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const db=getFirestore(initializeApp({apiKey:"AIzaSyBzpnM1H7Nk99bGqiKoFvJfZfUEhxYt1yI",authDomain:"galleon-club.firebaseapp.com",projectId:"galleon-club",storageBucket:"galleon-club.firebasestorage.app",messagingSenderId:"256580919264",appId:"1:256580919264:web:1639030e273fae781fd585"}));
+const $=s=>document.querySelector(s), pad=n=>String(n).padStart(2,"0"), iso=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const GS=["dom","lun","mar","mer","gio","ven","sab"],MS=["gen","feb","mar","apr","mag","giu","lug","ago","set","ott","nov","dic"],GG=["domenica","lunedì","martedì","mercoledì","giovedì","venerdì","sabato"],MM=["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","agosto","settembre","ottobre","novembre","dicembre"];
+const ORE=["19:00","19:30","20:00","20:30","21:00","21:30","22:00"];
+const S={pax:2,data:iso(new Date()),ora:""};
+const D=s=>new Date(s+"T12:00:00"), bello=s=>{const d=D(s);return `${GG[d.getDay()]} ${d.getDate()} ${MM[d.getMonth()]}`;};
+function draw(){
+ $("#pax").innerHTML=Array.from({length:12},(_,i)=>`<button class="ch ${S.pax===i+1?"on":""}" data-p="${i+1}">${i+1}</button>`).join("")+`<button class="ch ${S.pax>12?"on":""}" data-p="+">${S.pax>12?S.pax:"13+"}</button>`;
+ $("#giorni").innerHTML=Array.from({length:60},(_,i)=>{const d=new Date();d.setDate(d.getDate()+i);const s=iso(d);return `<button class="dc ${s===S.data?"on":""}" data-d="${s}">${i===0?"oggi":GS[d.getDay()]}<b>${d.getDate()}</b>${MS[d.getMonth()]}</button>`;}).join("");
+ const now=new Date(),oggi=S.data===iso(now),m=now.getHours()*60+now.getMinutes();
+ const ore=ORE.filter(o=>!oggi||(+o.slice(0,2)*60+ +o.slice(3))>m+30); if(!ore.includes(S.ora))S.ora="";
+ $("#ore").innerHTML=ore.length?ore.map(o=>`<button class="ch ${o===S.ora?"on":""}" data-o="${o}">${o}</button>`).join(""):`<span class="muted">Per oggi non è più possibile prenotare online: scegli un altro giorno o chiamaci.</span>`;
+ $("#riep").textContent=S.ora?`${S.pax} ${S.pax===1?"persona":"persone"} · ${bello(S.data)} · ore ${S.ora}`:"Scegli persone, giorno e orario";
+ document.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>{let n=b.dataset.p;if(n==="+"){n=parseInt(prompt("Quante persone?","14"),10);if(!(n>0&&n<=60))return;}S.pax=+n;draw();});
+ document.querySelectorAll("[data-d]").forEach(b=>b.onclick=()=>{S.data=b.dataset.d;draw();});
+ document.querySelectorAll("[data-o]").forEach(b=>b.onclick=()=>{S.ora=b.dataset.o;draw();});
+}
+draw();
+$("#go").onclick=async()=>{
+ const nome=$("#nome").value.trim(),cogn=$("#cogn").value.trim(),mail=$("#mail").value.trim().toLowerCase(),note=$("#note").value.trim();
+ let t=$("#tel").value.replace(/\D/g,"");if(t.startsWith("0039"))t=t.slice(4);if(t.startsWith("39")&&t.length===12)t=t.slice(2);
+ const e=$("#err");e.textContent="";
+ if(!S.ora)return e.textContent="Scegli l'orario.";
+ if(!nome||!cogn)return e.textContent="Scrivi nome e cognome.";
+ if(!/^3\d{8,9}$/.test(t))return e.textContent="Scrivi un numero di cellulare valido.";
+ if(mail&&!/^\S+@\S+\.\S+$/.test(mail))return e.textContent="L'email non sembra corretta.";
+ if(!$("#priv").checked)return e.textContent="Serve il consenso per gestire la prenotazione.";
+ $("#go").disabled=true;$("#go").textContent="Invio in corso…";
+ try{
+  await addDoc(collection(db,"prenotazioni"),{nome:`${nome} ${cogn}`.slice(0,80),nomeSolo:nome.slice(0,40),cognomeSolo:cogn.slice(0,40),telefono:"+39"+t,email:mail.slice(0,100),clienteId:"t39"+t,
+   data:S.data,ora:S.ora,turno:"cena",persone:S.pax,durata:90,note:note.slice(0,400),stato:"richiesta",canale:"web",causale:"Prenotazione web",
+   consensi:{privacy:true,marketing:$("#mkt").checked},creatoIl:serverTimestamp()});
+  $("#m").innerHTML=`<div class="card ok"><div class="big">✅</div><h2 style="font-size:22px">Richiesta inviata!</h2><p>${esc(nome)}, abbiamo ricevuto la tua richiesta per <b>${S.pax} ${S.pax===1?"persona":"persone"}</b><br><b>${bello(S.data)} alle ${S.ora}</b>.</p><p>Ti confermiamo su WhatsApp appena possibile.<br>Salva il nostro numero per ricevere il messaggio.</p></div>`;
+ }catch(x){$("#go").disabled=false;$("#go").textContent="Invia la richiesta";e.textContent="Invio non riuscito. Riprova o chiamaci.";}
+};
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+</script>
+</body>
+</html>

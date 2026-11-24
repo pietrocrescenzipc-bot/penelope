@@ -358,11 +358,16 @@ function preferenze(){
 }
 /* richiesta web: accetta / rifiuta */
 function richiesta(p){
- const ov=dlg(`<h3>Richiesta prenotazione</h3><p><b>${esc(p.nome)}</b><br>${esc(bello(p.data))} alle ${esc(p.ora)} · ${esc(p.persone)} persone${p.note?`<br><i>${esc(p.note)}</i>`:""}</p>
+ const ov=dlg(`<h3>Richiesta prenotazione</h3><p><b>${esc(p.nome)}</b><br>${esc(bello(p.data))} alle ${esc(p.ora)} · ${esc(p.persone)} persone<br>📞 ${esc(p.telefono||"")}${p.email?" · "+esc(p.email):""}${p.note?`<br><i>${esc(p.note)}</i>`:""}</p>
   <button class="bb" data-k="ok">${I.ok} Accetta</button><button class="bb o" data-k="no">✕ Rifiuta</button><button class="bb" data-k="mod">Apri e modifica</button><button class="bb" data-k="x">Annulla</button>`);
  ov.onclick=async e=>{const k=e.target.closest("[data-k]")?.dataset.k;if(!k&&e.target!==ov)return;ov.remove();
   const o={nome:(p.nome||"").split(" ")[0],giorno:bello(p.data),ora:p.ora,persone:p.persone};
-  if(k==="ok"){await aggiorna(p,{stato:"confermata"},"Prenotazione accettata");if(p.telefono)wa(p.telefono,fill(S.cfg.msg.conferma,o));}
+  if(k==="ok"){await aggiorna(p,{stato:"confermata"},"Prenotazione accettata");
+   const t=telNorm(p.telefono);if(p.clienteId&&t&&!(await getCliente(p.clienteId))){const nm=p.nomeSolo||(p.nome||"").split(" ")[0],cg=p.cognomeSolo||(p.nome||"").split(" ").slice(1).join(" ");
+    await setDoc(doc(db,"clienti",p.clienteId),{nome:nm,cognome:cg,telefono:"+"+t,email:p.email||null,presenze:0,puntiFidelity:0,dataRegistrazione:iso(new Date()),provenienza:"prenotazione web",origine:"penelope",
+     consensi:{privacy:true,marketing:!!p.consensi?.marketing,profilazione:false,fonte:"prenotazione web",dataConsenso:iso(new Date())}},{merge:true}).catch(()=>{});
+    S.cli.delete(p.clienteId);setDoc(doc(db,"indice","nuovi"),{nuovi:arrayUnion(`${p.clienteId}|${p.nome}|+${t}`)},{merge:true}).catch(()=>{});}
+   if(p.telefono)wa(p.telefono,fill(S.cfg.msg.conferma,o));}
   if(k==="no"){await aggiorna(p,{stato:"rifiutata"},"Prenotazione rifiutata");if(p.telefono)wa(p.telefono,fill(S.cfg.msg.rifiutata,o));}
   if(k==="mod")formPren(p);};
 }
