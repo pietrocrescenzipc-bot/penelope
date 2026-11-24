@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
 <meta charset="utf-8">
-<link rel="manifest" href="sala.webmanifest"><link rel="icon" href="icona-192.png"><meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="sala.webmanifest"><link rel="icon" href="icona-192.png"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><link rel="apple-touch-icon" href="icona-192.png">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#14233A">
 <title>Penelope · Sala</title>
@@ -164,6 +164,7 @@ aside{background:#fff;border-right:1px solid var(--line);display:flex;flex-direc
     <button class="ib" id="ana" title="Anagrafica clienti">👥</button>
     <button class="ib" id="fs" title="Schermo intero">⛶</button>
     <button class="ib" id="ham" title="Menu">☰</button>
+    <button class="ib" id="esci" title="Chiudi lo schermo intero" style="color:var(--red);font-size:26px">✕</button>
   </div>
   <div class="tabs" id="tabs"></div>
   <div class="tools" id="tools"></div>
@@ -237,7 +238,16 @@ $("#cal").onclick=()=>{const i=$("#calI");i.value=S.data;i.showPicker?.()||i.cli
 $("#calI").onchange=e=>e.target.value&&vaiGiorno(e.target.value);
 $("#nuova").onclick=()=>dettaglio(null);
 $("#bell").onclick=()=>{S.vista="rich";draw();};
-$("#fs").onclick=()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen?.().catch(()=>{});
+const fsOn=()=>{const d=document.documentElement;(d.requestFullscreen||d.webkitRequestFullscreen)?.call(d,{navigationUI:"hide"})?.catch?.(()=>{});};
+const fsOff=()=>{(document.exitFullscreen||document.webkitExitFullscreen)?.call(document)?.catch?.(()=>{});};
+const isFs=()=>!!(document.fullscreenElement||document.webkitFullscreenElement);
+const standalone=()=>matchMedia("(display-mode: fullscreen), (display-mode: standalone)").matches||navigator.standalone;
+$("#fs").onclick=()=>{ if(isFs()){fsOff();try{localStorage.setItem("pen_fs","no")}catch(e){}} else {fsOn();try{localStorage.removeItem("pen_fs")}catch(e){}} };
+$("#esci").onclick=()=>{ if(isFs()){ fsOff(); try{localStorage.setItem("pen_fs","no")}catch(e){} } else if(standalone()) window.close(); else toast("Per chiudere usa il browser, oppure premi ⛶ per lo schermo intero"); };
+/* schermo intero automatico al primo tocco: sparisce la barra del browser */
+document.addEventListener("pointerdown",()=>{ let no=false; try{no=localStorage.getItem("pen_fs")==="no";}catch(e){} if(!no&&!isFs()&&!standalone()) fsOn(); });
+const aggFs=()=>{$("#fs").textContent=isFs()?"🗗":"⛶";$("#fs").title=isFs()?"Esci dallo schermo intero":"Schermo intero";$("#esci").classList.toggle("hidden",!isFs()&&!standalone());};
+document.addEventListener("fullscreenchange",aggFs);document.addEventListener("webkitfullscreenchange",aggFs);setTimeout(aggFs,0);
 $("#ham").onclick=menu;
 $("#ana").onclick=()=>anagrafica();
 function anagrafica(){ apri("classica.html?tab=clienti",true); }
