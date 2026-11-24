@@ -174,7 +174,7 @@ PAGINE.dashboard=async()=>{
   <div class="sez">Andamento locale <span class="muted">(prenotazioni registrate in Penelope)</span></div><div class="card" id="dG"><div class="muted">…</div></div>`;
  graficoAnno("#dG");
 };
-let STOR;async function storico(){if(STOR!==undefined)return STOR;const d=await getDoc(doc(db,"statistiche","storico")).catch(()=>null);STOR=d&&d.exists()?d.data():null;return STOR;}
+let STOR;async function storico(){if(STOR!==undefined)return STOR;const d=await getDoc(doc(db,"statistiche","storico")).catch(()=>null);STOR=d&&d.exists()?d.data():null;if(STOR)for(const k of ["causali","canali","sale","settimana"])if(typeof STOR[k]==="string")try{STOR[k]=JSON.parse(STOR[k]);}catch(e){STOR[k]=[];}return STOR;}
 async function datiMesi(y0,y1){const st=await storico(),m={};if(st)Object.entries(st.mesi||{}).forEach(([k,v])=>{m[k]={n:v[0],p:v[1]};});
  const da=st?.aggiornato||"0000";const s=await getDocs(query(P(),where("data",">",da),where("data","<=",`${y1}-12-31`))).catch(()=>null);
  (s?s.docs:[]).forEach(d=>{const x=d.data();if(!["arrivato","confermata"].includes(x.stato))return;const k=x.data.slice(0,7);m[k]=m[k]||{n:0,p:0};m[k].n++;m[k].p+=+x.persone||0;});return m;}
@@ -618,7 +618,7 @@ PAGINE.impStor=async()=>{
   <input type="file" id="sF" accept=".json"><button class="btn v" id="sGo" disabled style="margin-left:10px">Importa</button><div id="sR" style="margin-top:12px;white-space:pre-line"></div></div>`;
  let J=null;$("#sF").onchange=async e=>{try{J=JSON.parse(await e.target.files[0].text());$("#sR").textContent=`File letto: ${Object.keys(J.clienti).length} clienti, ${Object.values(J.clienti).reduce((a,c)=>a+c.s.length,0)} prenotazioni.`;$("#sGo").disabled=false;}catch(x){$("#sR").textContent="File non valido";}};
  $("#sGo").onclick=async()=>{if(!isAdmin())return toast("Solo l'amministratore");$("#sGo").disabled=true;const R=$("#sR"),k=+S.cfg.marketing.interazioni5||12,fa=dFa(365);
-  try{await setDoc(doc(db,"statistiche","storico"),{...J.stat,aggiornato:iso(new Date()),fonte:"Pienissimo"});
+  try{const st={...J.stat};for(const k of ["causali","canali","sale","settimana"])if(Array.isArray(st[k]))st[k]=JSON.stringify(st[k]);await setDoc(doc(db,"statistiche","storico"),{...st,aggiornato:iso(new Date()),fonte:"Pienissimo"});
    const ids=Object.keys(J.clienti);let b=writeBatch(db),n=0,nuovi=0,agg=0;
    for(let i=0;i<ids.length;i++){const t=ids[i],c=J.clienti[t],id="t"+t,ex=await getDoc(doc(db,"clienti",id)).catch(()=>null);
     const ok=c.s.filter(x=>x[6]==="A"),ns=c.s.length-ok.length,i12=ok.filter(x=>x[0]>=fa).length,fi=i12>=k?5:i12>=k*.6?4:i12>=k*.4?3:i12>=k*.2?2:i12>=2?1:0;
