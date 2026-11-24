@@ -81,7 +81,7 @@ function draw(){
 draw();
 getDoc(doc(db,"menu","prenota")).then(d=>{const o=d.exists()?d.data().orari:null;if(Array.isArray(o)&&o.length){ORE=o;draw();}}).catch(()=>{});
 $("#go").onclick=async()=>{
- const nome=$("#nome").value.trim(),cogn=$("#cogn").value.trim(),mail=$("#mail").value.trim().toLowerCase(),note=$("#note").value.trim();
+ const cap=x=>x.trim().toLowerCase().replace(/(^|[\s'-])(\p{L})/gu,(m,a,c)=>a+c.toUpperCase());const nome=cap($("#nome").value),cogn=cap($("#cogn").value),mail=$("#mail").value.trim().toLowerCase(),note=$("#note").value.trim();
  let t=$("#tel").value.replace(/\D/g,"");if(t.startsWith("0039"))t=t.slice(4);if(t.startsWith("39")&&t.length===12)t=t.slice(2);
  const e=$("#err");e.textContent="";
  if(!S.ora)return e.textContent="Scegli l'orario.";
