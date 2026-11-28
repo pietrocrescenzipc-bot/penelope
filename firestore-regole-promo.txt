@@ -1,0 +1,49 @@
+// REGOLE PER PROMO, COUPON E REGISTRO (28/11/2026)
+// Da AGGIUNGERE nella console Firebase > Firestore > Regole, dentro
+// "match /databases/{database}/documents { ... }", senza togliere le regole che ci sono gia'.
+// Se le funzioni isStaff / isAdmin esistono gia', non duplicarle.
+
+    function isStaff() {
+      return request.auth != null && exists(/databases/$(database)/documents/staff/$(request.auth.uid));
+    }
+    function isAdmin() {
+      return isStaff() && get(/databases/$(database)/documents/staff/$(request.auth.uid)).data.ruolo == 'admin';
+    }
+
+    // Promozioni: chiunque puo' LEGGERE una singola promo attiva (serve alla pagina coupon.html),
+    // nessuno puo' elencarle da fuori; le crea e modifica solo un titolare.
+    match /promo/{id} {
+      allow get: if resource.data.attiva == true || isStaff();
+      allow list: if isStaff();
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Coupon: il cliente puo' solo CREARE il proprio coupon (uno per numero per promo),
+    // mai leggerlo, modificarlo o elencarli. Lo staff li legge e li "brucia"; cancella solo il titolare.
+    match /coupon/{id} {
+      allow create: if request.auth == null
+        && request.resource.data.keys().hasOnly(['promoId','titolo','nome','telefono','email','k','stato','scadenza','fonte','consensi','creatoIl'])
+        && request.resource.data.stato == 'emesso'
+        && request.resource.data.promoId is string
+        && get(/databases/$(database)/documents/promo/$(request.resource.data.promoId)).data.attiva == true
+        && request.resource.data.telefono is string && request.resource.data.telefono.matches('^[+]393[0-9]{8,9}$')
+        && id == request.resource.data.promoId + '_' + request.resource.data.telefono.replace('[+]','')
+        && request.resource.data.nome is string && request.resource.data.nome.size() >= 2 && request.resource.data.nome.size() <= 40
+        && request.resource.data.titolo is string && request.resource.data.titolo.size() <= 80
+        && request.resource.data.k is string && request.resource.data.k.matches('^[A-Z0-9]{6}$')
+        && request.resource.data.consensi.privacy == true
+        && request.resource.data.creatoIl == request.time;
+      allow read: if isStaff();
+      allow update: if isStaff()
+        && resource.data.stato == 'emesso'
+        && request.resource.data.stato in ['usato','annullato']
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['stato','usatoIl','usatoDa','usatoDaUid','persone','spesa']);
+      allow delete: if isAdmin();
+    }
+
+    // Registro accessi/esportazioni (GDPR): lo staff scrive, solo il titolare legge, nessuno modifica.
+    match /registro/{id} {
+      allow create: if isStaff();
+      allow read: if isAdmin();
+      allow update, delete: if false;
+    }

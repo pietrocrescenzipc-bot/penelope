@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>La tua promo · The Galleon Pub & Pizzeria</title><meta name="theme-color" content="#14233A"><link rel="icon" href="icona-192.png">
+<meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#14233A;--gold:#D9B26A;--line:#E6E8EC;--txt:#1F2430;--mute:#6B7280;--verde:#2EAD4B;--rosso:#E5484D}
+*{box-sizing:border-box}html,body{margin:0;background:#F4F5F7;color:var(--txt);font-family:Nunito,system-ui,sans-serif;font-size:16px}
+button,input{font-family:inherit;font-size:16px;color:inherit}button{cursor:pointer;border:0;background:none}
+header{background:var(--navy);color:#fff;text-align:center;padding:22px 16px 26px}
+header img{width:100%;max-width:240px;display:block;margin:0 auto 4px;background:#fff;border-radius:14px;padding:6px}
+main{max-width:520px;margin:-14px auto 0;padding:0 12px 40px}
+.card{background:#fff;border-radius:18px;padding:18px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.promo{background:linear-gradient(135deg,var(--navy),#22395C);color:#fff;text-align:center}
+.promo small{color:var(--gold);letter-spacing:2px;font-weight:800;font-size:12px}
+.promo h1{margin:6px 0 8px;font-size:26px;line-height:1.15}.promo p{margin:0;color:#D5DCE7;white-space:pre-line}
+.regole{margin-top:12px;font-size:13px;color:#AFC0D6}
+label.l{display:block;font-weight:700;font-size:14px;margin:12px 0 6px}
+input.f{width:100%;border:1px solid var(--line);border-radius:10px;padding:13px;background:#fff}
+.tel{display:flex;gap:8px}.tel span{display:flex;align-items:center;padding:0 12px;border:1px solid var(--line);border-radius:10px;white-space:nowrap}
+.chk{display:flex;gap:10px;align-items:flex-start;margin:12px 0;font-size:14px}.chk input{width:22px;height:22px;flex:0 0 22px;margin:0}
+.go{width:100%;background:var(--verde);color:#fff;font-weight:800;font-size:18px;border-radius:14px;padding:16px;margin-top:6px}.go:disabled{opacity:.5}
+.err{color:var(--rosso);font-weight:700;margin-top:10px;text-align:center}
+.qr{display:flex;justify-content:center;margin:8px 0}.qr img,.qr canvas{width:240px;height:240px;image-rendering:pixelated}
+.codice{font-size:28px;font-weight:800;letter-spacing:4px;text-align:center}
+.stato{text-align:center;font-weight:800;border-radius:12px;padding:10px;margin-top:10px}
+.muted{color:var(--mute);font-size:13px}a{color:#2F6BEB}
+</style>
+</head>
+<body>
+<header><img src="logo-galleon.jpg" alt="The Galleon Pub &amp; Pizzeria" onerror="this.remove()"></header>
+<main id="m"><div class="card" style="text-align:center">Caricamento…</div></main>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const db=getFirestore(initializeApp({apiKey:"AIzaSyBzpnM1H7Nk99bGqiKoFvJfZfUEhxYt1yI",authDomain:"galleon-club.firebaseapp.com",projectId:"galleon-club",storageBucket:"galleon-club.firebasestorage.app",messagingSenderId:"256580919264",appId:"1:256580919264:web:1639030e273fae781fd585"}));
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pad=n=>String(n).padStart(2,"0"),iso=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const itD=s=>s?`${s.slice(8,10)}/${s.slice(5,7)}/${s.slice(0,4)}`:"";
+const GG=["domenica","lunedì","martedì","mercoledì","giovedì","venerdì","sabato"];
+const P=new URLSearchParams(location.search),pid=(P.get("p")||"").replace(/[^A-Za-z0-9_-]/g,"");
+const fonte=(P.get("f")||"link").replace(/[^a-z0-9_-]/gi,"").slice(0,20)||"link";
+const VERS_INFORMATIVA="2026-11";
+const rnd=n=>{const a="ABCDEFGHJKLMNPQRSTUVWXYZ23456789",b=crypto.getRandomValues(new Uint8Array(n));return [...b].map(x=>a[x%a.length]).join("");};
+const KEY="galleon_coupon_"+pid;
+
+function regoleTxt(p){const r=[];if(p.dal&&p.dal>iso(new Date()))r.push("dal "+itD(p.dal));if(p.al)r.push("valida fino al "+itD(p.al));
+ if(p.giorni?.length&&p.giorni.length<7)r.push("solo "+p.giorni.map(g=>GG[g]).join(", "));if(p.minPersone>1)r.push(`minimo ${p.minPersone} persone`);
+ if(p.giorniValidita)r.push(`da usare entro ${p.giorniValidita} giorni`);return r.join(" · ");}
+
+function mostraQR(p,c){
+ const qr=qrcode(0,"M");qr.addData(`GALLEON:${c.id}:${c.k}`);qr.make();
+ $("#m").innerHTML=`<div class="card promo"><small>LA TUA PROMO</small><h1>${esc(p.titolo)}</h1><p>${esc(p.descrizione||"")}</p><div class="regole">${esc(regoleTxt(p))}</div></div>
+ <div class="card" style="text-align:center"><b>Ciao ${esc(c.nome)}! Mostra questo QR al personale quando sei al locale.</b>
+ <div class="qr">${qr.createImgTag(8,8)}</div><div class="muted">Codice</div><div class="codice">${esc(c.k)}</div>
+ ${c.scadenza?`<div class="muted" style="margin-top:6px">Valido fino al ${itD(c.scadenza)}</div>`:""}
+ <div class="muted" style="margin-top:12px">Salva questa pagina o fai uno screenshot: il coupon resta anche se chiudi.</div></div>
+ <div class="card muted" style="text-align:center">Vuoi prenotare? <a href="prenota.html?f=promo">Prenota il tuo tavolo</a></div>`;
+}
+
+async function avvia(){
+ if(!pid){$("#m").innerHTML=`<div class="card" style="text-align:center">Link non valido.</div>`;return;}
+ let p;try{const s=await getDoc(doc(db,"promo",pid));if(!s.exists())throw 0;p=s.data();}catch(e){$("#m").innerHTML=`<div class="card" style="text-align:center"><b>Questa promozione non è più disponibile.</b><div class="muted" style="margin-top:8px">Seguici per le prossime!</div></div>`;return;}
+ const oggi=iso(new Date());
+ let salvato=null;try{salvato=JSON.parse(localStorage.getItem(KEY)||"null");}catch(e){}
+ if(salvato){mostraQR(p,salvato);return;}
+ if(p.al&&p.al<oggi){$("#m").innerHTML=`<div class="card" style="text-align:center"><b>Questa promozione è scaduta.</b></div>`;return;}
+ const nomeQ=(P.get("n")||"").slice(0,40),telQ=(P.get("t")||"").replace(/\D/g,"").replace(/^39(?=3\d{8,9}$)/,"");
+ $("#m").innerHTML=`<div class="card promo"><small>PROMO RISERVATA</small><h1>${esc(p.titolo)}</h1><p>${esc(p.descrizione||"")}</p><div class="regole">${esc(regoleTxt(p))}</div></div>
+ <div class="card"><b>Ottieni il tuo coupon personale</b>
+  <label class="l" for="nome">Nome *</label><input class="f" id="nome" autocomplete="given-name" value="${esc(nomeQ)}">
+  <label class="l" for="tel">Cellulare *</label><div class="tel"><span>🇮🇹 +39</span><input class="f" id="tel" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="333 123 4567" value="${esc(telQ)}"></div>
+  <label class="l" for="mail">Email</label><input class="f" id="mail" type="email" inputmode="email" autocomplete="email">
+  <label class="chk"><input type="checkbox" id="priv"><span>Ho letto l'<a href="privacy.html" target="_blank">informativa privacy</a> e acconsento al trattamento dei miei dati per ricevere e usare questo coupon. *</span></label>
+  <label class="chk"><input type="checkbox" id="mkt"><span>Voglio ricevere offerte e novità del The Galleon via WhatsApp, SMS o email (facoltativo).</span></label>
+  <label class="chk"><input type="checkbox" id="prof"><span>Acconsento all'uso delle mie visite e preferenze per ricevere offerte su misura (facoltativo).</span></label>
+  <button class="go" id="go">Ottieni il coupon</button><div class="err" id="err"></div></div>`;
+ $("#go").onclick=async()=>{
+  const nome=$("#nome").value.trim(),tel=$("#tel").value.replace(/\D/g,"").replace(/^0039|^39(?=3\d{8,9}$)/,""),mail=$("#mail").value.trim().toLowerCase();
+  const err=m=>{$("#err").textContent=m;};
+  if(nome.length<2)return err("Scrivi il tuo nome");
+  if(!/^3\d{8,9}$/.test(tel))return err("Inserisci un cellulare italiano valido");
+  if(mail&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail))return err("Email non valida");
+  if(!$("#priv").checked)return err("Per ottenere il coupon serve accettare l'informativa");
+  $("#go").disabled=true;err("");
+  const telefono="+39"+tel,id=pid+"_39"+tel,k=rnd(6);
+  let scad=p.al||"";if(p.giorniValidita){const d=new Date();d.setDate(d.getDate()+Number(p.giorniValidita));const s=iso(d);if(!scad||s<scad)scad=s;}
+  const c={promoId:pid,titolo:String(p.titolo||"").slice(0,80),nome:nome.slice(0,40),telefono,email:mail||null,k,stato:"emesso",scadenza:scad,fonte,
+   consensi:{privacy:true,marketing:$("#mkt").checked,profilazione:$("#prof").checked,versione:VERS_INFORMATIVA,canale:"coupon"},creatoIl:serverTimestamp()};
+  try{await setDoc(doc(db,"coupon",id),c);}
+  catch(e){$("#go").disabled=false;return err(e.code==="permission-denied"?"Hai già richiesto questa promo con questo numero, oppure la promo non è più attiva. Mostra il QR dal telefono con cui l'hai scaricata.":"Errore di connessione, riprova.");}
+  const loc={id,k,nome:c.nome,scadenza:scad};try{localStorage.setItem(KEY,JSON.stringify(loc));}catch(e){}
+  mostraQR(p,loc);
+ };
+}
+avvia();
+</script>
+</body>
+</html>
