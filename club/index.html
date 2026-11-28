@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Galleon Club · Back office</title><meta name="theme-color" content="#0F1B2D"><link rel="icon" href="icona.svg">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0F1B2D;--ink2:#1A2B45;--gold:#E0B252;--gold2:#F6E7C4;--bg:#F6F5F1;--card:#fff;--txt:#141C2A;--mute:#737B8C;--line:#E9E6DE;--ok:#1F9D63;--okb:#E3F5EC;--ko:#D6453D;--kob:#FBE9E7;--warn:#D98A1B;--warnb:#FDF1DD;--blu:#2E63E6;--blub:#E8EEFD}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--txt);font:14px/1.45 "Plus Jakarta Sans",system-ui,sans-serif}
+button,input,select,textarea{font:inherit;color:inherit}button{cursor:pointer}.hidden{display:none!important}a{color:var(--blu)}
+#app{display:flex;min-height:100vh}
+nav{width:236px;flex:0 0 236px;background:var(--ink);color:#B9C3D3;padding:20px 12px;display:flex;flex-direction:column;gap:2px;position:sticky;top:0;height:100vh}
+nav .brand{display:flex;gap:10px;align-items:center;padding:0 8px 22px}nav .brand i{width:38px;height:38px;border-radius:11px;background:var(--gold);color:var(--ink);display:grid;place-items:center;font-style:normal;font-weight:800;font-size:17px}
+nav .brand b{color:#fff;display:block;font-size:16px;letter-spacing:.3px}nav .brand small{font-size:11px;color:#7D8AA0}
+nav button{display:flex;align-items:center;gap:11px;border:0;background:none;color:inherit;padding:11px 12px;border-radius:10px;font-weight:600;text-align:left}
+nav button:hover{background:#ffffff0d}nav button.on{background:var(--ink2);color:#fff;box-shadow:inset 3px 0 var(--gold)}
+nav .n{margin-left:auto;background:var(--ko);color:#fff;border-radius:9px;font-size:11px;padding:1px 7px}
+nav .me{margin-top:auto;padding:12px;border-top:1px solid #ffffff14;font-size:12.5px}nav .me b{color:#fff;display:block}nav .me button{padding:6px 0;font-size:12.5px}
+main{flex:1;min-width:0;padding:26px 32px 70px}
+.hd{display:flex;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap}.hd h1{margin:0;font-size:25px;font-weight:800;letter-spacing:-.3px}.hd .sp{flex:1}.hd .sub{color:var(--mute);font-weight:600}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}
+.grid{display:grid;gap:14px}.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.kpi small{color:var(--mute);font-weight:600;font-size:12.5px;display:block}.kpi b{display:block;font-size:30px;font-weight:800;margin:4px 0 0;letter-spacing:-.5px}.kpi i{font-style:normal;font-size:12px;color:var(--mute)}
+.btn{border:0;border-radius:11px;padding:10px 16px;font-weight:700;background:var(--ink);color:#fff;white-space:nowrap}.btn.gold{background:var(--gold);color:var(--ink)}.btn.ghost{background:#fff;border:1px solid var(--line);color:var(--txt)}.btn.red{background:var(--ko)}.btn.ok{background:var(--ok)}.btn.sm{padding:6px 11px;font-size:13px;border-radius:9px}.btn:disabled{opacity:.45;cursor:default}
+.f{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:#fff}textarea.f{min-height:90px;resize:vertical}
+label.l{display:block;font-size:12px;font-weight:700;color:#4A5262;margin:12px 0 5px}
+.srch{flex:1;min-width:260px;border:1px solid var(--line);border-radius:12px;padding:12px 15px;background:#fff;font-size:15px}
+.chips{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0}.chip{border:1px solid var(--line);background:#fff;border-radius:20px;padding:7px 13px;font-weight:600;font-size:13px}.chip.on{background:var(--ink);border-color:var(--ink);color:#fff}
+table{width:100%;border-collapse:collapse}th{font-size:12px;color:var(--mute);font-weight:600;text-align:left;padding:9px 10px;border-bottom:1px solid var(--line)}td{padding:11px 10px;border-bottom:1px solid #F2EFE8;vertical-align:middle}
+tr.cl:hover td{background:#FBFAF6;cursor:pointer}tr.sel td{background:#FFF7E6}
+.bdg{display:inline-block;border-radius:7px;padding:2px 8px;font-size:11.5px;font-weight:700}.b-ok{background:var(--okb);color:var(--ok)}.b-ko{background:var(--kob);color:var(--ko)}.b-w{background:var(--warnb);color:var(--warn)}.b-b{background:var(--blub);color:var(--blu)}.b-g{background:#EFEDE7;color:#5E6575}
+.tag{display:inline-block;background:#F1EEE6;border-radius:7px;padding:3px 8px;font-size:12px;margin:0 4px 4px 0}
+.av{width:40px;height:40px;border-radius:50%;background:var(--gold2);color:#8A6418;display:grid;place-items:center;font-weight:800;flex:0 0 40px}
+.muted{color:var(--mute);font-size:12.5px}.sez{font-weight:800;font-size:15px;margin:22px 0 10px}
+.split{display:grid;grid-template-columns:1.5fr 1fr;gap:16px;align-items:start}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:14px -18px 14px;padding:0 18px}.tabs button{border:0;background:none;padding:10px 12px;font-weight:700;color:var(--mute);border-bottom:2px solid transparent}.tabs button.on{color:var(--ink);border-color:var(--gold)}
+.cons{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid #F2EFE8}.cons:last-child{border:0}.cons div{flex:1}.cons b{display:block}
+.sw{position:relative;width:44px;height:26px;flex:0 0 44px}.sw input{opacity:0;width:0;height:0}.sw span{position:absolute;inset:0;background:#D7D3CA;border-radius:20px;transition:.2s}.sw span:before{content:"";position:absolute;width:20px;height:20px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}.sw input:checked+span{background:var(--ok)}.sw input:checked+span:before{transform:translateX(18px)}.sw input:disabled+span{opacity:.5}
+.tl{border-left:2px solid var(--line);margin-left:6px;padding-left:14px}.tl div{position:relative;padding:0 0 12px}.tl div:before{content:"";position:absolute;left:-20px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--gold)}
+.ov{position:fixed;inset:0;background:rgba(15,27,45,.5);z-index:30;display:flex;justify-content:center;align-items:flex-start;padding:50px 16px;overflow:auto}
+.mod{background:#fff;border-radius:18px;width:100%;max-width:640px;padding:22px 24px}.mod h3{margin:0 0 8px;font-size:19px}.mf{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 20px;border-radius:12px;z-index:50;font-weight:600}
+.bar{height:8px;background:#EEEBE3;border-radius:5px;overflow:hidden;margin-top:6px}.bar i{display:block;height:100%;background:var(--ok)}
+.note{background:var(--warnb);border:1px solid #F3D9A8;border-radius:12px;padding:12px 14px;color:#7A5410;font-size:13px}
+.pager{display:flex;justify-content:center;align-items:center;gap:10px;margin-top:12px}
+#login{min-height:100vh;display:grid;place-items:center;background:radial-gradient(circle at 30% 20%,#22385A,var(--ink))}
+#login form{background:#fff;border-radius:20px;padding:30px;width:350px;display:flex;flex-direction:column;gap:10px}
+@media(max-width:900px){#app{flex-direction:column}nav{position:static;width:auto;height:auto;flex-direction:row;overflow-x:auto;padding:10px}nav .brand,nav .me{display:none}main{padding:18px 14px}.split,.g4,.g3,.g2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="login" class="hidden"><form id="lf"><div style="text-align:center"><div style="font-size:30px">⚓</div><h2 style="margin:4px 0 0">Galleon Club</h2><div class="muted">The Galleon Pub &amp; Pizzeria</div></div><input class="f" id="lem" type="email" placeholder="Email" required autocomplete="username"><input class="f" id="lpw" type="password" placeholder="Password" required autocomplete="current-password"><button class="btn gold">Entra</button><div id="lerr" style="color:var(--ko);text-align:center;font-weight:600;font-size:13px"></div></form></div>
+<div id="app" class="hidden"><nav id="nav"></nav><main id="main"></main></div>
+<div id="root"></div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, addDoc, deleteDoc, collection, query, where, orderBy, limit, startAfter, getDocs, getCountFromServer, getAggregateFromServer, sum, serverTimestamp, writeBatch, arrayUnion, arrayRemove, Timestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const app=initializeApp({apiKey:"AIzaSyBzpnM1H7Nk99bGqiKoFvJfZfUEhxYt1yI",authDomain:"galleon-club.firebaseapp.com",projectId:"galleon-club",storageBucket:"galleon-club.firebasestorage.app",messagingSenderId:"256580919264",appId:"1:256580919264:web:1639030e273fae781fd585"});
+const auth=getAuth(app),db=getFirestore(app);
+
+/* ---------- utilità ---------- */
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pad=n=>String(n).padStart(2,"0"),iso=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`,oggi=()=>iso(new Date());
+const addG=(s,n)=>{const d=new Date(s+"T12:00:00");d.setDate(d.getDate()+n);return iso(d);},fa=n=>addG(oggi(),-n);
+const itD=s=>{if(!s)return"—";if(s.toDate)s=iso(s.toDate());s=String(s);return /^\d{4}-\d\d-\d\d/.test(s)?`${s.slice(8,10)}/${s.slice(5,7)}/${s.slice(0,4)}`:s;};
+const fmt=n=>Number(n||0).toLocaleString("it-IT");
+const norm=s=>String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
+const telNorm=t=>{let x=String(t||"").replace(/\D/g,"");if(x.startsWith("00"))x=x.slice(2);if(x.length===10&&x.startsWith("3"))x="39"+x;return x.length>=8?x:"";};
+const iniz=n=>String(n||"?").trim().split(/\s+/).map(x=>x[0]).slice(0,2).join("").toUpperCase();
+const MESI=["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","agosto","settembre","ottobre","novembre","dicembre"];
+const toast=m=>{const t=document.createElement("div");t.className="toast";t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2800);};
+const cnt=async q=>{try{return (await getCountFromServer(q)).data().count;}catch(e){return null;}};
+const C=()=>collection(db,"clienti");
+const idxLink=e=>{const u=(String(e?.message||"").match(/https:\/\/console\.firebase\.google\.com\S+/)||[])[0];return u?`Serve un indice del database. <a href="${u}" target="_blank">Crealo con un clic</a> e riprova tra qualche minuto.`:esc(e?.code||e?.message||e);};
+function modal(t,html,onOk,ok="Salva",cls="ok"){const ov=document.createElement("div");ov.className="ov";ov.innerHTML=`<div class="mod"><h3>${esc(t)}</h3>${html}<div class="mf"><button class="btn ghost" data-x>${onOk?"Annulla":"Chiudi"}</button>${onOk?`<button class="btn ${cls}" data-ok>${esc(ok)}</button>`:""}</div></div>`;
+ $("#root").appendChild(ov);ov.querySelector("[data-x]").onclick=()=>ov.remove();ov.onclick=e=>{if(e.target===ov)ov.remove();};
+ if(onOk)ov.querySelector("[data-ok]").onclick=async()=>{const b=ov.querySelector("[data-ok]");b.disabled=true;try{if(await onOk(ov)!==false)ov.remove();}catch(e){toast("Errore: "+(e.code||e.message));}b.disabled=false;};return ov;}
+const scarica=(nome,testo,tipo="text/csv")=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([testo],{type:tipo}));a.download=nome;a.click();};
+const csvTxt=r=>"﻿"+r.map(x=>x.map(c=>`"${String(c??"").replace(/"/g,'""')}"`).join(";")).join("\n");
+const log=(azione,dett={})=>addDoc(collection(db,"registro"),{azione,...dett,da:S.me?.nome||S.me?.uid||"",daUid:S.me?.uid||"",il:serverTimestamp(),app:"galleon-club"}).catch(()=>{});
+
+/* ---------- stato ---------- */
+const S={me:null,cfg:{}};const isAdmin=()=>S.me?.ruolo==="admin";
+const RET={inattivoGg:60,conservazioneMesi:24,profilazioneMesi:12};
+
+/* ---------- navigazione ---------- */
+const MENU=[["home","📊","Panoramica"],["clienti","👥","Clienti"],["segmenti","🎯","Segmenti"],["promo","🎟️","Promozioni"],["privacy","🛡️","Privacy GDPR"],["staff","🔑","Staff e ruoli"]];
+let PAG="home",RICH=0;
+function drawNav(){
+ $("#nav").innerHTML=`<div class="brand"><i>⚓</i><div><b>Galleon Club</b><small>CRM · Promo · Privacy</small></div></div>`+MENU.filter(m=>m[0]!=="staff"||isAdmin()).map(([k,ic,t])=>`<button data-p="${k}" class="${k===PAG?"on":""}">${ic} ${t}${k==="privacy"&&RICH?`<span class="n">${RICH}</span>`:""}</button>`).join("")+
+ `<div class="me"><b>${esc(S.me.nome||"")}</b>${isAdmin()?"Titolare":"Sala"}<br><button id="esci" style="border:0;background:none;color:#B9C3D3">Esci</button></div>`;
+ $$("#nav [data-p]").forEach(b=>b.onclick=()=>vai(b.dataset.p));$("#esci").onclick=()=>signOut(auth);
+}
+function vai(p){PAG=p;if(location.hash.slice(1)!==p)location.hash=p;drawNav();$("#main").innerHTML=`<div class="muted">Caricamento…</div>`;(P[p]||P.home)().catch(e=>{$("#main").innerHTML=`<div class="card">${idxLink(e)}</div>`;});}
+window.addEventListener("hashchange",()=>{const p=location.hash.slice(1);if(p&&p!==PAG&&P[p])vai(p);});
+
+$("#lf").onsubmit=async e=>{e.preventDefault();$("#lerr").textContent="";try{await signInWithEmailAndPassword(auth,$("#lem").value,$("#lpw").value);}catch(x){$("#lerr").textContent="Email o password errate";}};
+onAuthStateChanged(auth,async u=>{
+ if(!u){$("#login").classList.remove("hidden");$("#app").classList.add("hidden");return;}
+ const sd=await getDoc(doc(db,"staff",u.uid)).catch(()=>null);if(!sd||!sd.exists()){$("#lerr").textContent="Account non abilitato. Chiedi al titolare.";signOut(auth);return;}
+ S.me={uid:u.uid,...sd.data()};const c=await getDoc(doc(db,"impostazioni","locale")).catch(()=>null);S.cfg=c&&c.exists()?c.data():{};
+ const g=await getDoc(doc(db,"impostazioni","gdpr")).catch(()=>null);if(g&&g.exists())Object.assign(RET,g.data().ret||{});
+ if(S.cfg.marketing?.inattiviGg)RET.inattivoGg=S.cfg.marketing.inattiviGg;
+ $("#login").classList.add("hidden");$("#app").classList.remove("hidden");
+ if(isAdmin())RICH=await cnt(query(collection(db,"richiesteGdpr"),where("stato","==","aperta")))||0;
+ const p=location.hash.slice(1);vai(P[p]?p:"home");
+});
+const P={};
+
+/* ---------- PANORAMICA ---------- */
+P.home=async()=>{
+ const g=fa(RET.inattivoGg);
+ $("#main").innerHTML=`<div class="hd"><h1>Ciao ${esc((S.me.nome||"").split(" ")[0])} 👋</h1><span class="sp"></span><span class="sub">${new Date().toLocaleDateString("it-IT",{weekday:"long",day:"numeric",month:"long"})}</span></div>
+ <div class="grid g4" id="k1">${["Clienti in archivio","Consenso marketing","Attivi ultimi "+RET.inattivoGg+" gg","Nuovi ultimi 30 gg"].map(t=>`<div class="card kpi"><small>${t}</small><b>…</b><i>&nbsp;</i></div>`).join("")}</div>
+ <div class="grid g2" style="margin-top:14px"><div class="card"><h3 style="margin:0 0 4px">Salute del database</h3><div class="muted">Quanto è completo e utilizzabile il tuo archivio</div><div id="k2" style="margin-top:12px">…</div></div>
+ <div class="card"><h3 style="margin:0 0 4px">Promo con QR – ultimi 30 giorni</h3><div class="muted">Coupon scaricati e usati in sala</div><div id="k3" style="margin-top:12px">…</div></div></div>
+ <div class="card" style="margin-top:14px" id="k4"></div>`;
+ const tot=await cnt(C())||0;
+ const [mkt,att,nuovi,prof,email,mai]=await Promise.all([cnt(query(C(),where("consensi.marketing","==",true))),cnt(query(C(),where("ultimaPresenza",">=",g))),cnt(query(C(),where("dataRegistrazione",">=",fa(30)))),cnt(query(C(),where("consensi.profilazione","==",true))),cnt(query(C(),where("email",">","")) ),cnt(query(C(),where("presenze","==",0)))]);
+ const pc=n=>tot&&n!==null?Math.round(n/tot*100):0;
+ $("#k1").innerHTML=[["Clienti in archivio",tot,""],["Consenso marketing",mkt,pc(mkt)+"% raggiungibili con le promo"],["Attivi ultimi "+RET.inattivoGg+" gg",att,pc(att)+"% del totale"],["Nuovi ultimi 30 gg",nuovi,""]].map(([t,v,s])=>`<div class="card kpi"><small>${t}</small><b>${v===null?"—":fmt(v)}</b><i>${s||"&nbsp;"}</i></div>`).join("");
+ const riga=(t,n,col="var(--ok)")=>`<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between"><span>${t}</span><b>${n===null?"—":fmt(n)} <span class="muted">(${pc(n)}%)</span></b></div><div class="bar"><i style="width:${pc(n)}%;background:${col}"></i></div></div>`;
+ $("#k2").innerHTML=riga("Consenso marketing",mkt)+riga("Consenso profilazione",prof,"var(--blu)")+riga("Con email",email,"var(--gold)")+riga("Mai venuti (solo contatto)",mai,"var(--warn)");
+ const qc=w=>query(collection(db,"coupon"),where("creatoIl",">=",Timestamp.fromDate(new Date(Date.now()-30*864e5))),...w);
+ const [cs,cu]=await Promise.all([cnt(qc([])),cnt(qc([where("stato","==","usato")]))]);
+ $("#k3").innerHTML=`<div class="grid g3"><div class="kpi"><small>Scaricati</small><b>${fmt(cs)}</b></div><div class="kpi"><small>Usati</small><b>${fmt(cu)}</b></div><div class="kpi"><small>Ritorno</small><b>${cs?Math.round(cu/cs*100):0}%</b></div></div><button class="btn ghost sm" style="margin-top:10px" onclick="location.hash='promo'">Vai alle promozioni →</button>`;
+ const todo=[];if(isAdmin()&&RICH)todo.push(`<b>${RICH}</b> richieste privacy da evadere (entro 30 giorni per legge) <a href="#privacy">Apri</a>`);
+ if(!S.cfg.titolare)todo.push(`Completa i dati del titolare in <a href="#privacy">Privacy GDPR → Impostazioni</a>`);
+ $("#k4").innerHTML=`<h3 style="margin:0 0 8px">Da fare</h3>${todo.length?todo.map(t=>`<div style="padding:6px 0">• ${t}</div>`).join(""):`<div class="muted">Tutto in ordine ✓</div>`}`;
+};
+
+/* ---------- CLIENTI ---------- */
+let IDX=null;
+async function caricaIndice(){if(IDX)return IDX;const s=await getDocs(collection(db,"indice")).catch(()=>null);IDX=[];(s?s.docs:[]).forEach(d=>{const v=d.data();(v.r?v.r.split("\n"):(v.nuovi||[])).forEach(r=>{const [id,nome,tel]=r.split("|");if(id)IDX.push({id,nome,tel,k:norm(nome)+" "+String(tel||"").replace(/\D/g,"")});});});return IDX;}
+async function cerca(q){await caricaIndice();const p=norm(q).split(/\s+/).filter(Boolean).map(x=>/^\+?\d+$/.test(x)?x.replace(/\D/g,""):x);const m=new Map();IDX.filter(x=>p.every(y=>x.k.includes(y))).forEach(x=>m.set(x.id,x));return [...m.values()];}
+const CF={f:"tutti",q:"",pag:[],cur:null,sel:new Set()};
+const FILTRI=()=>[["tutti","Tutti",[],[orderBy("dataRegistrazione","desc")]],["mkt","✉️ Marketing sì",[where("consensi.marketing","==",true)],[]],["nomkt","🚫 Marketing no",[where("consensi.marketing","==",false)],[]],["attivi","🟢 Attivi",[where("ultimaPresenza",">=",fa(RET.inattivoGg))],[orderBy("ultimaPresenza","desc")]],["inattivi","💤 Inattivi",[where("ultimaPresenza","<",fa(RET.inattivoGg))],[orderBy("ultimaPresenza","desc")]],["mai","🆕 Mai venuti",[where("presenze","==",0)],[]],["vip","⭐ VIP",[where("tags","array-contains","VIP")],[]],["compl","🎂 Compleanno a "+MESI[new Date().getMonth()],[where("tags","array-contains",MESI[new Date().getMonth()])],[]],["promo","🎟️ Hanno usato promo",[where("tags","array-contains","Promo usata")],[]]];
+P.clienti=async()=>{
+ $("#main").innerHTML=`<div class="hd"><h1>Clienti</h1><span class="sub" id="cT"></span><span class="sp"></span>${isAdmin()?`<button class="btn ghost" id="cX">⬇ Esporta</button>`:""}<button class="btn gold" id="cN">+ Nuovo cliente</button></div>
+ <div style="display:flex;gap:10px"><input class="srch" id="cQ" placeholder="🔎 Cerca per nome, cognome o telefono" value="${esc(CF.q)}"></div>
+ <div class="chips">${FILTRI().map(([k,t])=>`<button class="chip ${CF.f===k?"on":""}" data-f="${k}">${t}</button>`).join("")}</div>
+ <div class="split"><div><div class="card" style="padding:4px 8px"><table><thead><tr><th>Cliente</th><th>Telefono</th><th>Visite</th><th>Ultima visita</th><th>Consensi</th></tr></thead><tbody id="cB"></tbody></table></div><div class="pager"><button class="btn ghost sm" id="cP">‹</button><span class="muted" id="cG"></span><button class="btn ghost sm" id="cNx">›</button></div></div><div id="cS"><div class="card muted">Seleziona un cliente per aprire la scheda.</div></div></div>`;
+ let docs=[];const F=()=>FILTRI().find(x=>x[0]===CF.f);
+ const carica=async()=>{const B=$("#cB");B.innerHTML=`<tr><td colspan="5" class="muted">Caricamento…</td></tr>`;
+  try{if(CF.q.trim()){const r=await cerca(CF.q);docs=(await Promise.all(r.slice(0,40).map(x=>getDoc(doc(db,"clienti",x.id))))).filter(d=>d.exists());$("#cT").textContent=`${r.length} trovati`;$("#cP").disabled=$("#cNx").disabled=true;$("#cG").textContent="";}
+   else{const f=F(),s=await getDocs(query(C(),...f[2],...f[3],...(CF.pag.length?[startAfter(CF.pag[CF.pag.length-1])]:[]),limit(25)));docs=s.docs;$("#cG").textContent=`Pagina ${CF.pag.length+1}`;$("#cP").disabled=!CF.pag.length;$("#cNx").disabled=s.docs.length<25;
+    cnt(query(C(),...f[2])).then(n=>$("#cT").textContent=n===null?"":fmt(n)+" clienti");}
+   B.innerHTML=docs.length?docs.map(d=>{const c=d.data(),k=c.consensi||{};return `<tr class="cl ${CF.cur===d.id?"sel":""}" data-c="${d.id}"><td><div style="display:flex;gap:10px;align-items:center"><div class="av" style="width:32px;height:32px;flex-basis:32px;font-size:12px">${iniz(c.nome+" "+(c.cognome||""))}</div><div><b>${esc(c.nome)} ${esc(c.cognome||"")}</b>${c.anonimizzato?' <span class="bdg b-g">anonimo</span>':""}</div></div></td><td>${esc(c.telefono||"")}</td><td>${c.presenze||0}</td><td>${itD(c.ultimaPresenza)}</td><td>${k.marketing?'<span class="bdg b-ok">MKT</span>':'<span class="bdg b-g">MKT</span>'} ${k.profilazione?'<span class="bdg b-b">PROF</span>':""}</td></tr>`;}).join(""):`<tr><td colspan="5" class="muted">Nessun cliente</td></tr>`;
+   $$("[data-c]").forEach(r=>r.onclick=()=>{CF.cur=r.dataset.c;$$("tr.sel").forEach(x=>x.classList.remove("sel"));r.classList.add("sel");scheda(r.dataset.c);});
+  }catch(e){B.innerHTML=`<tr><td colspan="5">${idxLink(e)}</td></tr>`;}};
+ let t;$("#cQ").oninput=e=>{clearTimeout(t);t=setTimeout(()=>{CF.q=e.target.value;CF.pag=[];carica();},250);};
+ $$("[data-f]").forEach(b=>b.onclick=()=>{CF.f=b.dataset.f;CF.q="";CF.pag=[];P.clienti();});
+ $("#cNx").onclick=()=>{CF.pag.push(docs[docs.length-1]);carica();};$("#cP").onclick=()=>{CF.pag.pop();carica();};
+ $("#cN").onclick=()=>modifica(null);
+ if($("#cX"))$("#cX").onclick=async()=>{const f=F();toast("Preparo il file…");const s=await getDocs(query(C(),...f[2],limit(25000)));
+  scarica(`clienti-${CF.f}-${oggi()}.csv`,csvTxt([["Nome","Cognome","Telefono","Email","Visite","Ultima visita","Marketing","Profilazione","Tag"],...s.docs.map(d=>{const c=d.data(),k=c.consensi||{};return[c.nome,c.cognome,c.telefono,c.email,c.presenze||0,c.ultimaPresenza||"",k.marketing?"sì":"no",k.profilazione?"sì":"no",(c.tags||[]).join(", ")];})]));
+  log("export clienti",{filtro:CF.f,righe:s.size});};
+ carica();if(CF.cur)scheda(CF.cur);
+};
+
+async function scheda(id,tab="profilo"){
+ const box=$("#cS");if(!box)return;const s=await getDoc(doc(db,"clienti",id));if(!s.exists()){box.innerHTML=`<div class="card muted">Cliente non trovato</div>`;return;}
+ const c={id,...s.data()},k=c.consensi||{};
+ box.innerHTML=`<div class="card"><div style="display:flex;gap:12px;align-items:center"><div class="av" style="width:54px;height:54px;flex-basis:54px;font-size:18px">${iniz(c.nome+" "+(c.cognome||""))}</div><div style="flex:1;min-width:0"><b style="font-size:18px">${esc(c.nome)} ${esc(c.cognome||"")}</b><div class="muted">${esc(c.telefono||"")}${c.email?" · "+esc(c.email):""}</div></div><button class="btn ghost sm" id="sE">✎ Modifica</button></div>
+ <div class="grid g3" style="margin-top:14px;text-align:center"><div class="card" style="padding:10px"><b style="font-size:20px">${c.presenze||0}</b><div class="muted">visite</div></div><div class="card" style="padding:10px"><b style="font-size:20px">${fmt(c.puntiFidelity||0)}</b><div class="muted">punti</div></div><div class="card" style="padding:10px"><b style="font-size:15px">${itD(c.ultimaPresenza)}</b><div class="muted">ultima visita</div></div></div>
+ <div class="tabs">${[["profilo","Profilo"],["consensi","Privacy e consensi"],["storico","Storico"]].map(([k2,t])=>`<button data-t="${k2}" class="${k2===tab?"on":""}">${t}</button>`).join("")}</div><div id="sB"></div></div>`;
+ box.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>scheda(id,b.dataset.t));$("#sE").onclick=()=>modifica(c);
+ const B=$("#sB");
+ if(tab==="profilo"){
+  B.innerHTML=`<div class="muted">Registrato il ${itD(c.dataRegistrazione)} · provenienza: ${esc(c.provenienza||c.origine||"—")}</div>
+  ${c.dataNascita?`<div style="margin-top:8px">🎂 ${itD(c.dataNascita)}</div>`:""}
+  <div class="sez" style="margin-top:14px">Tag</div><div>${(c.tags||[]).filter(t=>!/Fiammelle$|^Segno|^Nazionalit|^anno /.test(t)).map(t=>`<span class="tag">${esc(t)}${` <a href="#" data-rt="${esc(t)}" style="text-decoration:none;color:#999">×</a>`}</span>`).join("")||'<span class="muted">Nessun tag</span>'}</div>
+  <div style="display:flex;gap:8px;margin-top:6px"><input class="f" id="sTg" placeholder="Aggiungi tag…"><button class="btn sm" id="sTa">+</button></div>
+  <div class="sez">Note di servizio</div><div style="white-space:pre-line">${esc(c.note||"—")}</div><div class="muted" style="margin-top:4px">Le note su allergie servono solo al servizio in sala, non al marketing.</div>
+  ${c.telefono?`<div style="margin-top:14px"><a class="btn ok sm" style="text-decoration:none" target="_blank" href="https://wa.me/${telNorm(c.telefono)}">💬 WhatsApp</a></div>`:""}`;
+  $("#sTa").onclick=async()=>{const t=$("#sTg").value.trim();if(!t)return;await updateDoc(doc(db,"clienti",id),{tags:arrayUnion(t)});scheda(id);};
+  B.querySelectorAll("[data-rt]").forEach(a=>a.onclick=async e=>{e.preventDefault();await updateDoc(doc(db,"clienti",id),{tags:arrayRemove(a.dataset.rt)});scheda(id);});
+ }
+ if(tab==="consensi"){
+  const L=(c.consensiLog||[]).slice().reverse();
+  const riga=(key,t,d,dis)=>`<div class="cons"><div><b>${t}</b><span class="muted">${d}</span></div><label class="sw"><input type="checkbox" data-k="${key}" ${k[key]?"checked":""} ${dis?"disabled":""}><span></span></label></div>`;
+  B.innerHTML=`${c.anonimizzato?`<div class="note">Cliente anonimizzato il ${itD(c.anonimizzatoIl)}: i dati personali sono stati cancellati.</div>`:""}
+  ${riga("privacy","Servizio (prenotazioni, coupon, fidelity)","Necessario per servirlo · base: contratto",true)}
+  ${riga("marketing","Marketing","WhatsApp, SMS, email con offerte · base: consenso",c.anonimizzato)}
+  ${riga("profilazione","Profilazione","Offerte su misura in base a visite e preferenze · base: consenso",c.anonimizzato)}
+  <div class="muted" style="margin-top:6px">Togliere un consenso è sempre possibile. Darlo dallo staff va fatto <b>solo se il cliente lo ha chiesto</b>: viene registrato col tuo nome.</div>
+  <div class="sez">Storico consensi</div>${L.length?`<div class="tl">${L.map(x=>`<div><b>${itD(x.data)}</b> · ${esc(x.fonte||"")}${x.da?" · "+esc(x.da):""}<div class="muted">marketing ${x.marketing?"✓":"✗"} · profilazione ${x.profilazione?"✓":"✗"}${x.versione?" · informativa "+esc(x.versione):""}</div></div>`).join("")}</div>`:`<div class="muted">Nessuno storico registrato${k.marketing?" (consenso importato da Pienissimo)":""}.</div>`}
+  ${isAdmin()?`<div class="sez">Diritti dell'interessato</div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn ghost sm" id="gX">📦 Esporta i suoi dati</button><button class="btn red sm" id="gD" ${c.anonimizzato?"disabled":""}>🗑 Cancella (anonimizza)</button></div><div class="muted" style="margin-top:6px">Usa questi pulsanti quando il cliente esercita il diritto di accesso/portabilità o di cancellazione. L'azione viene registrata.</div>`:""}`;
+  B.querySelectorAll("[data-k]").forEach(x=>x.onchange=async()=>{const key=x.dataset.k,v=x.checked;
+   if(v&&!confirm("Confermi che il cliente ti ha chiesto ORA di dare questo consenso?")){x.checked=false;return;}
+   const nuovo={...k,[key]:v},lg={data:oggi(),fonte:v?"dato in sala su richiesta":"revocato",da:S.me.nome||"",marketing:!!nuovo.marketing,profilazione:!!nuovo.profilazione};
+   await updateDoc(doc(db,"clienti",id),{["consensi."+key]:v,consensiLog:arrayUnion(lg)});log("consenso "+key+(v?" dato":" revocato"),{cliente:id});toast("Consenso aggiornato");scheda(id,"consensi");});
+  if(isAdmin()){$("#gX").onclick=()=>esportaInteressato(c);if(!c.anonimizzato)$("#gD").onclick=()=>anonimizza(c);}
+ }
+ if(tab==="storico"){
+  B.innerHTML=`<div class="muted">Caricamento…</div>`;let pr=[],cp=[],ev=[];
+  try{pr=(await getDocs(query(collection(db,"prenotazioni"),where("clienteId","==",id),limit(80)))).docs.map(d=>d.data()).sort((a,b)=>String(b.data).localeCompare(String(a.data)));}catch(e){}
+  if(c.telefono)try{cp=(await getDocs(query(collection(db,"coupon"),where("telefono","==",c.telefono)))).docs.map(d=>d.data());}catch(e){}
+  try{ev=(await getDocs(query(collection(db,"clienti",id,"eventi"),orderBy("quando","desc"),limit(20)))).docs.map(d=>d.data());}catch(e){}
+  const st={arrivato:"b-ok",noshow:"b-ko",annullata:"b-g",confermata:"b-b",richiesta:"b-w"};
+  B.innerHTML=`<div class="sez" style="margin-top:0">Prenotazioni (${pr.length})</div>${pr.slice(0,15).map(p=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #F2EFE8"><span>${itD(p.data)} ${esc(p.ora||"")} · ${p.persone||"?"} pers.</span><span class="bdg ${st[p.stato]||"b-g"}">${esc(p.stato||"")}</span></div>`).join("")||'<div class="muted">Nessuna</div>'}
+  <div class="sez">Coupon (${cp.length})</div>${cp.map(x=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #F2EFE8"><span>${esc(x.titolo)}</span><span class="bdg ${x.stato==="usato"?"b-ok":"b-b"}">${x.stato==="usato"?"usato":"da usare"}</span></div>`).join("")||'<div class="muted">Nessuno</div>'}
+  <div class="sez">Attività</div>${ev.map(e=>`<div style="padding:5px 0" class="muted">${e.quando?.toDate?e.quando.toDate().toLocaleDateString("it-IT"):""} · ${esc(e.testo||e.tipo||"")}</div>`).join("")||'<div class="muted">Nessuna</div>'}`;
+ }
+}
+
+function modifica(c){
+ const n=!c;c=c||{nome:"",cognome:"",telefono:"",email:"",dataNascita:"",note:"",consensi:{}};
+ modal(n?"Nuovo cliente":"Modifica cliente",`<div class="grid g2"><div><label class="l">Nome *</label><input class="f" id="mN" value="${esc(c.nome)}"></div><div><label class="l">Cognome</label><input class="f" id="mC" value="${esc(c.cognome||"")}"></div></div>
+ <div class="grid g2"><div><label class="l">Cellulare *</label><input class="f" id="mT" value="${esc(c.telefono||"")}" ${n?"":"disabled"}></div><div><label class="l">Email</label><input class="f" id="mE" type="email" value="${esc(c.email||"")}"></div></div>
+ <div class="grid g2"><div><label class="l">Data di nascita</label><input class="f" id="mD" type="date" value="${esc(c.dataNascita||"")}"></div><div><label class="l">Provenienza</label><input class="f" id="mP" value="${esc(c.provenienza||"")}" placeholder="es. passaparola, instagram"></div></div>
+ <label class="l">Note di servizio (allergie, preferenze al tavolo)</label><textarea class="f" id="mO">${esc(c.note||"")}</textarea>
+ ${n?`<div class="note" style="margin-top:12px">Prima di salvare: hai dato al cliente l'informativa privacy (link <b>privacy.html</b> o cartello in sala)?</div><label style="display:flex;gap:8px;margin-top:10px"><input type="checkbox" id="mI"> Informativa data al cliente *</label><label style="display:flex;gap:8px;margin-top:6px"><input type="checkbox" id="mM"> Il cliente vuole ricevere offerte (marketing)</label><label style="display:flex;gap:8px;margin-top:6px"><input type="checkbox" id="mF"> Il cliente accetta offerte su misura (profilazione)</label>`:""}`,
+ async ov=>{const g=s=>ov.querySelector(s)?.value?.trim()||"";const nome=g("#mN");if(!nome){toast("Inserisci il nome");return false;}
+  const d={nome,cognome:g("#mC"),email:g("#mE").toLowerCase()||null,dataNascita:g("#mD")||null,provenienza:g("#mP")||null,note:g("#mO")};
+  if(d.dataNascita){const m=MESI[+d.dataNascita.slice(5,7)-1];d.tags=arrayUnion(m);}
+  if(n){const t=telNorm(g("#mT"));if(!t){toast("Cellulare non valido");return false;}if(!ov.querySelector("#mI").checked){toast("Serve l'informativa");return false;}
+   const id="t"+t,ex=await getDoc(doc(db,"clienti",id));if(ex.exists()){toast("Esiste già un cliente con questo numero");CF.cur=id;scheda(id);return;}
+   const mk=ov.querySelector("#mM").checked,pf=ov.querySelector("#mF").checked;
+   Object.assign(d,{telefono:"+"+t,presenze:0,puntiFidelity:0,dataRegistrazione:oggi(),origine:"galleon-club",consensi:{privacy:true,marketing:mk,profilazione:pf},consensiLog:[{data:oggi(),fonte:"inserito da staff",da:S.me.nome||"",marketing:mk,profilazione:pf,versione:"2026-11"}]});
+   if(!d.tags)d.tags=[];await setDoc(doc(db,"clienti",id),d);
+   await setDoc(doc(db,"indice","nuovi"),{nuovi:arrayUnion(`${id}|${nome} ${d.cognome}|+${t}`)},{merge:true}).catch(()=>{});IDX=null;CF.cur=id;}
+  else await updateDoc(doc(db,"clienti",c.id),d);
+  toast("Salvato");if(PAG==="clienti")P.clienti();});
+}
+
+async function datiInteressato(c){
+ const out={cliente:{...c}};delete out.cliente.id;
+ try{out.prenotazioni=(await getDocs(query(collection(db,"prenotazioni"),where("clienteId","==",c.id)))).docs.map(d=>({id:d.id,...d.data()}));}catch(e){out.prenotazioni=[];}
+ try{out.coupon=c.telefono?(await getDocs(query(collection(db,"coupon"),where("telefono","==",c.telefono)))).docs.map(d=>({id:d.id,...d.data()})):[];}catch(e){out.coupon=[];}
+ try{out.eventi=(await getDocs(collection(db,"clienti",c.id,"eventi"))).docs.map(d=>({id:d.id,...d.data()}));}catch(e){out.eventi=[];}
+ return out;
+}
+async function esportaInteressato(c){toast("Raccolgo i dati…");const o=await datiInteressato(c);
+ const rep=(k,v)=>v&&typeof v==="object"&&typeof v.toDate==="function"?v.toDate().toISOString():v;
+ scarica(`dati-${(c.nome||"cliente").replace(/\W+/g,"_")}-${oggi()}.json`,JSON.stringify({titolare:S.cfg.titolare||"The Galleon Pub & Pizzeria",esportatoIl:new Date().toISOString(),...o},rep,2),"application/json");
+ log("esportazione dati interessato",{cliente:c.id});}
+async function anonimizza(c,silenzioso){
+ if(!silenzioso&&!confirm(`Cancellare i dati personali di ${c.nome} ${c.cognome||""}?\n\nNome, telefono, email, note e tag vengono eliminati. Restano solo numeri anonimi per le statistiche. Non si può annullare.`))return false;
+ const b=writeBatch(db);
+ b.update(doc(db,"clienti",c.id),{nome:"Cliente",cognome:"anonimo",telefono:null,email:null,dataNascita:null,note:"",tags:[],provenienza:null,consensi:{privacy:false,marketing:false,profilazione:false},consensiLog:[],anonimizzato:true,anonimizzatoIl:oggi()});
+ try{(await getDocs(query(collection(db,"prenotazioni"),where("clienteId","==",c.id)))).docs.forEach(d=>b.update(d.ref,{nome:"Cliente anonimo",nomeSolo:"",cognomeSolo:"",telefono:"",email:null,note:""}));}catch(e){}
+ if(c.telefono)try{(await getDocs(query(collection(db,"coupon"),where("telefono","==",c.telefono)))).docs.forEach(d=>b.delete(d.ref));}catch(e){}
+ await b.commit();
+ try{const s=await getDocs(collection(db,"indice"));for(const d of s.docs){const v=d.data();if(v.r&&v.r.includes(c.id+"|"))await updateDoc(d.ref,{r:v.r.split("\n").filter(x=>!x.startsWith(c.id+"|")).join("\n")});if(v.nuovi?.some(x=>x.startsWith(c.id+"|")))await updateDoc(d.ref,{nuovi:v.nuovi.filter(x=>!x.startsWith(c.id+"|"))});}IDX=null;}catch(e){}
+ log("anonimizzazione cliente",{cliente:c.id});if(!silenzioso){toast("Dati cancellati");scheda(c.id,"consensi");}return true;
+}
+
+/* ---------- SEGMENTI ---------- */
+const segQuery=s=>{const w=[];if(s.mkt==="si")w.push(where("consensi.marketing","==",true));if(s.prof==="si")w.push(where("consensi.profilazione","==",true));
+ if(s.tag)w.push(where("tags","array-contains",s.tag));if(s.prov)w.push(where("provenienza","==",s.prov));
+ if(s.att==="attivi")w.push(where("ultimaPresenza",">=",fa(s.gg||RET.inattivoGg)));if(s.att==="inattivi")w.push(where("ultimaPresenza","<",fa(s.gg||RET.inattivoGg)));if(s.att==="mai")w.push(where("presenze","==",0));if(s.att==="fedeli")w.push(where("presenze",">=",Number(s.vis)||5));
+ return query(C(),...w);};
+const segDesc=s=>[s.mkt==="si"?"consenso marketing":"",s.prof==="si"?"consenso profilazione":"",s.tag?"tag “"+s.tag+"”":"",s.prov?"provenienza "+s.prov:"",s.att==="attivi"?`venuti negli ultimi ${s.gg} gg`:s.att==="inattivi"?`non vengono da ${s.gg} gg`:s.att==="mai"?"mai venuti":s.att==="fedeli"?`almeno ${s.vis} visite`:""].filter(Boolean).join(" · ")||"tutti i clienti";
+P.segmenti=async()=>{
+ const s=await getDocs(collection(db,"segmenti")).catch(()=>null);const L=s?s.docs.map(d=>({id:d.id,...d.data()})):[];
+ const PRONTI=[{nome:"Da riconquistare",mkt:"si",att:"inattivi",gg:90},{nome:"Clienti fedeli",mkt:"si",att:"fedeli",vis:5},{nome:"Compleanno questo mese",mkt:"si",tag:MESI[new Date().getMonth()]},{nome:"Contatti mai venuti",mkt:"si",att:"mai"},{nome:"Hanno usato una promo",mkt:"si",tag:"Promo usata"}];
+ $("#main").innerHTML=`<div class="hd"><h1>Segmenti</h1><span class="sub">gruppi di clienti a cui mandare le promo</span><span class="sp"></span>${isAdmin()?`<button class="btn gold" id="sgN">+ Nuovo segmento</button>`:""}</div>
+ <div class="grid g3" id="sgL">${[...L,...PRONTI.filter(p=>!L.some(x=>x.nome===p.nome)).map(p=>({...p,pronto:true}))].map((x,i)=>`<div class="card" data-i="${i}"><div style="display:flex;justify-content:space-between;gap:8px"><b style="font-size:15.5px">${esc(x.nome)}</b>${x.pronto?'<span class="bdg b-g">suggerito</span>':""}</div><div class="muted" style="margin:6px 0 10px">${esc(segDesc(x))}</div><div style="font-size:26px;font-weight:800" data-n>…</div><div class="muted">clienti</div>
+ <div style="display:flex;gap:6px;margin-top:12px;flex-wrap:wrap">${isAdmin()?`<button class="btn ghost sm" data-e>✎</button><button class="btn ghost sm" data-x>⬇ CSV</button>`:""}<button class="btn sm" data-p>🎟️ Crea promo</button></div></div>`).join("")}</div>`;
+ const ALL=[...L,...PRONTI.filter(p=>!L.some(x=>x.nome===p.nome)).map(p=>({...p,pronto:true}))];
+ $$("#sgL [data-i]").forEach(el=>{const x=ALL[+el.dataset.i];cnt(segQuery(x)).then(n=>el.querySelector("[data-n]").innerHTML=n===null?`<span style="font-size:13px;font-weight:600">serve un indice: apri “CSV” per crearlo</span>`:fmt(n));
+  el.querySelector("[data-p]").onclick=()=>{sessionStorage.setItem("segPromo",JSON.stringify(x));location.hash="promo";};
+  if(isAdmin()){el.querySelector("[data-e]").onclick=()=>editSeg(x);el.querySelector("[data-x]").onclick=async()=>{try{toast("Preparo il file…");const s=await getDocs(query(segQuery(x),limit(25000)));scarica(`segmento-${x.nome.replace(/\W+/g,"_")}.csv`,csvTxt([["Nome","Cognome","Telefono","Email","Visite","Ultima visita"],...s.docs.map(d=>{const c=d.data();return[c.nome,c.cognome,c.telefono,c.email,c.presenze||0,c.ultimaPresenza||""];})]));log("export segmento",{segmento:x.nome,righe:s.size});}catch(e){modal("Indice mancante",`<div>${idxLink(e)}</div>`);}};}
+ });
+ if($("#sgN"))$("#sgN").onclick=()=>editSeg(null);
+};
+function editSeg(x){x=x||{nome:"",mkt:"si",prof:"",tag:"",prov:"",att:"",gg:RET.inattivoGg,vis:5};
+ const ov=modal(x.id?"Modifica segmento":"Nuovo segmento",`<label class="l">Nome</label><input class="f" id="gN" value="${esc(x.pronto?"":x.nome)}" placeholder="${esc(x.nome||"es. Famiglie del weekend")}">
+ <div class="grid g2"><div><label class="l">Consenso marketing</label><select class="f" id="gM"><option value="si" ${x.mkt==="si"?"selected":""}>Solo chi ha dato il consenso</option><option value="" ${x.mkt!=="si"?"selected":""}>Tutti (solo per analisi, non per invii)</option></select></div><div><label class="l">Profilazione</label><select class="f" id="gF"><option value="">Indifferente</option><option value="si" ${x.prof==="si"?"selected":""}>Solo con consenso profilazione</option></select></div></div>
+ <div class="grid g2"><div><label class="l">Frequenza</label><select class="f" id="gA">${[["","Indifferente"],["attivi","Attivi negli ultimi N giorni"],["inattivi","Inattivi da N giorni"],["mai","Mai venuti"],["fedeli","Almeno N visite"]].map(([k,t])=>`<option value="${k}" ${x.att===k?"selected":""}>${t}</option>`).join("")}</select></div><div><label class="l">N</label><input class="f" id="gG" type="number" min="1" value="${esc(x.att==="fedeli"?x.vis:x.gg)}"></div></div>
+ <div class="grid g2"><div><label class="l">Con il tag</label><input class="f" id="gT" value="${esc(x.tag||"")}" placeholder="es. VIP, dicembre, Promo usata"></div><div><label class="l">Provenienza</label><input class="f" id="gP" value="${esc(x.prov||"")}" placeholder="es. instagram"></div></div>
+ <div class="card" style="margin-top:14px;background:#FAF8F3"><b id="gC">…</b><div class="muted" id="gD"></div></div>
+ <div class="muted" style="margin-top:8px">Si può scegliere un solo tag per segmento (limite del database).</div>${x.id?`<button class="btn red sm" style="margin-top:12px" id="gX">Elimina segmento</button>`:""}`,
+ async ov=>{const v=leggi(ov);if(!v.nome){toast("Dai un nome");return false;}const d={...v,modificatoIl:oggi()};if(x.id)await setDoc(doc(db,"segmenti",x.id),d);else await addDoc(collection(db,"segmenti"),d);toast("Segmento salvato");P.segmenti();});
+ const leggi=ov=>{const g=s=>ov.querySelector(s).value.trim(),a=g("#gA"),n=Number(g("#gG"))||null;return{nome:g("#gN")||(x.pronto?x.nome:""),mkt:g("#gM"),prof:g("#gF"),att:a,gg:a==="fedeli"?null:n,vis:a==="fedeli"?n:null,tag:g("#gT"),prov:g("#gP")};};
+ const ricalc=async()=>{const v=leggi(ov);ov.querySelector("#gD").textContent=segDesc(v);const n=await cnt(segQuery(v));ov.querySelector("#gC").textContent=n===null?"Questa combinazione richiede un indice: salva e premi CSV per crearlo.":`${fmt(n)} clienti nel segmento`;};
+ ov.querySelectorAll("input,select").forEach(i=>i.onchange=ricalc);ricalc();
+ if(x.id)ov.querySelector("#gX").onclick=async()=>{if(!confirm("Eliminare il segmento?"))return;await deleteDoc(doc(db,"segmenti",x.id));ov.remove();P.segmenti();};
+}
+
+/* ---------- PROMOZIONI ---------- */
+const linkPromo=(id,c)=>{const u=new URL(S.cfg.urlCoupon||"https://pietrocrescenzipc-bot.github.io/penelope/coupon.html");u.searchParams.set("p",id);if(c){u.searchParams.set("n",c.nome||"");u.searchParams.set("t",telNorm(c.telefono));u.searchParams.set("f","invio");}return u.href;};
+P.promo=async()=>{
+ const s=await getDocs(collection(db,"promo")).catch(()=>null);const L=(s?s.docs.map(d=>({id:d.id,...d.data()})):[]).sort((a,b)=>String(b.creata||"").localeCompare(String(a.creata||"")));
+ const stato=p=>p.attiva===false?["disattivata","b-g"]:p.al&&p.al<oggi()?["scaduta","b-g"]:p.dal&&p.dal>oggi()?["programmata","b-w"]:["attiva","b-ok"];
+ $("#main").innerHTML=`<div class="hd"><h1>Promozioni</h1><span class="sub">link → QR personale → scansione in sala</span><span class="sp"></span><a class="btn ghost" style="text-decoration:none" href="${esc((S.cfg.urlCoupon||"https://pietrocrescenzipc-bot.github.io/penelope/coupon.html").replace("coupon.html","scansiona.html"))}" target="_blank">📷 Scanner sala</a>${isAdmin()?`<button class="btn gold" id="pN">+ Nuova promo</button>`:""}</div>
+ <div class="card" style="padding:4px 8px"><table><thead><tr><th>Promo</th><th>Periodo</th><th>Stato</th><th>Scaricati</th><th>Usati</th><th>Ritorno</th><th>Incasso</th></tr></thead><tbody>${L.map(p=>{const [t,c]=stato(p);return `<tr class="cl" data-p="${p.id}"><td><b>${esc(p.titolo)}</b><div class="muted">${esc(p.gruppoNome||p.segmento||"")}</div></td><td>${itD(p.dal)} → ${itD(p.al)}</td><td><span class="bdg ${c}">${t}</span></td><td data-s="sc">…</td><td data-s="us">…</td><td data-s="rt">…</td><td data-s="in">…</td></tr>`;}).join("")||`<tr><td colspan="7" class="muted">Nessuna promozione</td></tr>`}</tbody></table></div>`;
+ $$("[data-p]").forEach(async r=>{const id=r.dataset.p,q=w=>query(collection(db,"coupon"),where("promoId","==",id),...w);const [sc,us]=await Promise.all([cnt(q([])),cnt(q([where("stato","==","usato")]))]);let inc=null;try{inc=(await getAggregateFromServer(q([where("stato","==","usato")]),{t:sum("spesa")})).data().t;}catch(e){}
+  r.querySelector('[data-s="sc"]').textContent=fmt(sc);r.querySelector('[data-s="us"]').textContent=fmt(us);r.querySelector('[data-s="rt"]').textContent=(sc?Math.round(us/sc*100):0)+"%";r.querySelector('[data-s="in"]').textContent=inc?fmt(Math.round(inc))+" €":"—";
+  r.onclick=()=>edPromo(L.find(x=>x.id===id));});
+ if($("#pN"))$("#pN").onclick=()=>edPromo(null);
+ const sp=sessionStorage.getItem("segPromo");if(sp&&isAdmin()){sessionStorage.removeItem("segPromo");edPromo(null,JSON.parse(sp));}
+};
+function edPromo(p,seg){
+ const ro=!isAdmin(),GG=["Dom","Lun","Mar","Mer","Gio","Ven","Sab"];
+ p=p||{titolo:"",descrizione:"",testo:"Ciao {nome}! 🎉 Solo per te: … Ritira il coupon 👉 {link}",dal:oggi(),al:addG(oggi(),14),giorni:[0,1,2,3,4,5,6],minPersone:1,giorniValidita:null,attiva:true,seg:seg||{nome:"Tutti con consenso marketing",mkt:"si"}};
+ const sg=p.seg||{nome:p.gruppoNome||"Tutti con consenso marketing",mkt:"si",tag:p.gruppo==="tag"?p.tag:""};
+ const ov=modal(p.id?(ro?p.titolo:"Modifica promo"):"Nuova promo",`<fieldset style="border:0;padding:0;margin:0" ${ro?"disabled":""}>
+ <label class="l">Titolo (lo vede il cliente)</label><input class="f" id="pT" maxlength="80" value="${esc(p.titolo)}" placeholder="es. Bombardino 2x1 del martedì">
+ <label class="l">Descrizione per il cliente</label><textarea class="f" id="pD" style="min-height:64px">${esc(p.descrizione||"")}</textarea>
+ <div class="grid g3"><div><label class="l">Dal</label><input class="f" type="date" id="pDa" value="${esc(p.dal||"")}"></div><div><label class="l">Al</label><input class="f" type="date" id="pAl" value="${esc(p.al||"")}"></div><div><label class="l">Minimo persone</label><input class="f" type="number" min="1" id="pM" value="${esc(p.minPersone||1)}"></div></div>
+ <label class="l">Giorni validi</label><div class="chips" style="margin:0">${[1,2,3,4,5,6,0].map(g=>`<label class="chip"><input type="checkbox" data-g="${g}" ${(p.giorni||[]).includes(g)?"checked":""}> ${GG[g]}</label>`).join("")}</div>
+ <div class="grid g2"><div><label class="l">Scade N giorni dopo il download</label><input class="f" type="number" min="1" id="pV" value="${esc(p.giorniValidita||"")}"></div><div><label class="l">Stato</label><select class="f" id="pS"><option value="1">Attiva</option><option value="0" ${p.attiva===false?"selected":""}>Disattivata</option></select></div></div>
+ <div class="sez">Destinatari e messaggio</div><div class="card" style="background:#FAF8F3;padding:12px"><b>${esc(sg.nome)}</b><div class="muted">${esc(segDesc(sg))}</div><div id="pC" style="margin-top:4px;font-weight:700">…</div></div>
+ <label class="l">Messaggio ({nome}, {link})</label><textarea class="f" id="pX">${esc(p.testo||"")}</textarea></fieldset>
+ ${p.id?`<label class="l">Link pubblico della promo</label><div style="display:flex;gap:8px"><input class="f" readonly value="${esc(linkPromo(p.id))}"><button class="btn ghost sm" id="pL">Copia</button></div>`:""}
+ ${p.id&&!ro?`<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap"><button class="btn ghost sm" id="pE">⬇ Elenco con link personali</button><button class="btn red sm" id="pR">Elimina</button></div><div class="muted" style="margin-top:6px">L'invio automatico via WhatsApp/email arriva con il prossimo modulo; intanto l'elenco contiene il messaggio già personalizzato per ogni cliente.</div>`:""}`,
+ ro?null:async ov=>{const g=s=>ov.querySelector(s).value.trim();const d={titolo:g("#pT"),descrizione:g("#pD"),testo:ov.querySelector("#pX").value,dal:g("#pDa"),al:g("#pAl"),minPersone:Math.max(1,+g("#pM")||1),giorniValidita:+g("#pV")||null,giorni:[...ov.querySelectorAll("[data-g]")].filter(x=>x.checked).map(x=>+x.dataset.g),attiva:g("#pS")==="1",seg:sg,gruppoNome:sg.nome,creata:p.creata||oggi(),modificataDa:S.me.nome||""};
+  if(!d.titolo||!d.al||!d.giorni.length){toast("Servono titolo, data di fine e almeno un giorno");return false;}
+  if(p.id)await setDoc(doc(db,"promo",p.id),d,{merge:true});else await addDoc(collection(db,"promo"),d);toast("Promo salvata");P.promo();});
+ cnt(segQuery(sg)).then(n=>ov.querySelector("#pC").textContent=n===null?"Serve un indice: esporta il segmento per crearlo":`${fmt(n)} clienti`);
+ if(p.id)ov.querySelector("#pL").onclick=()=>{navigator.clipboard?.writeText(linkPromo(p.id));toast("Link copiato");};
+ if(p.id&&!ro){ov.querySelector("#pE").onclick=async()=>{const s=await getDocs(query(segQuery({...sg,mkt:"si"}),limit(25000)));scarica(`promo-${p.id}.csv`,csvTxt([["Nome","Cognome","Telefono","Email","Link","Messaggio"],...s.docs.map(d=>{const c=d.data(),lk=linkPromo(p.id,c);return[c.nome,c.cognome,c.telefono,c.email,lk,(p.testo||"").replace(/\{nome\}/g,c.nome||"").replace(/\{link\}/g,lk)];})]));log("export promo",{promo:p.titolo,righe:s.size});};
+  ov.querySelector("#pR").onclick=async()=>{if(!confirm("Eliminare la promo? I coupon già scaricati non varranno più."))return;await deleteDoc(doc(db,"promo",p.id));ov.remove();P.promo();};}
+}
+
+/* ---------- PRIVACY GDPR ---------- */
+const TIPI={accesso:"Accesso / copia dei dati",rettifica:"Correzione dei dati",cancellazione:"Cancellazione (oblio)",opposizione:"Stop marketing / opposizione",portabilita:"Portabilità"};
+P.privacy=async()=>{
+ const T=[["richieste","Richieste dei clienti"],["conservazione","Conservazione dati"],["registro","Registro attività"],["trattamenti","Registro trattamenti"],["impostazioni","Impostazioni"]];
+ let tab=sessionStorage.getItem("gdprTab")||"richieste";if(!isAdmin())tab="trattamenti";
+ $("#main").innerHTML=`<div class="hd"><h1>Privacy GDPR</h1><span class="sp"></span><a class="btn ghost" style="text-decoration:none" target="_blank" href="${esc((S.cfg.urlCoupon||"https://pietrocrescenzipc-bot.github.io/penelope/coupon.html").replace("coupon.html","privacy.html"))}">📄 Informativa pubblica</a></div>
+ <div class="chips">${T.filter(t=>isAdmin()||t[0]==="trattamenti").map(([k,t])=>`<button class="chip ${k===tab?"on":""}" data-g="${k}">${t}</button>`).join("")}</div><div id="gB"></div>`;
+ $$("[data-g]").forEach(b=>b.onclick=()=>{sessionStorage.setItem("gdprTab",b.dataset.g);P.privacy();});
+ const B=$("#gB");
+ if(tab==="richieste"){
+  const s=await getDocs(query(collection(db,"richiesteGdpr"),orderBy("ricevutaIl","desc"),limit(100))).catch(()=>null);const L=s?s.docs.map(d=>({id:d.id,...d.data()})):[];
+  B.innerHTML=`<div class="card"><div style="display:flex;align-items:center;gap:10px"><div style="flex:1"><b>Richieste degli interessati</b><div class="muted">Per legge vanno evase entro 30 giorni. Annota qui ogni richiesta arrivata a voce, per email o WhatsApp.</div></div><button class="btn gold" id="rN">+ Registra richiesta</button></div>
+  <table style="margin-top:12px"><thead><tr><th>Ricevuta</th><th>Cliente</th><th>Tipo</th><th>Scadenza</th><th>Stato</th><th></th></tr></thead><tbody>${L.map(r=>{const sc=addG(r.ricevuta,30),lt=r.stato==="aperta"&&sc<oggi();return `<tr><td>${itD(r.ricevuta)}</td><td>${esc(r.nome)}<div class="muted">${esc(r.telefono||"")}</div></td><td>${esc(TIPI[r.tipo]||r.tipo)}</td><td>${itD(sc)}</td><td><span class="bdg ${r.stato==="evasa"?"b-ok":lt?"b-ko":"b-w"}">${r.stato==="evasa"?"evasa "+itD(r.evasa):lt?"in ritardo":"aperta"}</span></td><td>${r.stato==="aperta"?`<button class="btn sm" data-r="${r.id}">Evadi</button>`:""}</td></tr>`;}).join("")||`<tr><td colspan="6" class="muted">Nessuna richiesta registrata</td></tr>`}</tbody></table></div>`;
+  $("#rN").onclick=()=>modal("Nuova richiesta privacy",`<label class="l">Cellulare del cliente</label><input class="f" id="qT" placeholder="333 123 4567"><label class="l">Nome</label><input class="f" id="qN"><label class="l">Tipo di richiesta</label><select class="f" id="qY">${Object.entries(TIPI).map(([k,t])=>`<option value="${k}">${t}</option>`).join("")}</select><div class="grid g2"><div><label class="l">Ricevuta il</label><input class="f" type="date" id="qD" value="${oggi()}"></div><div><label class="l">Canale</label><select class="f" id="qC"><option>di persona</option><option>email</option><option>WhatsApp</option><option>telefono</option><option>lettera/PEC</option></select></div></div><label class="l">Note</label><textarea class="f" id="qO" style="min-height:60px"></textarea>`,
+   async ov=>{const g=s=>ov.querySelector(s).value.trim(),t=telNorm(g("#qT"));await addDoc(collection(db,"richiesteGdpr"),{telefono:t?"+"+t:"",clienteId:t?"t"+t:null,nome:g("#qN"),tipo:g("#qY"),ricevuta:g("#qD"),canale:g("#qC"),note:g("#qO"),stato:"aperta",ricevutaIl:serverTimestamp(),registrataDa:S.me.nome||""});RICH++;P.privacy();});
+  $$("[data-r]").forEach(b=>b.onclick=()=>evadi(L.find(r=>r.id===b.dataset.r)));
+ }
+ if(tab==="conservazione"){
+  const lim=addG(oggi(),-Math.round(RET.conservazioneMesi*30.4));
+  const qV=query(C(),where("ultimaPresenza","<",lim)),qM=query(C(),where("presenze","==",0),where("dataRegistrazione","<",lim));
+  const [nV,nM]=await Promise.all([cnt(qV),cnt(qM)]);
+  B.innerHTML=`<div class="card"><b>Dati da non tenere oltre il necessario</b><div class="muted" style="margin:4px 0 14px">Regola impostata: ${RET.conservazioneMesi} mesi dall'ultima visita (modificabile in Impostazioni). I clienti oltre il limite vanno anonimizzati: restano i numeri per le statistiche, spariscono nome e contatti.</div>
+  <div class="grid g2"><div class="card kpi"><small>Ultima visita prima del ${itD(lim)}</small><b>${nV===null?"—":fmt(nV)}</b></div><div class="card kpi"><small>Mai venuti, registrati prima del ${itD(lim)}</small><b>${nM===null?"—":fmt(nM)}</b></div></div>
+  <div class="note" style="margin-top:14px">Prima di anonimizzare in blocco fai una prova con pochi clienti e verifica che lo storico importato da Pienissimo abbia le date di visita giuste: se mancano, il conteggio sopra è sottostimato o sbagliato.</div>
+  <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap"><button class="btn ghost" id="vL">Vedi l'elenco</button><button class="btn red" id="vA" ${(nV||0)+(nM||0)?"":"disabled"}>Anonimizza i primi 100</button></div><div id="vE" style="margin-top:12px"></div></div>`;
+  const prendi=async()=>{const a=await getDocs(query(qV,limit(100))).catch(()=>({docs:[]})),b=await getDocs(query(qM,limit(100))).catch(()=>({docs:[]}));return [...a.docs,...b.docs].filter(d=>!d.data().anonimizzato).slice(0,100).map(d=>({id:d.id,...d.data()}));};
+  $("#vL").onclick=async()=>{const l=await prendi();$("#vE").innerHTML=`<table><thead><tr><th>Cliente</th><th>Ultima visita</th><th>Registrato</th></tr></thead><tbody>${l.map(c=>`<tr><td>${esc(c.nome)} ${esc(c.cognome||"")}</td><td>${itD(c.ultimaPresenza)}</td><td>${itD(c.dataRegistrazione)}</td></tr>`).join("")||'<tr><td colspan="3" class="muted">Nessuno</td></tr>'}</tbody></table>`;};
+  $("#vA").onclick=async()=>{const l=await prendi();if(!l.length)return;if(!confirm(`Anonimizzare ${l.length} clienti oltre il limite di conservazione? Non si può annullare.`))return;let n=0;for(const c of l){if(await anonimizza(c,true))n++;}log("anonimizzazione per conservazione",{clienti:n});toast(`${n} clienti anonimizzati`);P.privacy();};
+ }
+ if(tab==="registro"){
+  const s=await getDocs(query(collection(db,"registro"),orderBy("il","desc"),limit(150))).catch(()=>null);
+  B.innerHTML=`<div class="card"><b>Chi ha fatto cosa</b><div class="muted">Esportazioni, cancellazioni e cambi di consenso vengono registrati qui e non si possono modificare.</div><table style="margin-top:12px"><thead><tr><th>Quando</th><th>Chi</th><th>Azione</th><th>Dettagli</th></tr></thead><tbody>${(s?s.docs:[]).map(d=>{const r=d.data();return `<tr><td>${r.il?.toDate?r.il.toDate().toLocaleString("it-IT"):""}</td><td>${esc(r.da)}</td><td>${esc(r.azione)}</td><td class="muted">${esc([r.file,r.filtro,r.segmento,r.promo,r.cliente,r.righe!=null?r.righe+" righe":"",r.clienti!=null?r.clienti+" clienti":""].filter(Boolean).join(" · "))}</td></tr>`;}).join("")||'<tr><td colspan="4" class="muted">Nessuna attività</td></tr>'}</tbody></table></div>`;
+ }
+ if(tab==="trattamenti"){
+  const R=[["Prenotazioni e servizio al tavolo","Clienti","Nome, cellulare, email, note di servizio (anche allergie)","Contratto (art. 6.1.b); allergie: tutela della salute del cliente su sua richiesta","Titolare, staff di sala","24 mesi dall'ultima visita"],
+   ["Coupon e promozioni con QR","Clienti","Nome, cellulare, email, coupon usati, importo conto","Contratto (art. 6.1.b)","Titolare, staff","Fino a scadenza promo + 24 mesi"],
+   ["Fidelity a punti","Clienti iscritti","Anagrafica, punti, premi","Contratto (art. 6.1.b)","Titolare, staff","24 mesi dall'ultima visita"],
+   ["Marketing diretto (WhatsApp, SMS, email)","Clienti con consenso","Nome, contatti, data di nascita","Consenso (art. 6.1.a)","Titolare; fornitori invio come responsabili","Fino a revoca, max 24 mesi senza visite"],
+   ["Profilazione per offerte su misura","Clienti con consenso","Visite, spesa, preferenze, promo usate","Consenso (art. 6.1.a)","Titolare","12 mesi di storico"],
+   ["Gestione richieste privacy","Interessati","Dati della richiesta","Obbligo legale (art. 6.1.c)","Titolare","5 anni"]];
+  B.innerHTML=`<div class="card"><b>Registro delle attività di trattamento (art. 30 GDPR)</b><div class="muted">Bozza basata su come usate Galleon Club: va verificata con il consulente privacy. Puoi stamparla con Ctrl+P.</div>
+  <div style="margin-top:10px"><b>Titolare:</b> ${esc(S.cfg.titolare||"[da completare in Impostazioni]")} · <b>Sistemi:</b> Google Firebase (archivio e accessi), GitHub Pages (pagine pubbliche)</div>
+  <table style="margin-top:12px"><thead><tr><th>Trattamento</th><th>Interessati</th><th>Dati</th><th>Base giuridica</th><th>Chi accede</th><th>Conservazione</th></tr></thead><tbody>${R.map(r=>`<tr>${r.map((x,i)=>`<td${i?' class="muted"':""}>${i?esc(x):"<b>"+esc(x)+"</b>"}</td>`).join("")}</tr>`).join("")}</tbody></table>
+  <div class="sez">Misure di sicurezza</div><div class="muted">Accesso con email e password personali · ruoli Titolare/Sala con permessi diversi · esportazioni solo per i titolari e registrate · regole del database che impediscono letture dall'esterno · consensi separati e storicizzati · anonimizzazione a fine conservazione.</div></div>`;
+ }
+ if(tab==="impostazioni"){
+  B.innerHTML=`<div class="card"><b>Dati del titolare</b><label class="l">Ragione sociale, P. IVA, indirizzo</label><input class="f" id="iT" value="${esc(S.cfg.titolare||"")}" placeholder="es. Galleon srl · P.IVA 0123… · Via …, Marsciano"><label class="l">Email per le richieste privacy</label><input class="f" id="iE" value="${esc(S.cfg.emailPrivacy||"")}">
+  <label class="l">Indirizzo della pagina coupon (pubblica)</label><input class="f" id="iU" value="${esc(S.cfg.urlCoupon||"https://pietrocrescenzipc-bot.github.io/penelope/coupon.html")}">
+  <div class="sez">Conservazione</div><div class="grid g3"><div><label class="l">Cliente inattivo dopo (giorni)</label><input class="f" type="number" id="iI" value="${RET.inattivoGg}"></div><div><label class="l">Conservazione dati (mesi)</label><input class="f" type="number" id="iC" value="${RET.conservazioneMesi}"></div><div><label class="l">Storico profilazione (mesi)</label><input class="f" type="number" id="iP" value="${RET.profilazioneMesi}"></div></div>
+  <button class="btn ok" style="margin-top:16px" id="iS">Salva</button></div>`;
+  $("#iS").onclick=async()=>{const g=s=>$(s).value.trim();const ret={inattivoGg:+g("#iI")||60,conservazioneMesi:+g("#iC")||24,profilazioneMesi:+g("#iP")||12};
+   await setDoc(doc(db,"impostazioni","locale"),{titolare:g("#iT"),emailPrivacy:g("#iE"),urlCoupon:g("#iU")},{merge:true});await setDoc(doc(db,"impostazioni","gdpr"),{ret},{merge:true});
+   Object.assign(S.cfg,{titolare:g("#iT"),emailPrivacy:g("#iE"),urlCoupon:g("#iU")});Object.assign(RET,ret);log("impostazioni privacy modificate");toast("Salvato");};
+ }
+};
+async function evadi(r){
+ let c=null;if(r.clienteId){const s=await getDoc(doc(db,"clienti",r.clienteId)).catch(()=>null);if(s?.exists())c={id:s.id,...s.data()};}
+ const az={accesso:"Scarica il file con tutti i suoi dati e invialo al cliente.",portabilita:"Scarica il file (formato JSON leggibile da altri sistemi) e invialo al cliente.",cancellazione:"Anonimizza il cliente: nome, contatti, note, coupon vengono cancellati.",opposizione:"Togli il consenso marketing e profilazione.",rettifica:"Correggi i dati dalla scheda cliente."}[r.tipo];
+ const ov=modal("Evadi: "+(TIPI[r.tipo]||r.tipo),`<div><b>${esc(r.nome)}</b> ${esc(r.telefono||"")}</div><div class="muted" style="margin:6px 0 12px">${esc(r.note||"")}</div>${c?`<div class="note">${az}</div><div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">${r.tipo==="accesso"||r.tipo==="portabilita"?`<button class="btn" id="eX">📦 Scarica dati</button>`:""}${r.tipo==="cancellazione"?`<button class="btn red" id="eD">🗑 Anonimizza ora</button>`:""}${r.tipo==="opposizione"?`<button class="btn" id="eO">🚫 Togli consensi</button>`:""}${r.tipo==="rettifica"?`<button class="btn" id="eR">✎ Apri scheda</button>`:""}</div>`:`<div class="note">Nessun cliente trovato con questo numero: rispondi al richiedente che non abbiamo suoi dati.</div>`}<label class="l">Esito / risposta data</label><textarea class="f" id="eN" style="min-height:60px"></textarea>`,
+  async ov=>{await updateDoc(doc(db,"richiesteGdpr",r.id),{stato:"evasa",evasa:oggi(),esito:ov.querySelector("#eN").value.trim(),evasaDa:S.me.nome||""});log("richiesta privacy evasa",{cliente:r.clienteId||r.telefono});RICH=Math.max(0,RICH-1);P.privacy();},"Segna come evasa");
+ if(!c)return;
+ ov.querySelector("#eX")&&(ov.querySelector("#eX").onclick=()=>esportaInteressato(c));
+ ov.querySelector("#eD")&&(ov.querySelector("#eD").onclick=async()=>{if(await anonimizza(c))ov.querySelector("#eN").value="Dati anonimizzati il "+itD(oggi());});
+ ov.querySelector("#eO")&&(ov.querySelector("#eO").onclick=async()=>{await updateDoc(doc(db,"clienti",c.id),{"consensi.marketing":false,"consensi.profilazione":false,consensiLog:arrayUnion({data:oggi(),fonte:"opposizione/revoca richiesta",da:S.me.nome||"",marketing:false,profilazione:false})});log("consensi revocati su richiesta",{cliente:c.id});ov.querySelector("#eN").value="Consensi marketing e profilazione revocati il "+itD(oggi());toast("Consensi tolti");});
+ ov.querySelector("#eR")&&(ov.querySelector("#eR").onclick=()=>{ov.remove();CF.cur=c.id;vai("clienti");});
+}
+
+/* ---------- STAFF ---------- */
+P.staff=async()=>{
+ if(!isAdmin()){vai("home");return;}
+ const s=await getDocs(collection(db,"staff"));
+ $("#main").innerHTML=`<div class="hd"><h1>Staff e ruoli</h1></div><div class="card"><table><thead><tr><th>Nome</th><th>Ruolo</th><th>Cosa può fare</th></tr></thead><tbody>${s.docs.map(d=>{const u=d.data();return `<tr><td><b>${esc(u.nome||"—")}</b><div class="muted">${esc(u.email||d.id)}</div></td><td><select class="f" style="width:auto" data-u="${d.id}" ${d.id===S.me.uid?"disabled":""}><option value="admin" ${u.ruolo==="admin"?"selected":""}>Titolare</option><option value="sala" ${u.ruolo!=="admin"?"selected":""}>Sala</option></select></td><td class="muted">${u.ruolo==="admin"?"Tutto: promo, esportazioni, privacy, ruoli":"Clienti, prenotazioni, scanner coupon. Niente esportazioni"}</td></tr>`;}).join("")}</tbody></table>
+ <div class="muted" style="margin-top:12px">Per aggiungere una persona: creala in Firebase → Authentication con email e password, poi aggiungi il documento in "staff" con il suo UID, nome e ruolo "sala". Il tuo ruolo non si può cambiare da qui per sicurezza.</div></div>`;
+ $$("[data-u]").forEach(x=>x.onchange=async()=>{await updateDoc(doc(db,"staff",x.dataset.u),{ruolo:x.value});log("ruolo modificato",{cliente:x.dataset.u,ruolo:x.value});toast("Ruolo aggiornato");P.staff();});
+};
+</script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+// GALLEON CLUB – regole da AGGIUNGERE in Firebase > Firestore > Regole (oltre a quelle di Penelope e
+// a firestore-regole-promo.txt, da cui riusa le funzioni isStaff() e isAdmin()).
+
+    // Segmenti salvati: lo staff li vede, solo i titolari li creano/modificano
+    match /segmenti/{id} {
+      allow read: if isStaff();
+      allow write: if isAdmin();
+    }
+    // Richieste privacy degli interessati: solo titolari
+    match /richiesteGdpr/{id} {
+      allow read, create, update: if isAdmin();
+      allow delete: if false;
+    }
+    // Impostazioni GDPR: lettura staff, scrittura titolari
+    match /impostazioni/gdpr {
+      allow read: if isStaff();
+      allow write: if isAdmin();
+    }
+    // Ruoli staff: ognuno legge il proprio profilo, i titolari tutti; solo i titolari cambiano i ruoli
+    // (se esiste gia' una regola per /staff, sostituirla con questa)
+    match /staff/{uid} {
+      allow read: if request.auth != null && (request.auth.uid == uid || isAdmin());
+      allow write: if isAdmin() && request.auth.uid != uid;
+    }
