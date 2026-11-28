@@ -576,7 +576,7 @@ PAGINE.promo=async()=>{
  const s=await getDocs(collection(db,"promo")).catch(()=>null);const l=(s?s.docs.map(d=>({id:d.id,...d.data()})):[]).sort((a,b)=>String(b.creata||"").localeCompare(String(a.creata||"")));
  const oggi=iso(new Date()),GGb=["Dom","Lun","Mar","Mer","Gio","Ven","Sab"];
  const statoP=p=>p.attiva===false?["disattivata","#B4B9C2"]:p.al&&p.al<oggi?["scaduta","#B4B9C2"]:p.dal&&p.dal>oggi?["programmata","var(--org)"]:["attiva","var(--green)"];
- const linkP=(p,c)=>{const u=new URL("coupon.html",location.href);u.search="";u.searchParams.set("p",p.id);if(c){u.searchParams.set("n",c.nome||"");u.searchParams.set("t",telNorm(c.telefono));u.searchParams.set("f","invio");}return u.href;};
+ const linkP=(p,c)=>{const u=new URL("https://pietrocrescenzipc-bot.github.io/galleon-club/promo.html");u.searchParams.set("p",p.id);if(c){u.searchParams.set("n",c.nome||"");u.searchParams.set("t",telNorm(c.telefono));u.searchParams.set("f","invio");}return u.href;};
  const qrLib=()=>window.qrcode?Promise.resolve():new Promise((ok,ko)=>{const sc=document.createElement("script");sc.src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js";sc.onload=ok;sc.onerror=ko;document.head.appendChild(sc);});
  const stat=async id=>{const q=w=>query(collection(db,"coupon"),where("promoId","==",id),...w);
   const [sc,us]=await Promise.all([cnt(q([])),cnt(q([where("stato","==","usato")]))]);
@@ -617,7 +617,7 @@ PAGINE.promo=async()=>{
  const ed=p=>{p=p||{titolo:"",descrizione:"",testo:"Ciao {nome}! 🎉 Solo per te: … Ritira il tuo coupon qui 👉 {link}",dal:oggi,al:addG(oggi,14),giorni:[0,1,2,3,4,5,6],minPersone:1,giorniValidita:"",attiva:true,gruppo:"mkt",tag:""};
   const ov=modal(p.id?"Modifica promozione":"Nuova promozione",`<label class="l">Titolo (lo vede il cliente)</label><input class="f" id="pT" maxlength="80" value="${esc(p.titolo)}" placeholder="es. Hamburger Bombardino 2x1">
    <label class="l">Descrizione per il cliente</label><textarea class="f" id="pD" style="min-height:70px" placeholder="es. Prendi due Bombardino e paghi uno. Valido al tavolo.">${esc(p.descrizione||"")}</textarea>
-   <div class="grid g3"><div><label class="l">Valida dal</label><input class="f" id="pDa" type="date" value="${esc(p.dal||"")}"></div><div><label class="l">Valida fino al</label><input class="f" id="pS" type="date" value="${esc(p.al||p.scadenza||"")}"></div><div><label class="l">Minimo persone</label><input class="f" id="pM" type="number" min="1" value="${esc(p.minPersone||1)}"></div></div>
+   <div class="grid g3"><div><label class="l">Valida dal</label><input class="f" id="pDa" type="date" value="${esc(p.dal||"")}"></div><div><label class="l">Valida fino al</label><input class="f" id="pS" type="date" value="${esc(p.al||p.scadenza||"")}"></div><div><label class="l">Coupon massimi da distribuire</label><input class="f" id="pM" type="number" min="1" value="${esc(p.maxCoupon||"")}" placeholder="senza limite"></div></div>
    <label class="l">Giorni in cui si può usare</label><div style="display:flex;gap:6px;flex-wrap:wrap">${[1,2,3,4,5,6,0].map(g=>`<label class="chipf" style="cursor:pointer"><input type="checkbox" data-g="${g}" ${(p.giorni||[]).includes(g)?"checked":""}> ${GGb[g]}</label>`).join("")}</div>
    <div class="grid g2"><div><label class="l">Scade dopo N giorni dal download (facoltativo)</label><input class="f" id="pV" type="number" min="1" value="${esc(p.giorniValidita||"")}" placeholder="es. 30"></div><div><label class="l">Stato</label><select class="f" id="pA"><option value="1" ${p.attiva!==false?"selected":""}>Attiva</option><option value="0" ${p.attiva===false?"selected":""}>Disattivata</option></select></div></div>
    <div class="sez">Invio ai clienti</div>
@@ -626,7 +626,7 @@ PAGINE.promo=async()=>{
    <div class="card" style="margin-top:14px;background:#F7F5F0"><b id="pN">Calcolo destinatari…</b><div class="muted">Solo clienti con consenso marketing. L'invio automatico parte quando colleghiamo WhatsApp API o email; intanto esporti l'elenco con i link personali.</div></div>
    ${p.id?`<button class="btn r" id="pDel">Elimina promozione</button>`:""}`,
    async ov=>{const g=s=>ov.querySelector(s).value;const gr=G.find(x=>x[0]===g("#pG"));
-    const d={titolo:g("#pT").trim(),descrizione:g("#pD").trim(),testo:g("#pX"),dal:g("#pDa"),al:g("#pS"),minPersone:Math.max(1,Number(g("#pM"))||1),giorniValidita:Number(g("#pV"))||null,
+    const d={titolo:g("#pT").trim(),descrizione:g("#pD").trim(),testo:g("#pX"),dal:g("#pDa"),al:g("#pS"),maxCoupon:Number(g("#pM"))>0?Math.floor(Number(g("#pM"))):null,minPersone:1,giorniValidita:Number(g("#pV"))||null,
      giorni:[...ov.querySelectorAll("[data-g]")].filter(x=>x.checked).map(x=>Number(x.dataset.g)),attiva:g("#pA")==="1",gruppo:gr[0],gruppoNome:gr[0]==="tag"?"Tag: "+g("#pTg"):gr[1],tag:g("#pTg").trim(),creata:p.creata||oggi,modificataDa:S.me.nome||S.me.uid};
     if(!d.titolo){toast("Inserisci il titolo");return false;}if(!d.al){toast("Inserisci la data di fine");return false;}if(!d.giorni.length){toast("Scegli almeno un giorno");return false;}
     if(p.id)await setDoc(doc(db,"promo",p.id),d,{merge:true});else await addDoc(collection(db,"promo"),d);toast("Promozione salvata");PAGINE.promo();});
